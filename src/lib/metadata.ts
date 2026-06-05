@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 const DEFAULT_OG_IMAGE = '/og-default.jpg';
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://yourdomain.com';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com';
 
 type MetaInput = {
   title: string;

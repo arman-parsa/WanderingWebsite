@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     template: '%s — Wandering Website',
   },
   description: 'A personal editorial website: travel writing, photography, and mixed media.',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://yourdomain.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'),
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
