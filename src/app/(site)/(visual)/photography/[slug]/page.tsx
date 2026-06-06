@@ -5,28 +5,36 @@ import { client } from '@/lib/sanity';
 import { PHOTO_SERIES_QUERY, PHOTO_SERIES_SLUGS_QUERY } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
 import { formatDate } from '@/lib/utils';
+import { PLACEHOLDER_ITEMS, PLACEHOLDER_PHOTO_SERIES } from '@/lib/placeholders';
 
 export const revalidate = 3600;
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {
+  const placeholderSlugs = PLACEHOLDER_ITEMS
+    .filter((i) => i._type === 'photoSeries')
+    .map((i) => ({ slug: i.slug }));
   try {
     const slugs = await client.fetch(PHOTO_SERIES_SLUGS_QUERY);
-    return slugs.map((s: { slug: string }) => ({ slug: s.slug }));
+    return [...slugs.map((s: { slug: string }) => ({ slug: s.slug })), ...placeholderSlugs];
   } catch {
-    return [];
+    return placeholderSlugs;
   }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const series = await client.fetch(PHOTO_SERIES_QUERY, { slug });
-  if (!series) return {};
-  return {
-    title: series.seo?.metaTitle ?? series.title,
-    description: series.seo?.metaDescription ?? series.description,
-  };
+  try {
+    const series = await client.fetch(PHOTO_SERIES_QUERY, { slug });
+    if (!series) return {};
+    return {
+      title: series.seo?.metaTitle ?? series.title,
+      description: series.seo?.metaDescription ?? series.description,
+    };
+  } catch {
+    return {};
+  }
 }
 
 type SanityImage = {
@@ -39,7 +47,12 @@ type SanityImage = {
 
 export default async function PhotographyPage({ params }: Props) {
   const { slug } = await params;
-  const series = await client.fetch(PHOTO_SERIES_QUERY, { slug });
+  let series = null;
+  try { series = await client.fetch(PHOTO_SERIES_QUERY, { slug }); } catch { /* CORS */ }
+  if (!series && slug.startsWith('_placeholder')) {
+    const match = PLACEHOLDER_ITEMS.find((i) => i.slug === slug && i._type === 'photoSeries');
+    if (match) series = { ...PLACEHOLDER_PHOTO_SERIES, title: match.title, description: match.description, location: match.location, publishedAt: match.publishedAt };
+  }
   if (!series) notFound();
 
   return (

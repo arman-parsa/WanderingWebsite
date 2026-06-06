@@ -4,33 +4,46 @@ import { client } from '@/lib/sanity';
 import { ESSAY_QUERY, ESSAY_SLUGS_QUERY } from '@/lib/sanity';
 import { EssayHero } from '@/components/content/EssayHero';
 import { PortableTextRenderer } from '@/components/content/PortableTextRenderer';
+import { PLACEHOLDER_ITEMS, PLACEHOLDER_ESSAY } from '@/lib/placeholders';
 
 export const revalidate = 3600;
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {
+  const placeholderSlugs = PLACEHOLDER_ITEMS
+    .filter((i) => i._type === 'essay')
+    .map((i) => ({ slug: i.slug }));
   try {
     const slugs = await client.fetch(ESSAY_SLUGS_QUERY);
-    return slugs.map((s: { slug: string }) => ({ slug: s.slug }));
+    return [...slugs.map((s: { slug: string }) => ({ slug: s.slug })), ...placeholderSlugs];
   } catch {
-    return [];
+    return placeholderSlugs;
   }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const essay = await client.fetch(ESSAY_QUERY, { slug });
-  if (!essay) return {};
-  return {
-    title: essay.seo?.metaTitle ?? essay.title,
-    description: essay.seo?.metaDescription ?? essay.excerpt,
-  };
+  try {
+    const essay = await client.fetch(ESSAY_QUERY, { slug });
+    if (!essay) return {};
+    return {
+      title: essay.seo?.metaTitle ?? essay.title,
+      description: essay.seo?.metaDescription ?? essay.excerpt,
+    };
+  } catch {
+    return {};
+  }
 }
 
 export default async function WritingPage({ params }: Props) {
   const { slug } = await params;
-  const essay = await client.fetch(ESSAY_QUERY, { slug });
+  let essay = null;
+  try { essay = await client.fetch(ESSAY_QUERY, { slug }); } catch { /* CORS */ }
+  if (!essay && slug.startsWith('_placeholder')) {
+    const match = PLACEHOLDER_ITEMS.find((i) => i.slug === slug && i._type === 'essay');
+    if (match) essay = { ...PLACEHOLDER_ESSAY, title: match.title, excerpt: match.excerpt, location: match.location, publishedAt: match.publishedAt };
+  }
   if (!essay) notFound();
 
   return (

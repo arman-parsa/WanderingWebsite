@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { client } from '@/lib/sanity';
 import { ALL_CONTENT_QUERY } from '@/lib/sanity';
 import { ContentCard } from '@/components/navigation/ContentCard';
+import { PLACEHOLDER_ITEMS } from '@/lib/placeholders';
 
 export const revalidate = 60;
 
@@ -26,6 +27,7 @@ export default async function ArticlesPage() {
   } catch {
     // Returns empty list when Sanity CORS is not yet configured
   }
+  if (items.length === 0) items = PLACEHOLDER_ITEMS as ContentItem[];
 
   return (
     <main id="main-content" className="mx-auto w-full max-w-[var(--content-full-width)] px-[var(--content-padding-x)] py-24">

@@ -5,6 +5,7 @@ import { client } from '@/lib/sanity';
 import { ALL_CONTENT_QUERY } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
 import { formatDate } from '@/lib/utils';
+import { PLACEHOLDER_ITEMS } from '@/lib/placeholders';
 
 export const revalidate = 300;
 
@@ -42,6 +43,7 @@ export default async function HomePage() {
   } catch {
     // Renders gracefully before CORS / content is configured
   }
+  if (featured.length === 0) featured = PLACEHOLDER_ITEMS.slice(0, 6) as ContentItem[];
 
   return (
     <main id="main-content">
@@ -132,14 +134,6 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ── Empty state (no content yet) ──────────────────────────────── */}
-      {featured.length === 0 && (
-        <section className="mx-auto max-w-[var(--content-full-width)] px-[var(--content-padding-x)] py-24">
-          <p className="font-serif text-[var(--text-lg)] italic text-ink-muted">
-            No pieces published yet.
-          </p>
-        </section>
-      )}
 
     </main>
   );
