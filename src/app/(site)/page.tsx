@@ -57,9 +57,8 @@ export default async function HomePage() {
       {/* ── Masthead ──────────────────────────────────────────────────────
           Full-viewport-width typographic identity band.
           text-align-last:justify stretches the two words edge-to-edge.
-          overflow-x-hidden guards against any rounding overflow.
       ──────────────────────────────────────────────────────────────────── */}
-      <div className="overflow-x-hidden bg-paper px-[var(--content-padding-x)] pt-14 pb-3">
+      <div className="bg-paper px-[var(--content-padding-x)] pt-14 pb-3 animate-fade-up" style={{ animationDelay: '0ms', animationDuration: '600ms' }}>
         <p
           className="w-full text-justify [text-align-last:justify] font-serif text-[clamp(1.5rem,9vw,10rem)] font-light uppercase text-ink"
           aria-label="ARMAN'S WANDERINGS"

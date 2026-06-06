@@ -36,7 +36,7 @@ export default async function VideographyPage({ params }: Props) {
   if (!series) notFound();
 
   return (
-    <>
+    <div className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef', paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
       {/* Full-bleed hero */}
       {series.coverImage?.asset && (
         <div className="relative h-screen w-full overflow-hidden">
@@ -101,6 +101,6 @@ export default async function VideographyPage({ params }: Props) {
           </div>
         </section>
       )}
-    </>
+    </div>
   );
 }

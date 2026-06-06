@@ -47,20 +47,22 @@ export default async function MixedMediaPage({ params }: Props) {
   if (!editorial) notFound();
 
   return (
-    <>
-      <EssayHero
-        title={editorial.title}
-        excerpt={editorial.excerpt}
-        publishedAt={editorial.publishedAt}
-        location={editorial.location}
-        tags={editorial.tags}
-        coverImage={editorial.coverImage}
-      />
-      <div className="mx-auto max-w-[var(--content-max-width)] px-[var(--content-padding-x)] pb-24">
-        <article className="article-body">
-          {editorial.body && <PortableTextRenderer value={editorial.body} />}
-        </article>
+    <div className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef' }}>
+      <div style={{ paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
+        <EssayHero
+          title={editorial.title}
+          excerpt={editorial.excerpt}
+          publishedAt={editorial.publishedAt}
+          location={editorial.location}
+          tags={editorial.tags}
+          coverImage={editorial.coverImage}
+        />
+        <div className="mx-auto max-w-[var(--content-max-width)] px-[var(--content-padding-x)] pb-24">
+          <article className="article-body" style={{ color: '#f8f4ef' }}>
+            {editorial.body && <PortableTextRenderer value={editorial.body} />}
+          </article>
+        </div>
       </div>
-    </>
+    </div>
   );
 }

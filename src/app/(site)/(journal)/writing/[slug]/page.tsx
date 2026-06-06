@@ -47,20 +47,22 @@ export default async function WritingPage({ params }: Props) {
   if (!essay) notFound();
 
   return (
-    <>
-      <EssayHero
-        title={essay.title}
-        excerpt={essay.excerpt}
-        publishedAt={essay.publishedAt}
-        location={essay.location}
-        tags={essay.tags}
-        coverImage={essay.coverImage}
-      />
-      <div className="mx-auto max-w-[var(--content-max-width)] px-[var(--content-padding-x)] pb-24">
-        <article className="article-body">
-          {essay.body && <PortableTextRenderer value={essay.body} />}
-        </article>
+    <div className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef' }}>
+      <div style={{ paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
+        <EssayHero
+          title={essay.title}
+          excerpt={essay.excerpt}
+          publishedAt={essay.publishedAt}
+          location={essay.location}
+          tags={essay.tags}
+          coverImage={essay.coverImage}
+        />
+        <div className="mx-auto max-w-[var(--content-max-width)] px-[var(--content-padding-x)] pb-24">
+          <article className="article-body" style={{ color: '#f8f4ef' }}>
+            {essay.body && <PortableTextRenderer value={essay.body} />}
+          </article>
+        </div>
       </div>
-    </>
+    </div>
   );
 }

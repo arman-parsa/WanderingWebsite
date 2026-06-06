@@ -12,14 +12,16 @@ const NAV_LEFT = [
   { label: 'CONTACT',href: '/contact',  medium: false },
 ] as const;
 
+// Pages with dark (#1c1814) background — nav should use light text when scrolled
+const DARK_BG_PREFIXES = ['/articles', '/writing', '/photography', '/mixed-media', '/videography'];
+
 export function SiteHeader() {
   const pathname = usePathname();
   const isHome = pathname === '/';
+  const isDarkPage = DARK_BG_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    // On the homepage the nav stays transparent until the hero has largely
-    // scrolled past. On all other pages the translucent bar is immediate.
     const threshold = isHome ? window.innerHeight * 0.9 : 1;
     const check = () => setScrolled(window.scrollY > threshold);
     check();
@@ -27,7 +29,8 @@ export function SiteHeader() {
     return () => window.removeEventListener('scroll', check);
   }, [isHome]);
 
-  const transparent = isHome && !scrolled;
+  const transparent = (isHome || isDarkPage) && !scrolled;
+  const onDark = transparent || isDarkPage;
 
   return (
     <header
@@ -35,8 +38,11 @@ export function SiteHeader() {
         'fixed inset-x-0 top-0 z-50 transition-[background-color,backdrop-filter] duration-[400ms] ease-in-out',
         transparent
           ? 'bg-transparent backdrop-blur-none'
-          : 'bg-paper/85 backdrop-blur'
+          : isDarkPage
+            ? 'backdrop-blur'
+            : 'bg-paper/85 backdrop-blur'
       )}
+      style={!transparent && isDarkPage ? { backgroundColor: 'rgba(28,24,20,0.88)' } : undefined}
     >
       <a
         href="#main-content"
@@ -47,7 +53,7 @@ export function SiteHeader() {
 
       <div className="mx-auto flex h-14 max-w-[var(--content-full-width)] items-center justify-between px-[var(--content-padding-x)]">
         {/* Left: navigation links */}
-        <nav aria-label="Main navigation">
+        <nav aria-label="Main navigation" className="animate-fade-up" style={{ animationDelay: '600ms', animationDuration: '500ms' }}>
           <ul className="flex items-center gap-6 md:gap-8" role="list">
             {NAV_LEFT.map(({ label, href, medium }) => {
               const active = pathname === href || pathname.startsWith(`${href}/`);
@@ -59,8 +65,10 @@ export function SiteHeader() {
                     className={cn(
                       'font-sans text-xs uppercase tracking-widest transition-colors duration-[var(--duration-fast)]',
                       medium ? 'font-medium' : 'font-normal',
-                      transparent
-                        ? 'text-white/90 hover:text-white'
+                      onDark
+                        ? active
+                          ? 'text-white hover:text-white'
+                          : 'text-white/70 hover:text-white'
                         : active
                           ? 'text-ink'
                           : 'text-ink-muted hover:text-ink'
@@ -74,13 +82,13 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        {/* Right: wordmark links home */}
+        {/* Right: wordmark links home — Lyon Text */}
         <Link
           href="/"
           aria-label="ARMAN'S WANDERINGS — home"
           className={cn(
-            'font-sans text-xs font-normal uppercase tracking-widest transition-colors duration-[var(--duration-fast)]',
-            transparent
+            'font-serif text-xs font-normal uppercase tracking-widest transition-colors duration-[var(--duration-fast)]',
+            onDark
               ? 'text-white/90 hover:text-white'
               : 'text-ink hover:text-accent'
           )}

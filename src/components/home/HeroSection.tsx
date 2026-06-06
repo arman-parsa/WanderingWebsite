@@ -5,7 +5,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import gsap from 'gsap';
 import { urlFor } from '@/lib/sanityImage';
-import { formatDate } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
 const TYPE_HREF: Record<string, string> = {
@@ -38,13 +37,8 @@ export function HeroSection({ item }: { item: HeroItem }) {
 
   const href     = `${TYPE_HREF[item._type] ?? '/articles'}/${item.slug}`;
   const blurb    = item.excerpt ?? item.description;
-  const dateStr  = item.publishedAt ? formatDate(item.publishedAt) : null;
   const category = TYPE_LABEL[item._type] ?? '';
-  const tags     = [item.location, category, dateStr].filter(Boolean).join(' · ');
 
-  // Parallax: image scrolls at ~30 % of hero scroll speed.
-  // ScrollTrigger accesses window, so it must be imported dynamically
-  // inside useEffect (client-only), never at the module top-level.
   useEffect(() => {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReduced) return;
@@ -76,29 +70,42 @@ export function HeroSection({ item }: { item: HeroItem }) {
     return () => cleanup?.();
   }, []);
 
+  const imageSrc = item.coverImage?.asset
+    ? urlFor(item.coverImage).width(2400).format('webp').quality(85).url()
+    : '/images/hero-placeholder.jpg';
+
+  const imageAlt = item.coverImage?.alt ?? item.title;
+
   return (
     <section ref={heroRef} className="relative h-screen w-full overflow-hidden">
 
-      {/* Parallax image layer — taller than hero to allow upward travel */}
-      <div ref={imageWrapRef} className="absolute left-0 right-0 -top-[15%] h-[130%]">
-        {item.coverImage?.asset ? (
-          <Image
-            src={urlFor(item.coverImage).width(2400).format('webp').quality(85).url()}
-            alt={item.coverImage.alt ?? item.title}
-            fill
-            priority
-            sizes="100vw"
-            className={cn(
-              'object-cover transition-opacity duration-[600ms]',
-              loaded ? 'opacity-100' : 'opacity-0'
-            )}
-            onLoad={() => setLoaded(true)}
-          />
-        ) : (
-          // Fallback when no cover image is available
-          <div className="h-full w-full bg-ink" />
+      {/* Parallax image layer */}
+      <div
+        ref={imageWrapRef}
+        className={cn(
+          'absolute left-0 right-0 -top-[15%] h-[130%] animate-fade-in',
         )}
+        style={{ animationDelay: '400ms', animationDuration: '800ms' }}
+      >
+        <Image
+          src={imageSrc}
+          alt={imageAlt}
+          fill
+          priority
+          sizes="100vw"
+          className={cn(
+            'object-cover transition-opacity duration-[600ms]',
+            loaded ? 'opacity-100' : 'opacity-0'
+          )}
+          onLoad={() => setLoaded(true)}
+        />
       </div>
+
+      {/* Top gradient so nav text stays readable */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 h-48 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.45)_0%,transparent_100%)]"
+      />
 
       {/* Bottom-rise gradient overlay */}
       <div
@@ -106,10 +113,18 @@ export function HeroSection({ item }: { item: HeroItem }) {
         className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.72)_0%,rgba(0,0,0,0)_60%)]"
       />
 
-      {/* Text stack — lower-left quadrant */}
-      <div className="absolute bottom-0 left-0 max-w-[680px] pb-10 pl-6 md:pb-16 md:pl-16">
-        <p className="mb-2 font-sans text-[0.75rem] font-normal uppercase tracking-widest text-white/70">
-          Featured:
+      {/* Text stack — lower-left */}
+      <div
+        className="absolute bottom-0 left-0 max-w-[680px] animate-fade-up"
+        style={{
+          paddingLeft: 'clamp(2rem, 6vw, 5rem)',
+          paddingBottom: 'clamp(2rem, 5vh, 4rem)',
+          animationDelay: '800ms',
+          animationDuration: '600ms',
+        }}
+      >
+        <p className="mb-3 font-sans text-[0.7rem] font-normal uppercase tracking-widest text-white/70">
+          {category}
         </p>
 
         <h2 className="font-serif text-[clamp(2rem,4vw,3.5rem)] font-light leading-tight text-white">
@@ -119,12 +134,6 @@ export function HeroSection({ item }: { item: HeroItem }) {
         {blurb && (
           <p className="mt-4 max-w-[520px] font-sans text-[clamp(0.85rem,1.2vw,1rem)] font-normal leading-[1.6] text-white/85">
             {blurb}
-          </p>
-        )}
-
-        {tags && (
-          <p className="mt-4 font-sans text-[0.7rem] uppercase tracking-widest text-white/60">
-            {tags}
           </p>
         )}
 
