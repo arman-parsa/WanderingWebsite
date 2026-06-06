@@ -35,14 +35,13 @@ export function SiteHeader() {
   return (
     <header
       className={cn(
-        'fixed inset-x-0 top-0 z-50 transition-[background-color,backdrop-filter] duration-[400ms] ease-in-out',
+        'fixed inset-x-0 top-0 z-50 w-full max-w-[100vw] overflow-hidden transition-[background-color,backdrop-filter] duration-[400ms] ease-in-out',
         transparent
           ? 'bg-transparent backdrop-blur-none'
           : isDarkPage
-            ? 'backdrop-blur'
+            ? 'bg-[rgba(28,24,20,0.88)] backdrop-blur'
             : 'bg-paper/85 backdrop-blur'
       )}
-      style={!transparent && isDarkPage ? { backgroundColor: 'rgba(28,24,20,0.88)' } : undefined}
     >
       <a
         href="#main-content"
@@ -51,9 +50,9 @@ export function SiteHeader() {
         Skip to main content
       </a>
 
-      <div className="mx-auto flex h-14 max-w-[var(--content-full-width)] items-center justify-between px-[var(--content-padding-x)]">
+      <div className="mx-auto flex h-16 max-w-[var(--content-full-width)] items-center justify-between px-[var(--content-padding-x)]">
         {/* Left: navigation links */}
-        <nav aria-label="Main navigation" className="animate-fade-up" style={{ animationDelay: '600ms', animationDuration: '500ms' }}>
+        <nav aria-label="Main navigation" className="[animation-delay:600ms] [animation-duration:500ms] animate-fade-up">
           <ul className="flex items-center gap-6 md:gap-8" role="list">
             {NAV_LEFT.map(({ label, href, medium }) => {
               const active = pathname === href || pathname.startsWith(`${href}/`);
@@ -82,12 +81,12 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        {/* Right: wordmark links home — Lyon Text */}
+        {/* Right: wordmark links home — Lyon Text, fluid size */}
         <Link
           href="/"
           aria-label="ARMAN'S WANDERINGS — home"
           className={cn(
-            'font-serif text-xs font-normal uppercase tracking-widest transition-colors duration-[var(--duration-fast)]',
+            'shrink-0 whitespace-nowrap font-serif text-[clamp(0.85rem,1.5vw,1.1rem)] font-normal uppercase tracking-widest transition-colors duration-[var(--duration-fast)]',
             onDark
               ? 'text-white/90 hover:text-white'
               : 'text-ink hover:text-accent'

@@ -54,21 +54,9 @@ export default async function HomePage() {
   return (
     <main id="main-content">
 
-      {/* ── Masthead ──────────────────────────────────────────────────────
-          Full-viewport-width typographic identity band.
-          text-align-last:justify stretches the two words edge-to-edge.
-      ──────────────────────────────────────────────────────────────────── */}
-      <div className="bg-paper px-[var(--content-padding-x)] pt-14 pb-3 animate-fade-up" style={{ animationDelay: '0ms', animationDuration: '600ms' }}>
-        <p
-          className="w-full text-justify [text-align-last:justify] font-serif text-[clamp(1.5rem,9vw,10rem)] font-light uppercase text-ink"
-          aria-label="ARMAN'S WANDERINGS"
-        >
-          ARMAN&apos;S WANDERINGS
-        </p>
-      </div>
-
       {/* ── Hero ──────────────────────────────────────────────────────────
           Full-viewport-height, most recent piece, parallax image.
+          Nav is fixed and overlays the top of the hero.
       ──────────────────────────────────────────────────────────────────── */}
       {hero && <HeroSection item={hero} />}
 
