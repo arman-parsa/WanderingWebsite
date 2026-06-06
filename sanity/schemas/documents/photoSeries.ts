@@ -11,6 +11,7 @@ export const photoSeries = defineType({
     defineField({ name: 'coverImage', title: 'Cover Image', type: 'image', options: { hotspot: true },
       fields: [defineField({ name: 'alt', title: 'Alt Text', type: 'string', validation: (Rule) => Rule.required() })] }),
     defineField({ name: 'location', title: 'Location', type: 'string' }),
+    defineField({ name: 'coordinates', title: 'Coordinates', type: 'geopoint' }),
     defineField({ name: 'description', title: 'Description', type: 'text', rows: 3 }),
     defineField({ name: 'images', title: 'Images', type: 'array', of: [{ type: 'imageBlock' }] }),
     defineField({ name: 'film', title: 'Film', type: 'videoBlock' }),

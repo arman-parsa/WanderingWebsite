@@ -119,6 +119,23 @@ export const ALL_CONTENT_QUERY = defineQuery(`
   }
 `);
 
+// ─── Map view (content with coordinates) ──────────────────────────────────
+
+export const MAP_CONTENT_QUERY = defineQuery(`
+  *[_type in ["essay", "editorial", "photoSeries"]
+    && !(_id in path("drafts.**"))
+    && defined(coordinates)
+  ] {
+    _type,
+    title,
+    "slug": slug.current,
+    publishedAt,
+    location,
+    coordinates,
+    coverImage { ..., "alt": coalesce(alt, ""), hotspot }
+  }
+`);
+
 // ─── Site settings ────────────────────────────────────────────────────────
 
 export const SITE_SETTINGS_QUERY = defineQuery(`

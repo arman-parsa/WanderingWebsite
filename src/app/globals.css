@@ -178,6 +178,17 @@ html {
   color: var(--color-accent);
 }
 
+/* ── MapLibre popup reset ────────────────────────────────── */
+.map-popup .maplibregl-popup-content {
+  padding: 0;
+  border-radius: 2px;
+  box-shadow: none;
+  background: transparent;
+}
+.map-popup .maplibregl-popup-tip {
+  border-top-color: var(--color-paper);
+}
+
 /* ── Reduced motion ──────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

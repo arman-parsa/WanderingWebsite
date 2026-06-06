@@ -13,6 +13,7 @@ export const editorial = defineType({
       fields: [defineField({ name: 'alt', title: 'Alt Text', type: 'string', validation: (Rule) => Rule.required() })] }),
     defineField({ name: 'body', title: 'Body', type: 'portableText' }),
     defineField({ name: 'location', title: 'Location', type: 'string' }),
+    defineField({ name: 'coordinates', title: 'Coordinates', type: 'geopoint' }),
     defineField({ name: 'readingTime', title: 'Reading Time (minutes)', type: 'number' }),
     defineField({ name: 'tags', title: 'Tags', type: 'array', of: [{ type: 'string' }], options: { layout: 'tags' } }),
     defineField({ name: 'photographyCredit', title: 'Photography Credit', type: 'string' }),
