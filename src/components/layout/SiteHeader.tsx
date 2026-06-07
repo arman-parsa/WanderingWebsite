@@ -39,7 +39,7 @@ export function SiteHeader() {
         transparent
           ? 'bg-transparent backdrop-blur-none'
           : isDarkPage
-            ? 'bg-[rgba(24,24,27,0.88)] backdrop-blur'
+            ? 'bg-[rgba(28,24,20,0.88)] backdrop-blur'
             : 'bg-paper/85 backdrop-blur'
       )}
     >
@@ -53,8 +53,8 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-[var(--content-full-width)] items-center justify-between px-[var(--content-padding-x)]">
         {/* Left: navigation links */}
         <nav aria-label="Main navigation" className="[animation-delay:900ms] [animation-duration:700ms] animate-fade-in">
-          <ul className="flex items-center gap-6 md:gap-8" role="list">
-            {NAV_LEFT.map(({ label, href, medium }) => {
+          <ul className="flex items-center gap-[clamp(1.5rem,3vw,2.5rem)]" role="list">
+            {NAV_LEFT.map(({ label, href }) => {
               const active = pathname === href || pathname.startsWith(`${href}/`);
               return (
                 <li key={href}>
@@ -62,15 +62,12 @@ export function SiteHeader() {
                     href={href}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
-                      'font-sans text-xs uppercase tracking-widest transition-colors duration-[var(--duration-fast)]',
-                      medium ? 'font-medium' : 'font-normal',
-                      onDark
-                        ? active
-                          ? 'text-white hover:text-white'
-                          : 'text-white/70 hover:text-white'
-                        : active
-                          ? 'text-ink'
-                          : 'text-ink-muted hover:text-ink'
+                      'relative inline-block font-sans text-[0.7rem] font-normal uppercase tracking-[0.12em]',
+                      'after:block after:h-[0.5px] after:w-full after:mt-[3px] after:bg-current after:transition-transform after:duration-300 after:ease-out',
+                      onDark ? 'text-white/70' : 'text-ink-muted',
+                      active
+                        ? 'after:scale-x-100 after:origin-left'
+                        : 'after:scale-x-0 after:origin-right hover:after:scale-x-100 hover:after:origin-left'
                     )}
                   >
                     {label}
@@ -86,10 +83,8 @@ export function SiteHeader() {
           href="/"
           aria-label="ARMAN'S WANDERINGS — home"
           className={cn(
-            'animate-fade-in [animation-duration:800ms] shrink-0 whitespace-nowrap font-serif text-[clamp(0.85rem,1.5vw,1.1rem)] font-normal uppercase tracking-widest transition-colors duration-[var(--duration-fast)]',
-            onDark
-              ? 'text-white/90 hover:text-white'
-              : 'text-ink hover:text-accent'
+            'animate-fade-in [animation-duration:800ms] shrink-0 whitespace-nowrap font-serif text-[clamp(0.85rem,1.5vw,1.1rem)] font-normal uppercase tracking-widest transition-opacity duration-[250ms] ease-out hover:opacity-[0.65]',
+            onDark ? 'text-white/90' : 'text-ink'
           )}
         >
           ARMAN&apos;S WANDERINGS

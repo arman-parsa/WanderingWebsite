@@ -47,7 +47,7 @@ export default async function MixedMediaPage({ params }: Props) {
   if (!piece) notFound();
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#18181b', color: '#f8f4ef' }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef' }}>
       <div style={{ paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
         <EssayHero
           title={piece.title}

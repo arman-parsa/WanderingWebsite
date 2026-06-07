@@ -63,12 +63,12 @@ export function ArticlesClient({ items }: { items: ContentItem[] }) {
     <main
       id="main-content"
       className="min-h-screen w-full overflow-x-hidden"
-      style={{ backgroundColor: '#18181b', color: '#f8f4ef' }}
+      style={{ backgroundColor: '#1c1814', color: '#f8f4ef' }}
     >
       {/* ── Filter bar ─────────────────────────────────────────── */}
       <div
         className="sticky top-14 z-40 w-full"
-        style={{ backgroundColor: '#18181b' }}
+        style={{ backgroundColor: '#1c1814' }}
       >
         <div className="mx-auto flex max-w-[var(--content-full-width)] flex-col px-[var(--content-padding-x)] pt-4 pb-3">
           {/* Page label */}
@@ -150,7 +150,7 @@ export function ArticlesClient({ items }: { items: ContentItem[] }) {
                 </p>
               )}
               <span
-                className="mt-8 inline-block self-start border px-[1.4rem] py-[0.55rem] font-sans text-[0.7rem] uppercase tracking-[0.1em] transition-colors duration-[300ms] group-hover:bg-[#f8f4ef] group-hover:text-[#18181b]"
+                className="mt-8 inline-block self-start border px-[1.4rem] py-[0.55rem] font-sans text-[0.7rem] uppercase tracking-[0.1em] transition-colors duration-[300ms] group-hover:bg-[#f8f4ef] group-hover:text-[#1c1814]"
                 style={{ borderColor: 'rgba(248,244,239,0.4)', color: '#f8f4ef' }}
               >
                 View

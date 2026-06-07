@@ -11,7 +11,7 @@
 
 ARMAN'S WANDERINGS is a personal editorial archive: travel writing, photography, and mixed-media pieces by Arman Parsa. It is not a blog and not a portfolio. The emotional register is unhurried and print-influenced — the site should feel like a well-edited magazine that happens to exist on the web. Every layout and typographic decision privileges the work over the interface.
 
-Content is organised into four types: writing (pure longform text), mixed media (writing combined with photos and/or video), photography (image-forward, minimal text), and videography (video-forward, minimal text). The site uses a dark ink-on-paper palette for light pages and a deep warm-black (`#18181b`) for all content and article pages. The nav is always present but never intrusive — transparent over hero imagery, semi-opaque once scrolled.
+Content is organised into four types: writing (pure longform text), mixed media (writing combined with photos and/or video), photography (image-forward, minimal text), and videography (video-forward, minimal text). The site uses a dark ink-on-paper palette for light pages and a deep warm-black (`#1c1814`) for all content and article pages. The nav is always present but never intrusive — transparent over hero imagery, semi-opaque once scrolled.
 
 ---
 
@@ -183,7 +183,7 @@ DESIGN_SYSTEM.md does not exist. All values below are extracted from `src/app/gl
 | Token | Hex | Usage rule |
 |---|---|---|
 | `--color-paper` | `#f8f4ef` | Default page background (light pages) |
-| `--color-ink` | `#18181b` | Default text; also dark-page background |
+| `--color-ink` | `#1c1814` | Default text; also dark-page background |
 | `--color-ink-muted` | `#7a7067` | Secondary text, metadata, captions |
 | `--color-ink-faint` | `#b8b3ac` | Disabled states, dividers |
 | `--color-surface` | `#efece6` | Card backgrounds on light pages |
@@ -194,7 +194,7 @@ Dark pages (articles, all detail pages) use these exact values, inline via `styl
 
 | Purpose | Value |
 |---|---|
-| Page background | `#18181b` |
+| Page background | `#1c1814` |
 | Primary text | `#f8f4ef` |
 | Metadata / secondary text | `#a09890` |
 | Borders | `rgba(248, 244, 239, 0.12)` |
@@ -293,7 +293,7 @@ Derived from Sanity schemas and page implementations. No DESIGN_SYSTEM.md exists
 URL pattern: `/writing/[slug]`
 Sanity file: `sanity/schemas/documents/essay.ts` (exports `writing`)
 Fields: `title`, `slug`, `publishedAt`, `description`, `coverImage` (with hotspot + alt), `body` (portableText), `location`, `coordinates`, `readingTime`, `tags`, `seo`
-Layout: dark background (`#18181b`), nav clearance `clamp(5rem, 10vh, 8rem)`. `EssayHero` component (title, description, metadata, optional cover image) followed by `PortableTextRenderer` in a `740px` max-width column. Drop-cap on first paragraph via `.article-body::first-letter`.
+Layout: dark background (`#1c1814`), nav clearance `clamp(5rem, 10vh, 8rem)`. `EssayHero` component (title, description, metadata, optional cover image) followed by `PortableTextRenderer` in a `740px` max-width column. Drop-cap on first paragraph via `.article-body::first-letter`.
 
 ### Mixed Media (`mixedMedia`) — Writing + Visual
 URL pattern: `/mixed-media/[slug]`
@@ -305,7 +305,7 @@ Layout: identical to writing — `EssayHero` + `PortableTextRenderer`. Dark back
 URL pattern: `/photography/[slug]`
 Sanity file: `sanity/schemas/documents/photoSeries.ts` (exports `photography`)
 Fields: `title`, `slug`, `publishedAt`, `description`, `coverImage`, `images[]` (imageBlock with `description` + metadata), `location`, `coordinates`, `tags`, `displayMode`, `seo`
-Layout: optional full-bleed cover image, followed by image grid. Dark background (`#18181b`). Nav clearance: `clamp(5rem, 10vh, 8rem)`.
+Layout: optional full-bleed cover image, followed by image grid. Dark background (`#1c1814`). Nav clearance: `clamp(5rem, 10vh, 8rem)`.
 
 ### Videography (`videography`) — Pure Video
 URL pattern: `/videography/[slug]`
@@ -365,7 +365,7 @@ All queries use `description` (not `excerpt`) — this is the correct field name
 | Page | Route | Status |
 |---|---|---|
 | Homepage | `/` | **Built.** Hero (full-viewport, GSAP parallax, no cover image fallback is a 404 — see issues), 3-column portrait card grid (up to 6 items), hover overlay with location + date, VIEW ALL link, fade-in entrance sequence. |
-| Articles | `/articles` | **Built.** Dark background (`#18181b`). Filter bar: ALL / Writing / Photography / Mixed Media / Videography (fade transition 200ms out). Featured card: CSS grid `3fr 2fr`, `max-w-[1280px]` wrapper. 2-column grid for remaining items with 16:9 images. |
+| Articles | `/articles` | **Built.** Dark background (`#1c1814`). Filter bar: ALL / Writing / Photography / Mixed Media / Videography (fade transition 200ms out). Featured card: CSS grid `3fr 2fr`, `max-w-[1280px]` wrapper. 2-column grid for remaining items with 16:9 images. |
 | Writing detail | `/writing/[slug]` | **Built.** Dark background. Nav clearance `clamp(5rem, 10vh, 8rem)`. `EssayHero` + `.article-body` + `PortableTextRenderer`. Placeholder data exists for `_placeholder-atlas` and `_placeholder-train`. |
 | Mixed-media detail | `/mixed-media/[slug]` | **Built.** Identical layout to writing detail. Placeholder data for `_placeholder-nocamera` and `_placeholder-medina`. |
 | Photography detail | `/photography/[slug]` | **Built.** Dark background. Optional full-bleed cover hero. Image grid. Placeholder data for `_placeholder-harbour` and `_placeholder-riads`. |
@@ -454,7 +454,7 @@ Do not modify these files unless the task explicitly requires it:
 
 - [ ] **Import alias:** use `@/` for all `src/` imports. Never use relative `../../` paths crossing directory roots.
 - [ ] **No `any` types.** TypeScript strict mode. Use proper types or `unknown` with narrowing.
-- [ ] **No inline `style={{}}` props** except for the established dark-page colour pattern already present in `ArticlesClient.tsx`, detail pages, and `HeroSection.tsx`. New dark-page elements must use these exact values: `#18181b`, `#f8f4ef`, `#a09890`, `rgba(248,244,239,0.12)`, `rgba(255,255,255,0.04)`.
+- [ ] **No inline `style={{}}` props** except for the established dark-page colour pattern already present in `ArticlesClient.tsx`, detail pages, and `HeroSection.tsx`. New dark-page elements must use these exact values: `#1c1814`, `#f8f4ef`, `#a09890`, `rgba(248,244,239,0.12)`, `rgba(255,255,255,0.04)`.
 - [ ] **No hardcoded colour or spacing values** outside the dark-page exception above. Light-page styling uses Tailwind token classes (`bg-paper`, `text-ink`, etc.).
 - [ ] **No `console.log` in finished code.**
 - [ ] **Server Components by default.** Add `'use client'` only when the component uses browser APIs, React hooks, or event handlers. Keep client components as leaf nodes.
