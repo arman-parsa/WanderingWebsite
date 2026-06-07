@@ -39,7 +39,7 @@ export function SiteHeader() {
         transparent
           ? 'bg-transparent backdrop-blur-none'
           : isDarkPage
-            ? 'bg-[rgba(28,24,20,0.88)] backdrop-blur'
+            ? 'bg-[rgba(24,24,27,0.88)] backdrop-blur'
             : 'bg-paper/85 backdrop-blur'
       )}
     >

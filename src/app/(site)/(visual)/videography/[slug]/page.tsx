@@ -48,7 +48,7 @@ export default async function VideographyPage({ params }: Props) {
   if (!piece) notFound();
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef', paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
+    <div className="min-h-screen" style={{ backgroundColor: '#18181b', color: '#f8f4ef', paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
       {/* Full-bleed cover thumbnail */}
       {piece.coverImage?.asset && (
         <div className="relative h-[60vh] w-full overflow-hidden">
