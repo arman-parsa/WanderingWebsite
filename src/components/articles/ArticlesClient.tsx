@@ -89,7 +89,7 @@ export function ArticlesClient({ items }: { items: ContentItem[] }) {
       </div>
 
       <div
-        className="mx-auto max-w-[var(--content-full-width)] px-[var(--content-padding-x)] pt-12 pb-24 transition-opacity duration-[300ms]"
+        className="mx-auto w-full max-w-[1280px] overflow-hidden px-[var(--content-padding-x)] pt-12 pb-24 transition-opacity duration-[300ms]"
         style={{ opacity: fading ? 0 : 1 }}
       >
 
@@ -97,10 +97,10 @@ export function ArticlesClient({ items }: { items: ContentItem[] }) {
         {featured && (
           <Link
             href={`${TYPE_HREF[featured._type]}/${featured.slug}`}
-            className="group mb-12 flex min-h-[480px] w-full flex-col overflow-hidden md:flex-row"
+            className="group mb-12 grid min-h-[480px] w-full overflow-hidden md:grid-cols-[3fr_2fr]"
             style={{ borderBottom: '1px solid rgba(248,244,239,0.12)' }}
           >
-            <div className="relative aspect-[16/9] w-full overflow-hidden md:aspect-auto md:h-auto md:w-[60%]">
+            <div className="relative aspect-[16/9] w-full overflow-hidden md:aspect-auto">
               {featured.coverImage?.asset ? (
                 <Image
                   src={urlFor(featured.coverImage).width(1400).height(900).fit('crop').format('webp').quality(85).url()}
@@ -117,7 +117,7 @@ export function ArticlesClient({ items }: { items: ContentItem[] }) {
             </div>
 
             <div
-              className="flex w-full flex-col justify-center px-8 py-10 md:w-[40%]"
+              className="flex flex-col justify-center px-8 py-10"
               style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}
             >
               <p className="mb-4 font-sans text-[0.7rem] uppercase tracking-widest" style={{ color: '#a09890' }}>
