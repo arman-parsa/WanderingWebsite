@@ -14,9 +14,10 @@ import { type NextRequest } from 'next/server';
  */
 
 const TYPE_PATH: Record<string, string> = {
-  essay:       '/writing',
-  editorial:   '/mixed-media',
-  photoSeries: '/photography',
+  writing:     '/writing',
+  mixedMedia:  '/mixed-media',
+  photography: '/photography',
+  videography: '/videography',
 };
 
 export async function POST(request: NextRequest) {

@@ -10,18 +10,20 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 const TYPE_HREF: Record<string, string> = {
-  essay:       '/writing',
-  editorial:   '/mixed-media',
-  photoSeries: '/photography',
+  writing:     '/writing',
+  mixedMedia:  '/mixed-media',
+  photography: '/photography',
+  videography: '/videography',
 };
 
 const TYPE_LABEL: Record<string, string> = {
-  essay:       'Writing',
-  editorial:   'Mixed Media',
-  photoSeries: 'Photography',
+  writing:     'Writing',
+  mixedMedia:  'Mixed Media',
+  photography: 'Photography',
+  videography: 'Videography',
 };
 
-const TYPE_FILTERS = ['All', 'Writing', 'Mixed Media', 'Photography'] as const;
+const TYPE_FILTERS = ['All', 'Writing', 'Mixed Media', 'Photography', 'Videography'] as const;
 type Filter = typeof TYPE_FILTERS[number];
 
 export type MapItem = {
@@ -92,9 +94,10 @@ export function MapView({ items }: Props) {
             <div
               className={cn(
                 'h-2.5 w-2.5 cursor-pointer rounded-full border-2 border-paper shadow transition-transform duration-[var(--duration-fast)] hover:scale-150',
-                item._type === 'essay'       ? 'bg-ink' :
-                item._type === 'editorial'   ? 'bg-ink-muted' :
-                                               'bg-accent'
+                item._type === 'writing'     ? 'bg-ink' :
+                item._type === 'mixedMedia'  ? 'bg-ink-muted' :
+                item._type === 'videography' ? 'bg-accent' :
+                                               'bg-ink-faint'
               )}
               aria-label={item.title}
             />

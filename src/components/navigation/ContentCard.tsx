@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { urlFor } from '@/lib/sanityImage';
 import { formatDate } from '@/lib/utils';
 
-type ContentType = 'essay' | 'editorial' | 'photoSeries';
+type ContentType = 'writing' | 'mixedMedia' | 'photography' | 'videography';
 
 type Props = {
   _type: ContentType;
@@ -11,26 +11,26 @@ type Props = {
   slug: string;
   publishedAt?: string;
   location?: string;
-  excerpt?: string;
   description?: string;
   coverImage?: { asset?: object; alt?: string; hotspot?: { x: number; y: number } };
 };
 
 const TYPE_LABEL: Record<ContentType, string> = {
-  essay:       'Writing',
-  editorial:   'Mixed Media',
-  photoSeries: 'Photography',
+  writing:     'Writing',
+  mixedMedia:  'Mixed Media',
+  photography: 'Photography',
+  videography: 'Videography',
 };
 
 const TYPE_HREF: Record<ContentType, string> = {
-  essay:       '/writing',
-  editorial:   '/mixed-media',
-  photoSeries: '/photography',
+  writing:     '/writing',
+  mixedMedia:  '/mixed-media',
+  photography: '/photography',
+  videography: '/videography',
 };
 
-export function ContentCard({ _type, title, slug, publishedAt, location, excerpt, description, coverImage }: Props) {
+export function ContentCard({ _type, title, slug, publishedAt, location, description, coverImage }: Props) {
   const href = `${TYPE_HREF[_type]}/${slug}`;
-  const blurb = excerpt ?? description;
 
   return (
     <article className="group flex flex-col">
@@ -68,9 +68,9 @@ export function ContentCard({ _type, title, slug, publishedAt, location, excerpt
           </Link>
         </h2>
 
-        {blurb && (
+        {description && (
           <p className="mt-2 font-serif text-[var(--text-sm)] leading-[var(--leading-relaxed)] text-ink-muted line-clamp-3">
-            {blurb}
+            {description}
           </p>
         )}
       </div>

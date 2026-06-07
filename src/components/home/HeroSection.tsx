@@ -8,15 +8,17 @@ import { urlFor } from '@/lib/sanityImage';
 import { cn } from '@/lib/utils';
 
 const TYPE_HREF: Record<string, string> = {
-  essay:       '/writing',
-  editorial:   '/mixed-media',
-  photoSeries: '/photography',
+  writing:     '/writing',
+  mixedMedia:  '/mixed-media',
+  photography: '/photography',
+  videography: '/videography',
 };
 
 const TYPE_LABEL: Record<string, string> = {
-  essay:       'Writing',
-  editorial:   'Mixed Media',
-  photoSeries: 'Photography',
+  writing:     'Writing',
+  mixedMedia:  'Mixed Media',
+  photography: 'Photography',
+  videography: 'Videography',
 };
 
 export type HeroItem = {
@@ -25,7 +27,6 @@ export type HeroItem = {
   slug: string;
   publishedAt?: string;
   location?: string;
-  excerpt?: string;
   description?: string;
   coverImage?: { asset?: object; alt?: string };
 };
@@ -36,7 +37,7 @@ export function HeroSection({ item }: { item: HeroItem }) {
   const [loaded, setLoaded] = useState(false);
 
   const href     = `${TYPE_HREF[item._type] ?? '/articles'}/${item.slug}`;
-  const blurb    = item.excerpt ?? item.description;
+  const blurb    = item.description;
   const category = TYPE_LABEL[item._type] ?? '';
 
   useEffect(() => {
