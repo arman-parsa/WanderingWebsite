@@ -1,14 +1,14 @@
 import { defineField, defineType } from 'sanity';
 
-export const essay = defineType({
-  name: 'essay',
-  title: 'Essay',
+export const writing = defineType({
+  name: 'writing',
+  title: 'Writing',
   type: 'document',
   fields: [
     defineField({ name: 'title', title: 'Title', type: 'string', validation: (Rule) => Rule.required() }),
     defineField({ name: 'slug', title: 'Slug', type: 'slug', options: { source: 'title' }, validation: (Rule) => Rule.required() }),
     defineField({ name: 'publishedAt', title: 'Published At', type: 'datetime' }),
-    defineField({ name: 'excerpt', title: 'Excerpt', type: 'text', rows: 4 }),
+    defineField({ name: 'description', title: 'Description', type: 'text', rows: 4, description: 'Short intro shown on index cards and at the top of the piece.' }),
     defineField({ name: 'coverImage', title: 'Cover Image', type: 'image', options: { hotspot: true },
       fields: [defineField({ name: 'alt', title: 'Alt Text', type: 'string', validation: (Rule) => Rule.required() })] }),
     defineField({ name: 'body', title: 'Body', type: 'portableText' }),

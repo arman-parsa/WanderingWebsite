@@ -2,31 +2,39 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { client } from '@/lib/sanity';
-import { PHOTO_SERIES_QUERY, PHOTO_SERIES_SLUGS_QUERY } from '@/lib/sanity';
+import { PHOTOGRAPHY_QUERY, PHOTOGRAPHY_SLUGS_QUERY } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
 import { formatDate } from '@/lib/utils';
+import { PLACEHOLDER_ITEMS, PLACEHOLDER_PHOTO_SERIES } from '@/lib/placeholders';
 
 export const revalidate = 3600;
 
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {
+  const placeholderSlugs = PLACEHOLDER_ITEMS
+    .filter((i) => i._type === 'photography')
+    .map((i) => ({ slug: i.slug }));
   try {
-    const slugs = await client.fetch(PHOTO_SERIES_SLUGS_QUERY);
-    return slugs.map((s: { slug: string }) => ({ slug: s.slug }));
+    const slugs = await client.fetch(PHOTOGRAPHY_SLUGS_QUERY);
+    return [...slugs.map((s: { slug: string }) => ({ slug: s.slug })), ...placeholderSlugs];
   } catch {
-    return [];
+    return placeholderSlugs;
   }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const series = await client.fetch(PHOTO_SERIES_QUERY, { slug });
-  if (!series) return {};
-  return {
-    title: series.seo?.metaTitle ?? series.title,
-    description: series.seo?.metaDescription ?? series.description,
-  };
+  try {
+    const series = await client.fetch(PHOTOGRAPHY_QUERY, { slug });
+    if (!series) return {};
+    return {
+      title: series.seo?.metaTitle ?? series.title,
+      description: series.seo?.metaDescription ?? series.description,
+    };
+  } catch {
+    return {};
+  }
 }
 
 type SanityImage = {
@@ -34,16 +42,22 @@ type SanityImage = {
   asset?: object;
   alt?: string;
   caption?: string;
+  description?: string;
   hotspot?: { x: number; y: number };
 };
 
 export default async function PhotographyPage({ params }: Props) {
   const { slug } = await params;
-  const series = await client.fetch(PHOTO_SERIES_QUERY, { slug });
+  let series = null;
+  try { series = await client.fetch(PHOTOGRAPHY_QUERY, { slug }); } catch { /* CORS */ }
+  if (!series && slug.startsWith('_placeholder')) {
+    const match = PLACEHOLDER_ITEMS.find((i) => i.slug === slug && i._type === 'photography');
+    if (match) series = { ...PLACEHOLDER_PHOTO_SERIES, title: match.title, description: match.description, location: match.location, publishedAt: match.publishedAt };
+  }
   if (!series) notFound();
 
   return (
-    <>
+    <div className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef', paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
       {/* Full-bleed hero */}
       {series.coverImage?.asset && (
         <div className="relative h-screen w-full overflow-hidden">
@@ -97,8 +111,10 @@ export default async function PhotographyPage({ params }: Props) {
                       className="object-cover transition-transform duration-[var(--duration-slow)] group-hover:scale-[1.03]"
                     />
                   </div>
-                  {image.caption && (
-                    <figcaption className="mt-2 text-caption">{image.caption}</figcaption>
+                  {(image.caption || image.description) && (
+                    <figcaption className="mt-2 font-sans text-xs leading-relaxed" style={{ color: '#a09890' }}>
+                      {image.caption ?? image.description}
+                    </figcaption>
                   )}
                 </figure>
               );
@@ -106,6 +122,6 @@ export default async function PhotographyPage({ params }: Props) {
           </div>
         </section>
       )}
-    </>
+    </div>
   );
 }

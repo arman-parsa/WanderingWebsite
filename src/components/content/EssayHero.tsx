@@ -4,7 +4,7 @@ import { formatDate } from '@/lib/utils';
 
 type Props = {
   title: string;
-  excerpt?: string;
+  description?: string;
   publishedAt?: string;
   location?: string;
   tags?: string[];
@@ -15,7 +15,7 @@ type Props = {
   };
 };
 
-export function EssayHero({ title, excerpt, publishedAt, location, tags, coverImage }: Props) {
+export function EssayHero({ title, description, publishedAt, location, tags, coverImage }: Props) {
   const src = coverImage?.asset
     ? urlFor(coverImage).width(2400).format('webp').quality(85).url()
     : null;
@@ -28,7 +28,6 @@ export function EssayHero({ title, excerpt, publishedAt, location, tags, coverIm
 
   return (
     <header>
-      {/* Cover image */}
       {src && (
         <div className="relative aspect-hero w-full overflow-hidden">
           <Image
@@ -45,34 +44,25 @@ export function EssayHero({ title, excerpt, publishedAt, location, tags, coverIm
         </div>
       )}
 
-      {/* Article header */}
       <div className="mx-auto max-w-[var(--content-wide-width)] px-[var(--content-padding-x)] py-12">
-        {/* Meta row */}
         <div className="mb-6 flex flex-wrap items-center gap-4">
-          {location && (
-            <span className="text-caption">{location}</span>
-          )}
-          {publishedAt && (
-            <span className="text-caption">{formatDate(publishedAt)}</span>
-          )}
+          {location && <span className="text-caption">{location}</span>}
+          {publishedAt && <span className="text-caption">{formatDate(publishedAt)}</span>}
           {tags?.map((tag) => (
             <span key={tag} className="text-caption">#{tag}</span>
           ))}
         </div>
 
-        {/* Title */}
         <h1 className="text-display font-light tracking-tight text-ink">
           {title}
         </h1>
 
-        {/* Excerpt */}
-        {excerpt && (
+        {description && (
           <p className="mt-6 font-serif text-[var(--text-xl)] italic leading-[var(--leading-relaxed)] text-ink-muted">
-            {excerpt}
+            {description}
           </p>
         )}
 
-        {/* Divider */}
         <div className="mt-10 h-px w-16 bg-ink-faint" aria-hidden="true" />
       </div>
     </header>

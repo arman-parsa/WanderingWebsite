@@ -5,7 +5,7 @@ type Props = { videoId: string; title: string };
 export function VideoBlock({ videoId, title }: Props) {
   if (!videoId) return null;
   return (
-    <div className="my-10 relative w-full" style={{ paddingBottom: '56.25%' }}>
+    <div className="relative my-10 aspect-video w-full">
       <iframe
         src={`https://player.vimeo.com/video/${videoId}?dnt=1&color=ffffff`}
         title={title}

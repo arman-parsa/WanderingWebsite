@@ -14,5 +14,6 @@ export const videoBlock = defineType({
     }),
     defineField({ name: 'vimeoId', title: 'Vimeo Video ID', type: 'string' }),
     defineField({ name: 'title', title: 'Title', type: 'string', validation: (Rule) => Rule.required() }),
+    defineField({ name: 'description', title: 'Description', type: 'text', rows: 2, description: 'Optional description shown beneath the video.' }),
   ],
 });
