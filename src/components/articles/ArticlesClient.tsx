@@ -99,7 +99,7 @@ export function ArticlesClient({ items }: { items: ContentItem[] }) {
       </div>
 
       <div
-        className="mx-auto w-full max-w-[var(--content-full-width)] overflow-hidden px-[var(--content-padding-x)] pt-12 pb-24 transition-opacity duration-[300ms]"
+        className="mx-auto w-full max-w-[var(--content-full-width)] px-[var(--content-padding-x)] pt-12 pb-24 transition-opacity duration-[300ms]"
         style={{ opacity: fading ? 0 : 1 }}
       >
 
@@ -165,7 +165,7 @@ export function ArticlesClient({ items }: { items: ContentItem[] }) {
             {rest.map((item) => {
               const href = `${TYPE_HREF[item._type]}/${item.slug}`;
               return (
-                <article key={item.slug} className="animate-fade-up-24 [animation-delay:1400ms] [animation-duration:700ms] group">
+                <article key={item.slug} className="animate-fade-up-24 [animation-delay:1400ms] [animation-duration:700ms] group min-w-0">
                   <Link href={href} tabIndex={-1} aria-hidden="true" className="relative block aspect-video overflow-hidden">
                     {item.coverImage?.asset ? (
                       <Image
