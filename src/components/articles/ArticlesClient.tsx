@@ -62,28 +62,30 @@ export function ArticlesClient({ items }: { items: ContentItem[] }) {
   return (
     <main
       id="main-content"
-      className="min-h-screen w-full"
+      className="min-h-screen w-full overflow-x-hidden"
       style={{ backgroundColor: '#1c1814', color: '#f8f4ef' }}
     >
       {/* ── Filter bar ─────────────────────────────────────────── */}
       <div
-        className="sticky top-14 z-40 flex items-center gap-6 px-[var(--content-padding-x)] py-4"
+        className="sticky top-14 z-40 w-full"
         style={{ backgroundColor: '#1c1814', borderBottom: '1px solid rgba(248,244,239,0.12)' }}
       >
-        {FILTERS.map(({ label, value }) => (
-          <button
-            key={value}
-            onClick={() => handleFilter(value)}
-            className={cn(
-              'font-sans text-[0.7rem] uppercase tracking-widest transition-colors duration-[200ms] focus-visible:outline-none',
-              active === value
-                ? 'border-b border-[#f8f4ef] pb-px text-[#f8f4ef]'
-                : 'text-[#a09890] hover:text-[#f8f4ef]'
-            )}
-          >
-            {label}
-          </button>
-        ))}
+        <div className="mx-auto flex max-w-[var(--content-full-width)] flex-wrap items-center gap-x-6 gap-y-2 px-[var(--content-padding-x)] py-4">
+          {FILTERS.map(({ label, value }) => (
+            <button
+              key={value}
+              onClick={() => handleFilter(value)}
+              className={cn(
+                'font-sans text-[0.7rem] uppercase tracking-widest transition-colors duration-[200ms] focus-visible:outline-none',
+                active === value
+                  ? 'border-b border-[#f8f4ef] pb-px text-[#f8f4ef]'
+                  : 'text-[#a09890] hover:text-[#f8f4ef]'
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div

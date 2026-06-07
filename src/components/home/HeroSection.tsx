@@ -124,7 +124,7 @@ export function HeroSection({ item }: { item: HeroItem }) {
         </h2>
 
         {blurb && (
-          <p className="mt-4 max-w-[520px] font-sans text-[clamp(0.85rem,1.2vw,1rem)] font-normal leading-[1.6] text-white/85">
+          <p className="mt-4 max-w-[520px] font-serif text-[clamp(0.9rem,1.2vw,1.05rem)] italic font-light leading-[1.65] text-white/85">
             {blurb}
           </p>
         )}
