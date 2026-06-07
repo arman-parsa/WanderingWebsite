@@ -16,26 +16,27 @@ export const metadata: Metadata = {
 };
 
 type ContentItem = {
-  _type: 'essay' | 'editorial' | 'photoSeries';
+  _type: 'writing' | 'mixedMedia' | 'photography' | 'videography';
   title: string;
   slug: string;
   publishedAt?: string;
   location?: string;
-  excerpt?: string;
   description?: string;
   coverImage?: { asset?: object; alt?: string; hotspot?: { x: number; y: number } };
 };
 
 const TYPE_HREF: Record<string, string> = {
-  essay:       '/writing',
-  editorial:   '/mixed-media',
-  photoSeries: '/photography',
+  writing:     '/writing',
+  mixedMedia:  '/mixed-media',
+  photography: '/photography',
+  videography: '/videography',
 };
 
 const TYPE_LABEL: Record<string, string> = {
-  essay:       'WRITING',
-  editorial:   'MIXED MEDIA',
-  photoSeries: 'PHOTOGRAPHY',
+  writing:     'WRITING',
+  mixedMedia:  'MIXED MEDIA',
+  photography: 'PHOTOGRAPHY',
+  videography: 'VIDEOGRAPHY',
 };
 
 export default async function HomePage() {

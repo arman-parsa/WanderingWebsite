@@ -8,35 +8,37 @@ import { formatDate } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
 type ContentItem = {
-  _type: 'essay' | 'editorial' | 'photoSeries';
+  _type: 'writing' | 'mixedMedia' | 'photography' | 'videography';
   title: string;
   slug: string;
   publishedAt?: string;
   location?: string;
-  excerpt?: string;
   description?: string;
   coverImage?: { asset?: object; alt?: string; hotspot?: { x: number; y: number } };
 };
 
 const TYPE_HREF: Record<string, string> = {
-  essay:       '/writing',
-  editorial:   '/mixed-media',
-  photoSeries: '/photography',
+  writing:     '/writing',
+  mixedMedia:  '/mixed-media',
+  photography: '/photography',
+  videography: '/videography',
 };
 
 const TYPE_LABEL: Record<string, string> = {
-  essay:       'Writing',
-  editorial:   'Mixed Media',
-  photoSeries: 'Photography',
+  writing:     'Writing',
+  mixedMedia:  'Mixed Media',
+  photography: 'Photography',
+  videography: 'Videography',
 };
 
-type Filter = 'ALL' | 'essay' | 'photoSeries' | 'editorial';
+type Filter = 'ALL' | 'writing' | 'photography' | 'mixedMedia' | 'videography';
 
 const FILTERS: { label: string; value: Filter }[] = [
-  { label: 'All',          value: 'ALL' },
-  { label: 'Writing',      value: 'essay' },
-  { label: 'Photography',  value: 'photoSeries' },
-  { label: 'Mixed Media',  value: 'editorial' },
+  { label: 'All',         value: 'ALL' },
+  { label: 'Writing',     value: 'writing' },
+  { label: 'Photography', value: 'photography' },
+  { label: 'Mixed Media', value: 'mixedMedia' },
+  { label: 'Videography', value: 'videography' },
 ];
 
 export function ArticlesClient({ items }: { items: ContentItem[] }) {
@@ -96,7 +98,6 @@ export function ArticlesClient({ items }: { items: ContentItem[] }) {
             className="group mb-12 flex min-h-[480px] w-full flex-col overflow-hidden md:flex-row"
             style={{ borderBottom: '1px solid rgba(248,244,239,0.12)' }}
           >
-            {/* Image — 60% left */}
             <div className="relative aspect-[16/9] w-full overflow-hidden md:aspect-auto md:h-auto md:w-[60%]">
               {featured.coverImage?.asset ? (
                 <Image
@@ -113,7 +114,6 @@ export function ArticlesClient({ items }: { items: ContentItem[] }) {
               )}
             </div>
 
-            {/* Text — 40% right */}
             <div
               className="flex w-full flex-col justify-center px-8 py-10 md:w-[40%]"
               style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}
@@ -129,19 +129,19 @@ export function ArticlesClient({ items }: { items: ContentItem[] }) {
               >
                 {featured.title}
               </h2>
-              {(featured.excerpt ?? featured.description) && (
+              {featured.description && (
                 <p
                   className="mt-4 font-serif font-normal leading-[1.8]"
                   style={{ fontSize: 'clamp(0.9rem, 1.1vw, 1rem)', color: 'rgba(248,244,239,0.75)' }}
                 >
-                  {featured.excerpt ?? featured.description}
+                  {featured.description}
                 </p>
               )}
               <span
                 className="mt-8 inline-block self-start border px-[1.4rem] py-[0.55rem] font-sans text-[0.7rem] uppercase tracking-[0.1em] transition-colors duration-[300ms] group-hover:bg-[#f8f4ef] group-hover:text-[#1c1814]"
                 style={{ borderColor: 'rgba(248,244,239,0.4)', color: '#f8f4ef' }}
               >
-                Read More
+                View
               </span>
             </div>
           </Link>

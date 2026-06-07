@@ -8,16 +8,15 @@ export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Articles',
-  description: 'Essays, editorials, and photography series.',
+  description: 'Writing, photography, mixed media, and videography.',
 };
 
 type ContentItem = {
-  _type: 'essay' | 'editorial' | 'photoSeries';
+  _type: 'writing' | 'mixedMedia' | 'photography' | 'videography';
   title: string;
   slug: string;
   publishedAt?: string;
   location?: string;
-  excerpt?: string;
   description?: string;
   coverImage?: { asset?: object; alt?: string; hotspot?: { x: number; y: number } };
 };

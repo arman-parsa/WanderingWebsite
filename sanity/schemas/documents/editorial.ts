@@ -1,31 +1,24 @@
 import { defineField, defineType } from 'sanity';
 
-export const editorial = defineType({
-  name: 'editorial',
-  title: 'Editorial',
+export const mixedMedia = defineType({
+  name: 'mixedMedia',
+  title: 'Mixed Media',
   type: 'document',
   fields: [
     defineField({ name: 'title', title: 'Title', type: 'string', validation: (Rule) => Rule.required() }),
     defineField({ name: 'slug', title: 'Slug', type: 'slug', options: { source: 'title' }, validation: (Rule) => Rule.required() }),
     defineField({ name: 'publishedAt', title: 'Published At', type: 'datetime' }),
-    defineField({ name: 'excerpt', title: 'Excerpt', type: 'text', rows: 4 }),
+    defineField({ name: 'description', title: 'Description', type: 'text', rows: 4, description: 'Short intro shown on index cards and at the top of the piece.' }),
     defineField({ name: 'coverImage', title: 'Cover Image', type: 'image', options: { hotspot: true },
       fields: [defineField({ name: 'alt', title: 'Alt Text', type: 'string', validation: (Rule) => Rule.required() })] }),
     defineField({ name: 'body', title: 'Body', type: 'portableText' }),
+    defineField({ name: 'images', title: 'Images', type: 'array', of: [{ type: 'imageBlock' }] }),
+    defineField({ name: 'videos', title: 'Videos', type: 'array', of: [{ type: 'videoBlock' }] }),
     defineField({ name: 'location', title: 'Location', type: 'string' }),
     defineField({ name: 'coordinates', title: 'Coordinates', type: 'geopoint' }),
     defineField({ name: 'readingTime', title: 'Reading Time (minutes)', type: 'number' }),
     defineField({ name: 'tags', title: 'Tags', type: 'array', of: [{ type: 'string' }], options: { layout: 'tags' } }),
     defineField({ name: 'photographyCredit', title: 'Photography Credit', type: 'string' }),
-    defineField({ name: 'heroVideo', title: 'Hero Video', type: 'videoBlock' }),
-    defineField({ name: 'gallery', title: 'Gallery', type: 'array', of: [{ type: 'imageBlock' }] }),
-    defineField({
-      name: 'layout',
-      title: 'Layout',
-      type: 'string',
-      options: { list: ['text-led', 'image-led', 'split'], layout: 'radio' },
-      initialValue: 'text-led',
-    }),
     defineField({ name: 'seo', title: 'SEO', type: 'seoFields' }),
   ],
   preview: {

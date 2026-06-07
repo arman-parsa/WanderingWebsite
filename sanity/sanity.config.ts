@@ -6,8 +6,8 @@ import { schemaTypes } from './schemas';
 export default defineConfig({
   name: 'default',
   title: 'Wandering Website',
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET ?? 'production',
+  projectId: '8p5lsu79',
+  dataset: 'production',
   plugins: [structureTool(), visionTool()],
   schema: { types: schemaTypes },
 });
