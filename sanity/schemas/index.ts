@@ -1,6 +1,7 @@
-import { essay } from './documents/essay';
-import { editorial } from './documents/editorial';
-import { photoSeries } from './documents/photoSeries';
+import { writing } from './documents/essay';
+import { mixedMedia } from './documents/editorial';
+import { photography } from './documents/photoSeries';
+import { videography } from './documents/videography';
 import { author } from './documents/author';
 import { portableText } from './objects/portableText';
 import { imageBlock } from './objects/imageBlock';
@@ -11,9 +12,10 @@ import { siteSettings } from './singletons/siteSettings';
 
 export const schemaTypes = [
   // Documents
-  essay,
-  editorial,
-  photoSeries,
+  writing,
+  mixedMedia,
+  photography,
+  videography,
   author,
   siteSettings,
   // Objects

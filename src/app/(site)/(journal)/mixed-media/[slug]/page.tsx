@@ -1,10 +1,10 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { client } from '@/lib/sanity';
-import { EDITORIAL_QUERY, EDITORIAL_SLUGS_QUERY } from '@/lib/sanity';
+import { MIXED_MEDIA_QUERY, MIXED_MEDIA_SLUGS_QUERY } from '@/lib/sanity';
 import { EssayHero } from '@/components/content/EssayHero';
 import { PortableTextRenderer } from '@/components/content/PortableTextRenderer';
-import { PLACEHOLDER_ITEMS, PLACEHOLDER_ESSAY } from '@/lib/placeholders';
+import { PLACEHOLDER_ITEMS, PLACEHOLDER_WRITING } from '@/lib/placeholders';
 
 export const revalidate = 3600;
 
@@ -12,10 +12,10 @@ type Props = { params: Promise<{ slug: string }> };
 
 export async function generateStaticParams() {
   const placeholderSlugs = PLACEHOLDER_ITEMS
-    .filter((i) => i._type === 'editorial')
+    .filter((i) => i._type === 'mixedMedia')
     .map((i) => ({ slug: i.slug }));
   try {
-    const slugs = await client.fetch(EDITORIAL_SLUGS_QUERY);
+    const slugs = await client.fetch(MIXED_MEDIA_SLUGS_QUERY);
     return [...slugs.map((s: { slug: string }) => ({ slug: s.slug })), ...placeholderSlugs];
   } catch {
     return placeholderSlugs;
@@ -25,11 +25,11 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   try {
-    const editorial = await client.fetch(EDITORIAL_QUERY, { slug });
-    if (!editorial) return {};
+    const piece = await client.fetch(MIXED_MEDIA_QUERY, { slug });
+    if (!piece) return {};
     return {
-      title: editorial.seo?.metaTitle ?? editorial.title,
-      description: editorial.seo?.metaDescription ?? editorial.excerpt,
+      title: piece.seo?.metaTitle ?? piece.title,
+      description: piece.seo?.metaDescription ?? piece.description,
     };
   } catch {
     return {};
@@ -38,28 +38,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function MixedMediaPage({ params }: Props) {
   const { slug } = await params;
-  let editorial = null;
-  try { editorial = await client.fetch(EDITORIAL_QUERY, { slug }); } catch { /* CORS */ }
-  if (!editorial && slug.startsWith('_placeholder')) {
-    const match = PLACEHOLDER_ITEMS.find((i) => i.slug === slug && i._type === 'editorial');
-    if (match) editorial = { ...PLACEHOLDER_ESSAY, title: match.title, excerpt: match.excerpt, location: match.location, publishedAt: match.publishedAt };
+  let piece = null;
+  try { piece = await client.fetch(MIXED_MEDIA_QUERY, { slug }); } catch { /* CORS */ }
+  if (!piece && slug.startsWith('_placeholder')) {
+    const match = PLACEHOLDER_ITEMS.find((i) => i.slug === slug && i._type === 'mixedMedia');
+    if (match) piece = { ...PLACEHOLDER_WRITING, title: match.title, description: match.description, location: match.location, publishedAt: match.publishedAt };
   }
-  if (!editorial) notFound();
+  if (!piece) notFound();
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef' }}>
       <div style={{ paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
         <EssayHero
-          title={editorial.title}
-          excerpt={editorial.excerpt}
-          publishedAt={editorial.publishedAt}
-          location={editorial.location}
-          tags={editorial.tags}
-          coverImage={editorial.coverImage}
+          title={piece.title}
+          description={piece.description}
+          publishedAt={piece.publishedAt}
+          location={piece.location}
+          tags={piece.tags}
+          coverImage={piece.coverImage}
         />
         <div className="mx-auto max-w-[var(--content-max-width)] px-[var(--content-padding-x)] pb-24">
           <article className="article-body" style={{ color: '#f8f4ef' }}>
-            {editorial.body && <PortableTextRenderer value={editorial.body} />}
+            {piece.body && <PortableTextRenderer value={piece.body} />}
           </article>
         </div>
       </div>
