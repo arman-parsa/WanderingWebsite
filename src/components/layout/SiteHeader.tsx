@@ -52,7 +52,7 @@ export function SiteHeader() {
 
       <div className="mx-auto flex h-16 max-w-[var(--content-full-width)] items-center justify-between px-[var(--content-padding-x)]">
         {/* Left: navigation links */}
-        <nav aria-label="Main navigation" className="[animation-delay:600ms] [animation-duration:500ms] animate-fade-up">
+        <nav aria-label="Main navigation" className="[animation-delay:900ms] [animation-duration:700ms] animate-fade-in">
           <ul className="flex items-center gap-6 md:gap-8" role="list">
             {NAV_LEFT.map(({ label, href, medium }) => {
               const active = pathname === href || pathname.startsWith(`${href}/`);
@@ -86,7 +86,7 @@ export function SiteHeader() {
           href="/"
           aria-label="ARMAN'S WANDERINGS — home"
           className={cn(
-            'shrink-0 whitespace-nowrap font-serif text-[clamp(0.85rem,1.5vw,1.1rem)] font-normal uppercase tracking-widest transition-colors duration-[var(--duration-fast)]',
+            'animate-fade-in [animation-duration:800ms] shrink-0 whitespace-nowrap font-serif text-[clamp(0.85rem,1.5vw,1.1rem)] font-normal uppercase tracking-widest transition-colors duration-[var(--duration-fast)]',
             onDark
               ? 'text-white/90 hover:text-white'
               : 'text-ink hover:text-accent'

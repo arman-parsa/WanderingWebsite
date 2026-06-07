@@ -68,23 +68,33 @@ export function ArticlesClient({ items }: { items: ContentItem[] }) {
       {/* ── Filter bar ─────────────────────────────────────────── */}
       <div
         className="sticky top-14 z-40 w-full"
-        style={{ backgroundColor: '#1c1814', borderBottom: '1px solid rgba(248,244,239,0.12)' }}
+        style={{ backgroundColor: '#1c1814' }}
       >
-        <div className="mx-auto flex max-w-[var(--content-full-width)] flex-wrap items-center gap-x-6 gap-y-2 px-[var(--content-padding-x)] py-4">
-          {FILTERS.map(({ label, value }) => (
-            <button
-              key={value}
-              onClick={() => handleFilter(value)}
-              className={cn(
-                'font-sans text-[0.7rem] uppercase tracking-widest transition-colors duration-[200ms] focus-visible:outline-none',
-                active === value
-                  ? 'border-b border-[#f8f4ef] pb-px text-[#f8f4ef]'
-                  : 'text-[#a09890] hover:text-[#f8f4ef]'
-              )}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="mx-auto flex max-w-[var(--content-full-width)] flex-col px-[var(--content-padding-x)] pt-4 pb-3">
+          {/* Page label */}
+          <p
+            className="animate-fade-in [animation-duration:700ms] mb-3 font-sans text-[0.7rem] uppercase tracking-[0.2em]"
+            style={{ color: '#a09890' }}
+          >
+            EXPLORE
+          </p>
+          {/* Filter pills */}
+          <div className="animate-fade-in [animation-delay:400ms] [animation-duration:700ms] flex flex-wrap gap-[0.75rem] sm:flex-nowrap">
+            {FILTERS.map(({ label, value }) => (
+              <button
+                key={value}
+                onClick={() => handleFilter(value)}
+                className={cn(
+                  'rounded-[2px] border-[0.5px] px-[1rem] py-[0.45rem] font-sans text-[0.65rem] uppercase tracking-[0.15em] transition-colors duration-300 ease-out focus-visible:outline-none',
+                  active === value
+                    ? 'border-[#f8f4ef] text-[#f8f4ef]'
+                    : 'border-[rgba(248,244,239,0.2)] text-[#a09890] hover:border-[#453e36]'
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -100,7 +110,7 @@ export function ArticlesClient({ items }: { items: ContentItem[] }) {
             className="group mb-12 grid min-h-[480px] w-full overflow-hidden md:grid-cols-[3fr_2fr]"
             style={{ borderBottom: '1px solid rgba(248,244,239,0.12)' }}
           >
-            <div className="relative aspect-[16/9] w-full overflow-hidden md:aspect-auto">
+            <div className="animate-fade-in-scale [animation-delay:700ms] [animation-duration:1000ms] relative aspect-[16/9] w-full overflow-hidden md:aspect-auto">
               {featured.coverImage?.asset ? (
                 <Image
                   src={urlFor(featured.coverImage).width(1400).height(900).fit('crop').format('webp').quality(85).url()}
@@ -117,7 +127,7 @@ export function ArticlesClient({ items }: { items: ContentItem[] }) {
             </div>
 
             <div
-              className="flex flex-col justify-center px-8 py-10"
+              className="animate-fade-in [animation-delay:1000ms] [animation-duration:700ms] flex flex-col justify-center px-8 py-10"
               style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}
             >
               <p className="mb-4 font-sans text-[0.7rem] uppercase tracking-widest" style={{ color: '#a09890' }}>
@@ -155,7 +165,7 @@ export function ArticlesClient({ items }: { items: ContentItem[] }) {
             {rest.map((item) => {
               const href = `${TYPE_HREF[item._type]}/${item.slug}`;
               return (
-                <article key={item.slug} className="group overflow-hidden" style={{ backgroundColor: 'rgba(255,255,255,0.04)' }}>
+                <article key={item.slug} className="animate-fade-up-24 [animation-delay:1400ms] [animation-duration:700ms] group">
                   <Link href={href} tabIndex={-1} aria-hidden="true" className="relative block aspect-video overflow-hidden">
                     {item.coverImage?.asset ? (
                       <Image
@@ -172,7 +182,7 @@ export function ArticlesClient({ items }: { items: ContentItem[] }) {
                     )}
                   </Link>
 
-                  <div className="px-5 py-5">
+                  <div className="pt-5">
                     <p
                       className="mb-2 font-sans text-[0.7rem] uppercase tracking-widest"
                       style={{ color: '#a09890' }}

@@ -157,6 +157,16 @@ html {
   to   { opacity: 1; }
 }
 
+@keyframes fade-in-scale {
+  from { opacity: 0; transform: scale(1.04); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fade-up-24 {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .animate-fade-up {
   animation: fade-up var(--duration-slow) var(--ease-out) both;
 }
@@ -165,11 +175,22 @@ html {
   animation: fade-in var(--duration-slow) var(--ease-out) both;
 }
 
+.animate-fade-in-scale {
+  animation: fade-in-scale var(--duration-slow) var(--ease-out) both;
+}
+
+.animate-fade-up-24 {
+  animation: fade-up-24 var(--duration-slow) var(--ease-out) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-up,
-  .animate-fade-in {
+  .animate-fade-in,
+  .animate-fade-in-scale,
+  .animate-fade-up-24 {
     animation: none;
     opacity: 1;
+    transform: none;
   }
 }
 

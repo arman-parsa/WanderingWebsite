@@ -83,7 +83,7 @@ export function HeroSection({ item }: { item: HeroItem }) {
       {/* Parallax image layer */}
       <div
         ref={imageWrapRef}
-        className="absolute left-0 right-0 -top-[15%] h-[130%] [animation-delay:400ms] [animation-duration:800ms] animate-fade-in"
+        className="absolute left-0 right-0 -top-[15%] h-[130%] [animation-delay:600ms] [animation-duration:1000ms] animate-fade-in"
       >
         <Image
           src={imageSrc}
@@ -113,7 +113,7 @@ export function HeroSection({ item }: { item: HeroItem }) {
 
       {/* Text stack — lower-left */}
       <div
-        className="absolute bottom-0 left-0 max-w-[680px] pl-[clamp(2rem,6vw,5rem)] pb-[clamp(2rem,5vh,4rem)] [animation-delay:800ms] [animation-duration:600ms] animate-fade-up"
+        className="absolute bottom-0 left-0 max-w-[680px] pl-[clamp(2rem,6vw,5rem)] pb-[clamp(2rem,5vh,4rem)] [animation-delay:1200ms] [animation-duration:800ms] animate-fade-in"
       >
         <p className="mb-3 font-sans text-[0.7rem] font-normal uppercase tracking-widest text-white/70">
           {category}
