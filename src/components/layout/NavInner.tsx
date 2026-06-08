@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { NavLink } from '@/components/layout/NavLink';
 
-const DARK_PAGE_PREFIXES = ['/articles', '/writing', '/photography', '/mixed-media', '/videography'];
+const DARK_PAGE_PREFIXES = ['/writing', '/photography', '/mixed-media', '/videography'];
 
 function isDarkPagePath(path: string): boolean {
   return DARK_PAGE_PREFIXES.some(

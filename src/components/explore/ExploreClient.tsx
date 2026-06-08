@@ -42,10 +42,10 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
   const visible = filter === 'all' ? items : items.filter(i => i._type === filter);
 
   return (
-    <div style={{ backgroundColor: '#1c1814', color: '#f8f4ef', minHeight: '100vh', paddingTop: '6rem' }}>
+    <div style={{ backgroundColor: '#f8f4ef', color: '#1c1814', minHeight: '100vh', paddingTop: '6rem' }}>
       {/* Header */}
       <div style={{ textAlign: 'center', paddingBottom: '2.5rem' }}>
-        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(248,244,239,0.5)', marginBottom: '2rem' }}>
+        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(28,24,20,0.45)', marginBottom: '2rem' }}>
           Explore
         </p>
 
@@ -57,8 +57,8 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
               onClick={() => setFilter(value)}
               style={{
                 background: 'none',
-                border: `0.5px solid ${filter === value ? '#f8f4ef' : 'rgba(248,244,239,0.2)'}`,
-                color: filter === value ? '#f8f4ef' : 'rgba(248,244,239,0.45)',
+                border: `0.5px solid ${filter === value ? '#1c1814' : 'rgba(28,24,20,0.25)'}`,
+                color: filter === value ? '#1c1814' : 'rgba(28,24,20,0.45)',
                 fontFamily: 'var(--font-sans)',
                 fontSize: '0.62rem',
                 letterSpacing: '0.15em',
@@ -86,7 +86,7 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
               <div key={item.slug}>
                 <Link href={href} style={{ display: 'block', textDecoration: 'none' }}>
                   {/* Image */}
-                  <div style={{ position: 'relative', width: '100%', aspectRatio: '3/2', overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.06)' }}>
+                  <div style={{ position: 'relative', width: '100%', aspectRatio: '3/2', overflow: 'hidden', backgroundColor: 'rgba(28,24,20,0.08)' }}>
                     {item.coverImage?.asset && (
                       <Image
                         src={urlFor(item.coverImage).width(900).height(600).fit('crop').format('webp').quality(80).url()}
@@ -101,10 +101,10 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
 
                   {/* Text */}
                   <div style={{ paddingTop: '1rem' }}>
-                    <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(248,244,239,0.45)', marginBottom: '0.5rem' }}>
+                    <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(28,24,20,0.45)', marginBottom: '0.5rem' }}>
                       {TYPE_LABEL[item._type]}
                     </p>
-                    <p style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1rem, 1.4vw, 1.25rem)', fontWeight: 300, lineHeight: 1.35, color: '#f8f4ef' }}>
+                    <p style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1rem, 1.4vw, 1.25rem)', fontWeight: 300, lineHeight: 1.35, color: '#1c1814' }}>
                       {item.title}
                     </p>
                   </div>

@@ -23,7 +23,7 @@ const components: PortableTextComponents = {
       </h3>
     ),
     blockquote: ({ children }) => (
-      <blockquote className="my-8 border-l-2 border-current border-opacity-20 pl-6 font-serif text-[var(--text-lg)] italic opacity-70">
+      <blockquote className="my-8 border-l-2 border-current pl-6 font-serif text-[var(--text-lg)] italic opacity-65">
         {children}
       </blockquote>
     ),
