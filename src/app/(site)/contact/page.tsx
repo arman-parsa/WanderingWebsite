@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <main id="main-content" className="mx-auto w-full max-w-[var(--content-max-width)] px-[var(--content-padding-x)] py-32">
+    <main id="main-content" className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-[var(--content-max-width)] items-center px-[var(--content-padding-x)] py-24">
       <div className="article-body">
         <p>
           For partnerships, editorial enquiries, or just to say hello — reach out by email.
