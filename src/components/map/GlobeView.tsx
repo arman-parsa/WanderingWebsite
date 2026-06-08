@@ -259,7 +259,7 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
       .then((r) => r.json() as Promise<GeoCollection>)
       .then((geojson) => {
         const landGeo = buildLandGeometry(geojson);
-        const landMat = new THREE.MeshBasicMaterial({ color: 0x7a6e62, side: THREE.DoubleSide });
+        const landMat = new THREE.MeshStandardMaterial({ color: 0x7a6e62, roughness: 0.9, metalness: 0, side: THREE.DoubleSide });
         landMesh = new THREE.Mesh(landGeo, landMat);
         globeGroup.add(landMesh);
       });
