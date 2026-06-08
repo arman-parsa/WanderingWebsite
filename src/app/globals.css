@@ -356,6 +356,15 @@ html {
   opacity: 0.65;
 }
 
+/* ── Globe panel read-link arrow ────────────────────────────── */
+.read-link .read-link-arrow {
+  display: inline-block;
+  transition: transform 150ms ease;
+}
+.read-link:hover .read-link-arrow {
+  transform: translateX(3px);
+}
+
 /* ── Reduced motion ──────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

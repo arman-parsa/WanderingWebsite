@@ -1,2 +1,2 @@
-export { MapView } from './MapView';
-export type { MapItem } from './MapView';
+export { GlobeLoader } from './GlobeLoader';
+export type { GlobeItem } from './GlobeView';
