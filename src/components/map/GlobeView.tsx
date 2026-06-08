@@ -63,11 +63,17 @@ function latLngToVec3(lat: number, lng: number, radius: number): THREE.Vector3 {
 }
 
 function buildLandGeometry(geojson: GeoCollection): THREE.BufferGeometry {
-  const allVerts: number[] = [];
+  const rawVerts: number[] = [];
 
   function processRing(ring: GeoRing): void {
     const n = ring.length - 1; // closed ring: last === first
     if (n < 3) return;
+
+    // Skip polygons that cross the antimeridian — their 2D projection wraps
+    // around the flat map and produces triangles spanning huge areas of the globe.
+    for (let i = 0; i < n; i++) {
+      if (Math.abs(ring[(i + 1) % n][0] - ring[i][0]) > 180) return;
+    }
 
     // Build a THREE.Shape in equirectangular (lng, lat) space.
     // THREE.ShapeGeometry uses earcut internally — handles concave polygons correctly.
@@ -76,14 +82,13 @@ function buildLandGeometry(geojson: GeoCollection): THREE.BufferGeometry {
     for (let i = 1; i < n; i++) shape.lineTo(ring[i][0], ring[i][1]);
 
     const shapeGeo = new THREE.ShapeGeometry(shape);
-    // toNonIndexed expands the index buffer so every 3 consecutive entries = one triangle
     const flat = shapeGeo.toNonIndexed();
     const pos = flat.attributes.position;
 
     for (let i = 0; i < pos.count; i++) {
       // Vertices come back as (lng, lat, 0) — remap to sphere surface
       const v = latLngToVec3(pos.getY(i), pos.getX(i), LAND_RADIUS);
-      allVerts.push(v.x, v.y, v.z);
+      rawVerts.push(v.x, v.y, v.z);
     }
 
     shapeGeo.dispose();
@@ -101,11 +106,43 @@ function buildLandGeometry(geojson: GeoCollection): THREE.BufferGeometry {
     }
   }
 
+  // Winding correction: for each triangle, if its normal points toward the globe
+  // centre instead of away from it, swap the two non-anchor vertices to flip the
+  // winding. Without this, polygons that arrive with CW winding produce triangles
+  // whose normals point inward, making them invisible under Three.js's default
+  // front-face culling and leaving holes in the land mesh.
+  const corrected = new Float32Array(rawVerts.length);
+  for (let i = 0; i < rawVerts.length; i += 9) {
+    const x0 = rawVerts[i],     y0 = rawVerts[i + 1], z0 = rawVerts[i + 2];
+    const x1 = rawVerts[i + 3], y1 = rawVerts[i + 4], z1 = rawVerts[i + 5];
+    const x2 = rawVerts[i + 6], y2 = rawVerts[i + 7], z2 = rawVerts[i + 8];
+    // Normal = (v1 - v0) × (v2 - v0)
+    const ex = x1 - x0, ey = y1 - y0, ez = z1 - z0;
+    const fx = x2 - x0, fy = y2 - y0, fz = z2 - z0;
+    const nx = ey * fz - ez * fy;
+    const ny = ez * fx - ex * fz;
+    const nz = ex * fy - ey * fx;
+    // Centroid ~ direction from globe centre
+    const cx = x0 + x1 + x2;
+    const cy = y0 + y1 + y2;
+    const cz = z0 + z1 + z2;
+    corrected[i]     = x0; corrected[i + 1] = y0; corrected[i + 2] = z0;
+    if (nx * cx + ny * cy + nz * cz < 0) {
+      // Inward normal — flip v1 and v2
+      corrected[i + 3] = x2; corrected[i + 4] = y2; corrected[i + 5] = z2;
+      corrected[i + 6] = x1; corrected[i + 7] = y1; corrected[i + 8] = z1;
+    } else {
+      corrected[i + 3] = x1; corrected[i + 4] = y1; corrected[i + 5] = z1;
+      corrected[i + 6] = x2; corrected[i + 7] = y2; corrected[i + 8] = z2;
+    }
+  }
+
   const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(allVerts), 3));
+  geo.setAttribute('position', new THREE.BufferAttribute(corrected, 3));
   geo.computeVertexNormals();
   return geo;
 }
+
 
 function clusterItems(items: GlobeItem[]): Cluster[] {
   const clusters: Cluster[] = [];
@@ -233,7 +270,7 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
       const r = cluster.items.length > 1 ? PIN_RADIUS * 1.5 : PIN_RADIUS;
       const pin = new THREE.Mesh(
         new THREE.SphereGeometry(r, 12, 12),
-        new THREE.MeshBasicMaterial({ color: 0x453e36 })
+        new THREE.MeshBasicMaterial({ color: 0xffffff })
       );
       pin.position.copy(latLngToVec3(cluster.lat, cluster.lng, GLOBE_RADIUS + PIN_RADIUS + 0.002));
       pin.userData = { cluster };
@@ -311,12 +348,12 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
       if (nextHovered !== hoveredPin) {
         // Restore previous
         if (hoveredPin) {
-          (hoveredPin.material as THREE.MeshBasicMaterial).color.set(0x453e36);
+          (hoveredPin.material as THREE.MeshBasicMaterial).color.set(0xffffff);
           hoveredPin.scale.setScalar(1);
         }
         hoveredPin = nextHovered;
         if (hoveredPin) {
-          (hoveredPin.material as THREE.MeshBasicMaterial).color.set(0xf8f4ef);
+          (hoveredPin.material as THREE.MeshBasicMaterial).color.set(0xb8b0a6);
           hoveredPin.scale.setScalar(1.4);
           renderer.domElement.style.cursor = 'pointer';
         } else {
