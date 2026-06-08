@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback, type RefObject } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
 import { urlFor } from '@/lib/sanityImage';
 
 type ContentItem = {
@@ -26,238 +26,100 @@ const TYPE_LABEL: Record<string, string> = {
   videography: 'Videography',
 };
 
-type FilterValue = 'writing' | 'photography' | 'mixedMedia' | 'videography';
+type Filter = 'all' | 'writing' | 'photography' | 'mixedMedia' | 'videography';
 
-const FILTER_OPTIONS: { label: string; value: FilterValue }[] = [
+const FILTERS: { label: string; value: Filter }[] = [
+  { label: 'All',         value: 'all' },
   { label: 'Writing',     value: 'writing' },
   { label: 'Photography', value: 'photography' },
   { label: 'Mixed Media', value: 'mixedMedia' },
   { label: 'Videography', value: 'videography' },
 ];
 
-function useIntersectionReveal() {
-  const ref = useRef<HTMLElement | null>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  return { ref, visible };
-}
-
-function ExploreCard({
-  item,
-  dimmed,
-  onMouseEnter,
-  onMouseLeave,
-}: {
-  item: ContentItem;
-  dimmed: boolean;
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
-}) {
-  const href = `${TYPE_HREF[item._type]}/${item.slug}`;
-  const { ref, visible } = useIntersectionReveal();
-  const [imgLoaded, setImgLoaded] = useState(false);
-
-  const hotspot = (item.coverImage as { hotspot?: { x: number; y: number } } | undefined)?.hotspot;
-  const objectPosition = hotspot ? `${hotspot.x * 100}% ${hotspot.y * 100}%` : 'center';
-
-  return (
-    <article
-      ref={ref as RefObject<HTMLElement>}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      style={{
-        opacity: dimmed ? 0.15 : 1,
-        transition: 'opacity 250ms ease',
-      }}
-      className="min-w-0"
-    >
-      <Link href={href} className="block">
-        {/* 3:2 image */}
-        <div className="relative aspect-[3/2] w-full overflow-hidden">
-          {item.coverImage?.asset ? (
-            <Image
-              src={urlFor(item.coverImage).width(900).height(600).fit('crop').format('webp').quality(80).url()}
-              alt={(item.coverImage as { alt?: string }).alt ?? item.title}
-              fill
-              loading="lazy"
-              sizes="(max-width: 639px) 100vw, 50vw"
-              style={{ objectFit: 'cover', objectPosition }}
-              className={`transition-opacity duration-500${imgLoaded && visible ? ' opacity-100' : ' opacity-0'}`}
-              onLoad={() => setImgLoaded(true)}
-            />
-          ) : (
-            <div className="h-full w-full" style={{ backgroundColor: 'rgba(255,255,255,0.06)' }} />
-          )}
-        </div>
-
-        {/* Type label + title */}
-        <div className="pt-4">
-          <p
-            className="mb-2 font-sans uppercase"
-            style={{ fontSize: '0.65rem', letterSpacing: '0.18em', color: 'rgba(248,244,239,0.45)' }}
-          >
-            {TYPE_LABEL[item._type]}
-          </p>
-          <h2
-            className="font-serif font-light leading-snug"
-            style={{ fontSize: 'clamp(1.05rem, 1.5vw, 1.3rem)', color: '#f8f4ef' }}
-          >
-            {item.title}
-          </h2>
-        </div>
-      </Link>
-    </article>
-  );
-}
-
 export function ExploreClient({ items }: { items: ContentItem[] }) {
-  const [activeFilters, setActiveFilters] = useState<Set<FilterValue>>(new Set());
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const [filter, setFilter] = useState<Filter>('all');
 
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 639px)');
-    setIsMobile(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
-
-  function toggleFilter(value: FilterValue) {
-    setActiveFilters((prev: Set<FilterValue>) => {
-      const next = new Set(prev);
-      if (next.has(value)) {
-        next.delete(value);
-      } else {
-        next.add(value);
-      }
-      return next;
-    });
-  }
-
-  function clearFilters() {
-    setActiveFilters(new Set());
-  }
-
-  const isAllActive = activeFilters.size === 0;
-
-  const displayed = isAllActive
-    ? items
-    : items.filter((i) => activeFilters.has(i._type as FilterValue));
-
-  const handleMouseEnter = useCallback((idx: number) => {
-    setHoveredIndex(idx);
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    setHoveredIndex(null);
-  }, []);
+  const visible = filter === 'all' ? items : items.filter(i => i._type === filter);
 
   return (
-    <main
-      id="main-content"
-      className="min-h-screen w-full"
-      style={{ backgroundColor: '#1c1814', color: '#f8f4ef' }}
-    >
-      {/* ── Page header ──────────────────────────────────────────── */}
-      <div
-        className="mx-auto flex flex-col items-center px-[var(--content-padding-x)] pb-10 text-center"
-        style={{ paddingTop: 'clamp(7rem, 14vh, 10rem)' }}
-      >
-        <h1
-          className="animate-fade-in font-sans uppercase"
-          style={{
-            fontSize: 'clamp(0.65rem, 0.8vw, 0.75rem)',
-            letterSpacing: '0.25em',
-            color: 'rgba(248,244,239,0.5)',
-            animationDuration: '700ms',
-          }}
-        >
+    <div style={{ backgroundColor: '#1c1814', color: '#f8f4ef', minHeight: '100vh', paddingTop: '6rem' }}>
+      {/* Header */}
+      <div style={{ textAlign: 'center', paddingBottom: '2.5rem' }}>
+        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(248,244,239,0.5)', marginBottom: '2rem' }}>
           Explore
-        </h1>
+        </p>
 
-        {/* ── Filter row ───────────────────────────────────────── */}
-        <div
-          className="animate-fade-in mt-8 flex flex-wrap justify-center gap-3"
-          style={{ animationDelay: '300ms', animationDuration: '700ms' }}
-        >
-          {/* ALL pill */}
-          <button
-            onClick={clearFilters}
-            className="rounded-[2px] border-[0.5px] px-4 py-[0.4rem] font-sans uppercase transition-colors duration-200 focus-visible:outline-none"
-            style={{
-              fontSize: '0.62rem',
-              letterSpacing: '0.15em',
-              borderColor: isAllActive ? '#f8f4ef' : 'rgba(248,244,239,0.2)',
-              color: isAllActive ? '#f8f4ef' : 'rgba(248,244,239,0.45)',
-            }}
-          >
-            All
-          </button>
-
-          {FILTER_OPTIONS.map(({ label, value }) => {
-            const isActive = activeFilters.has(value);
-            return (
-              <button
-                key={value}
-                onClick={() => toggleFilter(value)}
-                className="rounded-[2px] border-[0.5px] px-4 py-[0.4rem] font-sans uppercase transition-colors duration-200 focus-visible:outline-none"
-                style={{
-                  fontSize: '0.62rem',
-                  letterSpacing: '0.15em',
-                  borderColor: isActive ? '#f8f4ef' : 'rgba(248,244,239,0.2)',
-                  color: isActive ? '#f8f4ef' : 'rgba(248,244,239,0.45)',
-                }}
-              >
-                {label}
-              </button>
-            );
-          })}
+        {/* Filter pills */}
+        <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+          {FILTERS.map(({ label, value }) => (
+            <button
+              key={value}
+              onClick={() => setFilter(value)}
+              style={{
+                background: 'none',
+                border: `0.5px solid ${filter === value ? '#f8f4ef' : 'rgba(248,244,239,0.2)'}`,
+                color: filter === value ? '#f8f4ef' : 'rgba(248,244,239,0.45)',
+                fontFamily: 'var(--font-sans)',
+                fontSize: '0.62rem',
+                letterSpacing: '0.15em',
+                textTransform: 'uppercase',
+                padding: '0.4rem 1rem',
+                cursor: 'pointer',
+                borderRadius: '2px',
+              }}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* ── Grid ─────────────────────────────────────────────────── */}
-      <div
-        className="animate-fade-up-24 mx-auto w-full max-w-[var(--content-full-width)] px-[var(--content-padding-x)] pb-24"
-        style={{ animationDelay: '600ms', animationDuration: '700ms' }}
-      >
-        {displayed.length > 0 ? (
-          <div className="grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2">
-            {displayed.map((item, idx) => (
-              <ExploreCard
-                key={`${item._type}-${item.slug}`}
-                item={item}
-                dimmed={!isMobile && hoveredIndex !== null && hoveredIndex !== idx}
-                onMouseEnter={() => handleMouseEnter(idx)}
-                onMouseLeave={handleMouseLeave}
-              />
-            ))}
-          </div>
-        ) : (
-          <p
-            className="text-center font-serif"
-            style={{ fontSize: 'var(--text-lg)', color: 'rgba(248,244,239,0.4)' }}
-          >
+      {/* Grid */}
+      <div style={{ padding: '0 clamp(1rem, 4vw, 3rem) 6rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '3rem 1.5rem', maxWidth: '1440px', margin: '0 auto' }}>
+          {visible.map(item => {
+            const href = `${TYPE_HREF[item._type]}/${item.slug}`;
+            const hotspot = item.coverImage?.hotspot;
+            const objectPosition = hotspot ? `${hotspot.x * 100}% ${hotspot.y * 100}%` : 'center';
+
+            return (
+              <div key={item.slug}>
+                <Link href={href} style={{ display: 'block', textDecoration: 'none' }}>
+                  {/* Image */}
+                  <div style={{ position: 'relative', width: '100%', aspectRatio: '3/2', overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.06)' }}>
+                    {item.coverImage?.asset && (
+                      <Image
+                        src={urlFor(item.coverImage).width(900).height(600).fit('crop').format('webp').quality(80).url()}
+                        alt={(item.coverImage as { alt?: string }).alt ?? item.title}
+                        fill
+                        loading="lazy"
+                        sizes="(max-width: 639px) 100vw, 50vw"
+                        style={{ objectFit: 'cover', objectPosition }}
+                      />
+                    )}
+                  </div>
+
+                  {/* Text */}
+                  <div style={{ paddingTop: '1rem' }}>
+                    <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(248,244,239,0.45)', marginBottom: '0.5rem' }}>
+                      {TYPE_LABEL[item._type]}
+                    </p>
+                    <p style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1rem, 1.4vw, 1.25rem)', fontWeight: 300, lineHeight: 1.35, color: '#f8f4ef' }}>
+                      {item.title}
+                    </p>
+                  </div>
+                </Link>
+              </div>
+            );
+          })}
+        </div>
+
+        {visible.length === 0 && (
+          <p style={{ fontFamily: 'var(--font-serif)', color: 'rgba(248,244,239,0.4)', textAlign: 'center' }}>
             Nothing here yet.
           </p>
         )}
       </div>
-    </main>
+    </div>
   );
 }
