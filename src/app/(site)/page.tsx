@@ -67,7 +67,7 @@ export default async function HomePage() {
       ──────────────────────────────────────────────────────────────────── */}
       <section
         aria-label="Recent work"
-        className="mx-auto max-w-[var(--content-full-width)] px-[var(--content-padding-x)] pt-20 pb-20"
+        className="mx-auto w-full max-w-[var(--content-full-width)] px-[var(--content-padding-x)] pt-20 pb-20"
       >
         {grid.length > 0 && (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
