@@ -300,6 +300,7 @@ html {
   list-style: none;
   margin: 0;
   padding: 0;
+  min-width: 0;
 }
 
 .nav-link {
@@ -346,6 +347,7 @@ html {
   color: var(--nav-text, #1c1814);
   text-decoration: none;
   white-space: nowrap;
+  flex-shrink: 0;
   transition: opacity 250ms ease;
 }
 
