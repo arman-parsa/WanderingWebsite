@@ -53,7 +53,7 @@ export default async function HomePage() {
   const grid = items.slice(0, 6);
 
   return (
-    <main id="main-content">
+    <main id="main-content" className="w-full">
 
       {/* ── Hero ──────────────────────────────────────────────────────────
           Full-viewport-height, most recent piece, parallax image.
