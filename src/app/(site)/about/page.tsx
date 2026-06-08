@@ -2,38 +2,25 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'About',
-  description: 'About Wandering Website — a personal editorial archive of travel writing, photography, and mixed media.',
+  description: 'About Arman — a personal editorial archive of travel writing, photography, and mixed media.',
 };
 
 export default function AboutPage() {
   return (
-    <main id="main-content" className="mx-auto w-full max-w-[var(--content-max-width)] px-[var(--content-padding-x)] py-24">
-
-      <header className="mb-16">
-        <p className="mb-4 font-sans text-xs uppercase tracking-widest text-ink-muted">About</p>
-        <h1 className="font-serif text-[var(--text-4xl)] font-light tracking-tight text-ink">
-          Wandering Website
-        </h1>
-      </header>
-
+    <main id="main-content" className="mx-auto w-full max-w-[var(--content-max-width)] px-[var(--content-padding-x)] py-32">
       <div className="article-body">
         <p>
-          This is a personal archive — a place to collect writing, photography, and
-          editorial work made in transit. It sits somewhere between a literary
-          travel journal, an editorial magazine, and a creative portfolio.
+          Stories long to be caught on pen and paper, or through the lens of a camera.
         </p>
         <p>
-          The work spans essays written in hotel rooms, photography from early
-          mornings before the light changes, and mixed-media pieces that resist
-          being one thing or another.
+          This project hopes to slow the breath, and offer a glimpse through the fog of
+          modernity to real, grounded, intimate stories collected across the world.
         </p>
         <p>
-          Everything here is made slowly, with attention to form as much as content.
+          Amir Arman Ghanbari Parsa is a London-born, 23 years-old, Oxford-educated
+          Iranian journalist and photographer/videographer.
         </p>
       </div>
-
-      <div className="mt-16 h-px w-16 bg-ink-faint" aria-hidden="true" />
-
     </main>
   );
 }
