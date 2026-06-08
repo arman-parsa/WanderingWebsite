@@ -2,12 +2,12 @@ import type { Metadata } from 'next';
 import { client } from '@/lib/sanity';
 import { ALL_CONTENT_QUERY } from '@/lib/sanity';
 import { PLACEHOLDER_ITEMS } from '@/lib/placeholders';
-import { ArticlesClient } from '@/components/articles/ArticlesClient';
+import { ExploreClient } from '@/components/explore/ExploreClient';
 
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: 'Articles',
+  title: 'Explore',
   description: 'Writing, photography, mixed media, and videography.',
 };
 
@@ -30,5 +30,5 @@ export default async function ArticlesPage() {
   }
   if (items.length === 0) items = PLACEHOLDER_ITEMS as ContentItem[];
 
-  return <ArticlesClient items={items} />;
+  return <ExploreClient items={items} />;
 }
