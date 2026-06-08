@@ -43,7 +43,7 @@ export function NavInner() {
   }
 
   return (
-    <>
+    <div className="nav-shell">
       <div
         aria-hidden="true"
         className={`nav-bg${onHeroOverlay ? '' : ' nav-bg--blur'}`}
@@ -63,6 +63,6 @@ export function NavInner() {
           ARMAN&apos;S WANDERINGS
         </Link>
       </nav>
-    </>
+    </div>
   );
 }
