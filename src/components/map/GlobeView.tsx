@@ -38,7 +38,7 @@ type TooltipData = { text: string; x: number; y: number };
 // ── Constants ───────────────────────────────────────────────────────────────
 
 const GLOBE_RADIUS = 1.0;
-const LAND_RADIUS = 1.002;
+const LAND_RADIUS = 1.004;
 const ATMO_RADIUS = 1.06;
 const PIN_RADIUS = 0.012;
 const CLUSTER_THRESHOLD = 0.5;
@@ -62,34 +62,47 @@ function latLngToVec3(lat: number, lng: number, radius: number): THREE.Vector3 {
   );
 }
 
-function triangulateRing(ring: GeoRing, radius: number, out: number[]): void {
-  const n = ring.length - 1; // closed ring: last === first
-  if (n < 3) return;
-  let clng = 0, clat = 0;
-  for (let i = 0; i < n; i++) { clng += ring[i][0]; clat += ring[i][1]; }
-  clng /= n; clat /= n;
-  const c = latLngToVec3(clat, clng, radius);
-  for (let i = 0; i < n; i++) {
-    const a = latLngToVec3(ring[i][1], ring[i][0], radius);
-    const b = latLngToVec3(ring[(i + 1) % n][1], ring[(i + 1) % n][0], radius);
-    out.push(c.x, c.y, c.z, a.x, a.y, a.z, b.x, b.y, b.z);
-  }
-}
-
 function buildLandGeometry(geojson: GeoCollection): THREE.BufferGeometry {
-  const verts: number[] = [];
+  const allVerts: number[] = [];
+
+  function processRing(ring: GeoRing): void {
+    const n = ring.length - 1; // closed ring: last === first
+    if (n < 3) return;
+
+    // Build a THREE.Shape in equirectangular (lng, lat) space.
+    // THREE.ShapeGeometry uses earcut internally — handles concave polygons correctly.
+    const shape = new THREE.Shape();
+    shape.moveTo(ring[0][0], ring[0][1]);
+    for (let i = 1; i < n; i++) shape.lineTo(ring[i][0], ring[i][1]);
+
+    const shapeGeo = new THREE.ShapeGeometry(shape);
+    // toNonIndexed expands the index buffer so every 3 consecutive entries = one triangle
+    const flat = shapeGeo.toNonIndexed();
+    const pos = flat.attributes.position;
+
+    for (let i = 0; i < pos.count; i++) {
+      // Vertices come back as (lng, lat, 0) — remap to sphere surface
+      const v = latLngToVec3(pos.getY(i), pos.getX(i), LAND_RADIUS);
+      allVerts.push(v.x, v.y, v.z);
+    }
+
+    shapeGeo.dispose();
+    flat.dispose();
+  }
+
   for (const feature of geojson.features) {
     const { type, coordinates } = feature.geometry;
     if (type === 'Polygon') {
-      triangulateRing((coordinates as GeoPolygonCoords)[0], LAND_RADIUS, verts);
+      processRing((coordinates as GeoPolygonCoords)[0]);
     } else if (type === 'MultiPolygon') {
       for (const poly of coordinates as GeoMultiPolygonCoords) {
-        triangulateRing(poly[0], LAND_RADIUS, verts);
+        processRing(poly[0]);
       }
     }
   }
+
   const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(verts), 3));
+  geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(allVerts), 3));
   geo.computeVertexNormals();
   return geo;
 }
@@ -207,7 +220,7 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
       .then((r) => r.json() as Promise<GeoCollection>)
       .then((geojson) => {
         const landGeo = buildLandGeometry(geojson);
-        const landMat = new THREE.MeshStandardMaterial({ color: 0xb5a898, roughness: 1.0, metalness: 0 });
+        const landMat = new THREE.MeshStandardMaterial({ color: 0x7a6e62, roughness: 0.9, metalness: 0 });
         landMesh = new THREE.Mesh(landGeo, landMat);
         globeGroup.add(landMesh);
       });
