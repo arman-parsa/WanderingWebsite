@@ -89,10 +89,7 @@ function ExploreCard({
     >
       <Link href={href} className="block">
         {/* 3:2 image */}
-        <div
-          className="relative w-full overflow-hidden"
-          style={{ aspectRatio: '3/2' }}
-        >
+        <div className="relative aspect-[3/2] w-full overflow-hidden">
           {item.coverImage?.asset ? (
             <Image
               src={urlFor(item.coverImage).width(900).height(600).fit('crop').format('webp').quality(80).url()}
@@ -175,7 +172,7 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
   return (
     <main
       id="main-content"
-      className="min-h-screen w-full overflow-x-hidden"
+      className="min-h-screen w-full"
       style={{ backgroundColor: '#1c1814', color: '#f8f4ef' }}
     >
       {/* ── Page header ──────────────────────────────────────────── */}
