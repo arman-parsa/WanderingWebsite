@@ -13,22 +13,22 @@ const components: PortableTextComponents = {
   },
   block: {
     h2: ({ children }) => (
-      <h2 className="mb-4 mt-12 font-serif text-[var(--text-2xl)] font-light leading-snug tracking-tight text-ink">
+      <h2 className="mb-4 mt-12 font-serif text-[var(--text-2xl)] font-light leading-snug tracking-tight">
         {children}
       </h2>
     ),
     h3: ({ children }) => (
-      <h3 className="mb-3 mt-8 font-serif text-[var(--text-xl)] font-light leading-snug text-ink">
+      <h3 className="mb-3 mt-8 font-serif text-[var(--text-xl)] font-light leading-snug">
         {children}
       </h3>
     ),
     blockquote: ({ children }) => (
-      <blockquote className="my-8 border-l-2 border-ink-faint pl-6 font-serif text-[var(--text-lg)] italic text-ink-muted">
+      <blockquote className="my-8 border-l-2 border-current border-opacity-20 pl-6 font-serif text-[var(--text-lg)] italic opacity-70">
         {children}
       </blockquote>
     ),
     normal: ({ children }) => (
-      <p className="font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)] text-ink">
+      <p className="font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
         {children}
       </p>
     ),
@@ -39,7 +39,7 @@ const components: PortableTextComponents = {
         href={value?.href}
         target={value?.blank ? '_blank' : undefined}
         rel={value?.blank ? 'noopener noreferrer' : undefined}
-        className="underline underline-offset-2 transition-colors duration-[var(--duration-fast)] hover:text-accent"
+        className="underline underline-offset-2 transition-opacity duration-[var(--duration-fast)] hover:opacity-70"
       >
         {children}
       </a>

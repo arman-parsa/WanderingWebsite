@@ -46,24 +46,24 @@ export function EssayHero({ title, description, publishedAt, location, tags, cov
 
       <div className="mx-auto max-w-[var(--content-wide-width)] px-[var(--content-padding-x)] py-12">
         <div className="mb-6 flex flex-wrap items-center gap-4">
-          {location && <span className="text-caption">{location}</span>}
-          {publishedAt && <span className="text-caption">{formatDate(publishedAt)}</span>}
+          {location && <span className="font-sans text-[var(--text-xs)] uppercase tracking-wide opacity-55">{location}</span>}
+          {publishedAt && <span className="font-sans text-[var(--text-xs)] uppercase tracking-wide opacity-55">{formatDate(publishedAt)}</span>}
           {tags?.map((tag) => (
-            <span key={tag} className="text-caption">#{tag}</span>
+            <span key={tag} className="font-sans text-[var(--text-xs)] uppercase tracking-wide opacity-55">#{tag}</span>
           ))}
         </div>
 
-        <h1 className="text-display font-light tracking-tight text-ink">
+        <h1 className="text-display font-light tracking-tight">
           {title}
         </h1>
 
         {description && (
-          <p className="mt-6 font-serif text-[var(--text-xl)] italic leading-[var(--leading-relaxed)] text-ink-muted">
+          <p className="mt-6 font-serif text-[var(--text-xl)] italic leading-[var(--leading-relaxed)] opacity-65">
             {description}
           </p>
         )}
 
-        <div className="mt-10 h-px w-16 bg-ink-faint" aria-hidden="true" />
+        <div className="mt-10 h-px w-16 bg-current opacity-20" aria-hidden="true" />
       </div>
     </header>
   );
