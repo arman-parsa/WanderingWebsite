@@ -38,7 +38,7 @@ type TooltipData = { text: string; x: number; y: number };
 // ── Constants ───────────────────────────────────────────────────────────────
 
 const GLOBE_RADIUS = 1.0;
-const LAND_RADIUS = 1.004;
+const LAND_RADIUS = 1.008;
 const ATMO_RADIUS = 1.06;
 const PIN_RADIUS = 0.012;
 const CLUSTER_THRESHOLD = 0.5;
@@ -62,8 +62,40 @@ function latLngToVec3(lat: number, lng: number, radius: number): THREE.Vector3 {
   );
 }
 
+// Recursively subdivide a flat earcut triangle (in lng/lat space) until every
+// edge spans ≤ MAX_SPAN degrees, then project each leaf triangle onto the sphere.
+// Without subdivision, large-country triangles form flat chords that dip below
+// the ocean sphere surface — the ocean occludes them from the camera as holes.
+const MAX_TRI_SPAN = 10;
+
+function subdivideAndEmit(
+  lng0: number, lat0: number,
+  lng1: number, lat1: number,
+  lng2: number, lat2: number,
+  out: number[]
+): void {
+  const dLng = Math.max(Math.abs(lng1 - lng0), Math.abs(lng2 - lng0), Math.abs(lng2 - lng1));
+  const dLat = Math.max(Math.abs(lat1 - lat0), Math.abs(lat2 - lat0), Math.abs(lat2 - lat1));
+
+  if (dLng <= MAX_TRI_SPAN && dLat <= MAX_TRI_SPAN) {
+    const v0 = latLngToVec3(lat0, lng0, LAND_RADIUS);
+    const v1 = latLngToVec3(lat1, lng1, LAND_RADIUS);
+    const v2 = latLngToVec3(lat2, lng2, LAND_RADIUS);
+    out.push(v0.x, v0.y, v0.z, v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
+    return;
+  }
+  // Split into 4 sub-triangles at edge midpoints
+  const m01lng = (lng0 + lng1) / 2, m01lat = (lat0 + lat1) / 2;
+  const m12lng = (lng1 + lng2) / 2, m12lat = (lat1 + lat2) / 2;
+  const m20lng = (lng2 + lng0) / 2, m20lat = (lat2 + lat0) / 2;
+  subdivideAndEmit(lng0, lat0,   m01lng, m01lat, m20lng, m20lat, out);
+  subdivideAndEmit(m01lng, m01lat, lng1, lat1,   m12lng, m12lat, out);
+  subdivideAndEmit(m20lng, m20lat, m12lng, m12lat, lng2, lat2,  out);
+  subdivideAndEmit(m01lng, m01lat, m12lng, m12lat, m20lng, m20lat, out);
+}
+
 function buildLandGeometry(geojson: GeoCollection): THREE.BufferGeometry {
-  const rawVerts: number[] = [];
+  const verts: number[] = [];
 
   function processRing(ring: GeoRing): void {
     const n = ring.length - 1; // closed ring: last === first
@@ -75,8 +107,6 @@ function buildLandGeometry(geojson: GeoCollection): THREE.BufferGeometry {
       if (Math.abs(ring[(i + 1) % n][0] - ring[i][0]) > 180) return;
     }
 
-    // Build a THREE.Shape in equirectangular (lng, lat) space.
-    // THREE.ShapeGeometry uses earcut internally — handles concave polygons correctly.
     const shape = new THREE.Shape();
     shape.moveTo(ring[0][0], ring[0][1]);
     for (let i = 1; i < n; i++) shape.lineTo(ring[i][0], ring[i][1]);
@@ -85,10 +115,13 @@ function buildLandGeometry(geojson: GeoCollection): THREE.BufferGeometry {
     const flat = shapeGeo.toNonIndexed();
     const pos = flat.attributes.position;
 
-    for (let i = 0; i < pos.count; i++) {
-      // Vertices come back as (lng, lat, 0) — remap to sphere surface
-      const v = latLngToVec3(pos.getY(i), pos.getX(i), LAND_RADIUS);
-      rawVerts.push(v.x, v.y, v.z);
+    for (let i = 0; i < pos.count; i += 3) {
+      subdivideAndEmit(
+        pos.getX(i),     pos.getY(i),
+        pos.getX(i + 1), pos.getY(i + 1),
+        pos.getX(i + 2), pos.getY(i + 2),
+        verts
+      );
     }
 
     shapeGeo.dispose();
@@ -106,39 +139,8 @@ function buildLandGeometry(geojson: GeoCollection): THREE.BufferGeometry {
     }
   }
 
-  // Winding correction: for each triangle, if its normal points toward the globe
-  // centre instead of away from it, swap the two non-anchor vertices to flip the
-  // winding. Without this, polygons that arrive with CW winding produce triangles
-  // whose normals point inward, making them invisible under Three.js's default
-  // front-face culling and leaving holes in the land mesh.
-  const corrected = new Float32Array(rawVerts.length);
-  for (let i = 0; i < rawVerts.length; i += 9) {
-    const x0 = rawVerts[i],     y0 = rawVerts[i + 1], z0 = rawVerts[i + 2];
-    const x1 = rawVerts[i + 3], y1 = rawVerts[i + 4], z1 = rawVerts[i + 5];
-    const x2 = rawVerts[i + 6], y2 = rawVerts[i + 7], z2 = rawVerts[i + 8];
-    // Normal = (v1 - v0) × (v2 - v0)
-    const ex = x1 - x0, ey = y1 - y0, ez = z1 - z0;
-    const fx = x2 - x0, fy = y2 - y0, fz = z2 - z0;
-    const nx = ey * fz - ez * fy;
-    const ny = ez * fx - ex * fz;
-    const nz = ex * fy - ey * fx;
-    // Centroid ~ direction from globe centre
-    const cx = x0 + x1 + x2;
-    const cy = y0 + y1 + y2;
-    const cz = z0 + z1 + z2;
-    corrected[i]     = x0; corrected[i + 1] = y0; corrected[i + 2] = z0;
-    if (nx * cx + ny * cy + nz * cz < 0) {
-      // Inward normal — flip v1 and v2
-      corrected[i + 3] = x2; corrected[i + 4] = y2; corrected[i + 5] = z2;
-      corrected[i + 6] = x1; corrected[i + 7] = y1; corrected[i + 8] = z1;
-    } else {
-      corrected[i + 3] = x1; corrected[i + 4] = y1; corrected[i + 5] = z1;
-      corrected[i + 6] = x2; corrected[i + 7] = y2; corrected[i + 8] = z2;
-    }
-  }
-
   const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(corrected, 3));
+  geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(verts), 3));
   geo.computeVertexNormals();
   return geo;
 }
