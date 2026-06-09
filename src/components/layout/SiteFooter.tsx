@@ -17,7 +17,7 @@ export function SiteFooter() {
               fill="none"
             />
             <line
-              x1="10" y1="11" x2="18" y2="11"
+              x1="2" y1="11" x2="26" y2="11"
               stroke="#7a7067" strokeWidth="1.2"
               strokeLinecap="round"
             />

@@ -74,7 +74,7 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
                 fontSize: '0.62rem',
                 letterSpacing: '0.15em',
                 textTransform: 'uppercase',
-                padding: '0.4rem 1rem',
+                padding: '0.65rem 1rem',
                 cursor: 'pointer',
                 borderRadius: '2px',
               }}
@@ -87,7 +87,7 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
 
       {/* Grid */}
       <div style={{ padding: '0 clamp(1rem, 4vw, 3rem) 6rem' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '3rem 1.5rem', maxWidth: '1440px', margin: '0 auto' }}>
+        <div className="explore-grid">
           {visible.map(item => {
             const href = `${TYPE_HREF[item._type]}/${item.slug}`;
             const hotspot = item.coverImage?.hotspot;
@@ -126,7 +126,7 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
         </div>
 
         {visible.length === 0 && (
-          <p style={{ fontFamily: 'var(--font-serif)', color: 'rgba(248,244,239,0.4)', textAlign: 'center' }}>
+          <p style={{ fontFamily: 'var(--font-serif)', color: 'rgba(28,24,20,0.4)', textAlign: 'center' }}>
             Nothing here yet.
           </p>
         )}

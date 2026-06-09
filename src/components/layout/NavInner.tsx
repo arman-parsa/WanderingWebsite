@@ -24,6 +24,7 @@ export function NavInner() {
   const [bodyBgActive, setBodyBgActive] = useState(false);
   const [menuOpen, setMenuOpen]         = useState(false);
   const [scrollY, setScrollY]           = useState(0);
+  const [isMobile, setIsMobile]         = useState(false);
   const logoRef = useRef<HTMLAnchorElement>(null);
 
   // Detect article-hover body class (set by HomepageClient)
@@ -70,6 +71,14 @@ export function NavInner() {
       if (logoRef.current) logoRef.current.style.transform = 'scale(1)';
     };
   }, [isHomepage]);
+
+  // Detect mobile breakpoint
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check, { passive: true });
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   // Close menu on navigation
   useEffect(() => { setMenuOpen(false); }, [pathname]);
@@ -137,7 +146,7 @@ export function NavInner() {
 
         {/* Right — hamburger / expanded links */}
         <div className="nav-grid-right">
-          {menuOpen && (
+          {menuOpen && !isMobile && (
             <div className="nav-menu-expanded">
               <NavLink href="/articles">LIBRARY</NavLink>
               <NavLink href="/about">ABOUT</NavLink>
@@ -161,6 +170,21 @@ export function NavInner() {
           </button>
         </div>
       </nav>
+
+      {/* Mobile full-width dropdown (below nav bar) */}
+      {menuOpen && isMobile && (
+        <div
+          className="nav-menu-mobile"
+          style={{
+            background: isLight ? 'rgba(18, 14, 10, 0.97)' : 'rgba(248, 244, 239, 0.97)',
+            ['--nav-text' as string]: isLight ? '#f8f4ef' : '#1c1814',
+          } as React.CSSProperties}
+        >
+          <NavLink href="/articles">LIBRARY</NavLink>
+          <NavLink href="/about">ABOUT</NavLink>
+          <NavLink href="/contact">CONTACT</NavLink>
+        </div>
+      )}
     </div>
   );
 }

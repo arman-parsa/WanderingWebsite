@@ -147,6 +147,10 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+a, button {
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* ── Entrance animations ─────────────────────────────────── */
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(12px); }
@@ -233,6 +237,7 @@ html {
   font-family: var(--font-serif);
   font-size: var(--text-lg);
   line-height: var(--leading-relaxed);
+  overflow-wrap: break-word;
 }
 
 .article-body p + p {
@@ -247,6 +252,12 @@ html {
   margin-right: var(--space-2);
   margin-top: var(--space-1);
   color: var(--color-accent);
+}
+
+@media (max-width: 639px) {
+  .article-body p:first-of-type::first-letter {
+    font-size: 3.2em;
+  }
 }
 
 /* ── MapLibre popup reset ────────────────────────────────── */
@@ -360,6 +371,7 @@ html {
 .hero-section {
   position: relative;
   height: 100vh;
+  height: 100svh; /* small viewport height — prevents iOS toolbar jump */
   overflow: hidden;
 }
 
@@ -407,12 +419,14 @@ html {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px 0;
+  padding: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 22px;
-  min-height: 22px;
+  min-width: 44px;
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .nav-hamburger-bars {
@@ -447,12 +461,41 @@ html {
   to   { opacity: 1; transform: translateX(0); }
 }
 
+/* ── Mobile dropdown menu (below nav bar) ────────────────────── */
+.nav-menu-mobile {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0.5rem 0 1rem;
+  animation: nav-expand-down 200ms ease-out;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.nav-menu-mobile .nav-link {
+  width: 100%;
+  padding: 0.9rem clamp(1.5rem, 4vw, 3.75rem);
+}
+
+@keyframes nav-expand-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ── Logo link (nav + footer symbol) ────────────────────────── */
 .logo-link {
   display: block;
   line-height: 0;
   flex-shrink: 0;
   transition: opacity 250ms ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  padding: 8px;
+  margin: -8px;
 }
 .logo-link:hover { opacity: 0.65; }
 
@@ -533,6 +576,12 @@ html {
 .home-read-more:hover         { color: var(--color-accent); }
 .home-read-more:hover::after  { width: 44px; }
 
+/* ── Homepage articles footer ────────────────────────────────── */
+.home-articles-footer {
+  padding-top: 52px;
+  padding-bottom: 148px;
+}
+
 @media (max-width: 860px) {
   .home-opening {
     flex-direction: column;
@@ -544,6 +593,25 @@ html {
   .home-article-row     { flex-direction: column; align-items: flex-start; gap: 10px; }
   .home-article-title   { flex: none; width: 100%; }
   .home-article-meta    { flex: none; width: 100%; }
+  .home-article-item    { padding: 28px 0; border-bottom: 0.5px solid var(--color-border); }
+  .home-article-item:last-of-type { border-bottom: none; }
+  .home-articles-footer { padding-bottom: 64px; }
+}
+
+/* ── Explore / library grid ───────────────────────────────────── */
+.explore-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 3rem 1.5rem;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+@media (max-width: 639px) {
+  .explore-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
 }
 
 /* ── Globe panel read-link arrow ────────────────────────────── */
