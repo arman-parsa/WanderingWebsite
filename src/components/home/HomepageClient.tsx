@@ -80,12 +80,13 @@ export function HomepageClient({
   return (
     <>
       {/* Fixed full-bleed background layer — article hover effect */}
+      {/* z-index 2: sits above hero section (z=1) but below article content (z=3) */}
       <div
         aria-hidden="true"
         style={{
           position: 'fixed',
           inset: 0,
-          zIndex: 1,
+          zIndex: 2,
           pointerEvents: 'none',
           opacity: bgActive ? 1 : 0,
           transition: 'opacity 100ms ease',
@@ -102,13 +103,15 @@ export function HomepageClient({
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(28,24,20,0.38)' }} />
       </div>
 
-      <main id="main-content" style={{ position: 'relative', zIndex: 2 }}>
+      {/* main has no z-index so children can stack against root context independently */}
+      <main id="main-content" style={{ position: 'relative' }}>
 
         {/* ── Hero ─────────────────────────────────────────── */}
+        {/* z-index 1: below hover bg (z=2), so article hover covers it when partially visible */}
         <section
           className="hero-section"
           aria-label="Site introduction"
-          style={{ background: '#070b12' }}
+          style={{ background: '#070b12', position: 'relative', zIndex: 1 }}
         >
           {heroImages.map((url, i) => (
             <div
@@ -133,77 +136,80 @@ export function HomepageClient({
           </div>
         </section>
 
-        {/* ── Article list ─────────────────────────────────── */}
-        <section
-          aria-label="Recent work"
-          style={{ paddingLeft: px, paddingRight: px, paddingTop: '4rem' }}
-        >
-          {items.map(item => {
-            const href     = `${TYPE_HREF[item._type] ?? '/articles'}/${item.slug}`;
-            const isHov    = hovered?.slug === item.slug;
-            const showMeta = isMobile || isHov;
+        {/* ── Article list + footer link ────────────────────── */}
+        {/* z-index 3: above hover bg (z=2) so titles stay readable while bg image shows */}
+        <div style={{ position: 'relative', zIndex: 3 }}>
+          <section
+            aria-label="Recent work"
+            style={{ paddingLeft: px, paddingRight: px, paddingTop: '4rem' }}
+          >
+            {items.map(item => {
+              const href     = `${TYPE_HREF[item._type] ?? '/articles'}/${item.slug}`;
+              const isHov    = hovered?.slug === item.slug;
+              const showMeta = isMobile || isHov;
 
-            return (
-              <article
-                key={item.slug}
-                className="home-article-item"
-                onMouseEnter={() => { if (!isMobile) setHovered(item); }}
-                onMouseLeave={() => { if (!isMobile) setHovered(null); }}
-              >
-                <Link href={href} style={{ display: 'block', textDecoration: 'none' }}>
-                  <div className="home-article-row">
-                    <h2
-                      className="home-article-title"
-                      style={{
-                        color: isHov ? '#f8f4ef' : 'var(--color-ink)',
-                        transition: 'color 100ms ease',
-                      }}
-                    >
-                      {item.title}
-                    </h2>
-                    <div
-                      className="home-article-meta"
-                      aria-hidden="true"
-                      style={{ opacity: showMeta ? 1 : 0, transition: 'opacity 100ms ease' }}
-                    >
-                      {item.location && (
+              return (
+                <article
+                  key={item.slug}
+                  className="home-article-item"
+                  onMouseEnter={() => { if (!isMobile) setHovered(item); }}
+                  onMouseLeave={() => { if (!isMobile) setHovered(null); }}
+                >
+                  <Link href={href} style={{ display: 'block', textDecoration: 'none' }}>
+                    <div className="home-article-row">
+                      <h2
+                        className="home-article-title"
+                        style={{
+                          color: isHov ? '#f8f4ef' : 'var(--color-ink)',
+                          transition: 'color 100ms ease',
+                        }}
+                      >
+                        {item.title}
+                      </h2>
+                      <div
+                        className="home-article-meta"
+                        aria-hidden="true"
+                        style={{ opacity: showMeta ? 1 : 0, transition: 'opacity 100ms ease' }}
+                      >
+                        {item.location && (
+                          <span style={{
+                            fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 400,
+                            letterSpacing: '0.08em', textTransform: 'uppercase',
+                            color: isMobile ? 'var(--color-ink-muted)' : '#f8f4ef',
+                          }}>
+                            {item.location}
+                          </span>
+                        )}
                         <span style={{
-                          fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 400,
-                          letterSpacing: '0.08em', textTransform: 'uppercase',
-                          color: isMobile ? 'var(--color-ink-muted)' : '#f8f4ef',
-                        }}>
-                          {item.location}
-                        </span>
-                      )}
-                      <span style={{
-                        fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 300,
-                        letterSpacing: '0.04em', marginTop: '1px',
-                        color: isMobile ? 'rgba(122,112,103,0.7)' : 'rgba(248,244,239,0.60)',
-                      }}>
-                        {TYPE_LABEL[item._type] ?? ''}
-                      </span>
-                      {item.description && (
-                        <p style={{
                           fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 300,
-                          fontStyle: 'italic', lineHeight: 1.7, marginTop: '9px',
-                          color: isMobile ? 'rgba(122,112,103,0.80)' : 'rgba(248,244,239,0.70)',
+                          letterSpacing: '0.04em', marginTop: '1px',
+                          color: isMobile ? 'rgba(122,112,103,0.7)' : 'rgba(248,244,239,0.60)',
                         }}>
-                          {item.description}
-                        </p>
-                      )}
+                          {TYPE_LABEL[item._type] ?? ''}
+                        </span>
+                        {item.description && (
+                          <p style={{
+                            fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 300,
+                            fontStyle: 'italic', lineHeight: 1.7, marginTop: '9px',
+                            color: isMobile ? 'rgba(122,112,103,0.80)' : 'rgba(248,244,239,0.70)',
+                          }}>
+                            {item.description}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              </article>
-            );
-          })}
-        </section>
+                  </Link>
+                </article>
+              );
+            })}
+          </section>
 
-        {/* ── All articles link ─────────────────────────────── */}
-        <div style={{ paddingTop: '52px', paddingBottom: '148px', paddingLeft: px, paddingRight: px }}>
-          <Link href="/articles" className="home-read-more">
-            All articles
-          </Link>
+          {/* ── All articles link ─────────────────────────────── */}
+          <div style={{ paddingTop: '52px', paddingBottom: '148px', paddingLeft: px, paddingRight: px }}>
+            <Link href="/articles" className="home-read-more">
+              All articles
+            </Link>
+          </div>
         </div>
 
       </main>

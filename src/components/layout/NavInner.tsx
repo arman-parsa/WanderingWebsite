@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { NavLink } from '@/components/layout/NavLink';
@@ -13,8 +13,8 @@ function isDarkPagePath(path: string): boolean {
   );
 }
 
-const SYMBOL_SCALE_MAX = 3.0;
-const SYMBOL_SCALE_END = 180; // px of scroll until scale = 1
+const SYMBOL_SCALE_MAX = 2.0;
+const SYMBOL_SCALE_END = 220;
 
 export function NavInner() {
   const pathname   = usePathname();
@@ -24,6 +24,7 @@ export function NavInner() {
   const [bodyBgActive, setBodyBgActive] = useState(false);
   const [menuOpen, setMenuOpen]         = useState(false);
   const [scrollY, setScrollY]           = useState(0);
+  const logoRef = useRef<HTMLAnchorElement>(null);
 
   // Detect article-hover body class (set by HomepageClient)
   useEffect(() => {
@@ -34,13 +35,41 @@ export function NavInner() {
     return () => observer.disconnect();
   }, []);
 
-  // Track scroll position
-  useEffect(() => {
+  // Track scroll — useLayoutEffect fires before paint, eliminating flash on load/navigation
+  useLayoutEffect(() => {
     const onScroll = () => setScrollY(window.scrollY);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  // Re-sync scrollY when route changes (prevents stale value on navigation)
+  useLayoutEffect(() => {
+    setScrollY(window.scrollY);
+  }, [pathname]);
+
+  // Smooth symbol scale via direct DOM update — bypasses React batching for 60fps
+  useEffect(() => {
+    const logo = logoRef.current;
+    if (!logo) return;
+
+    if (!isHomepage) {
+      logo.style.transform = 'scale(1)';
+      return;
+    }
+
+    const updateScale = () => {
+      const t = Math.min(1, window.scrollY / SYMBOL_SCALE_END);
+      const scale = SYMBOL_SCALE_MAX - t * (SYMBOL_SCALE_MAX - 1);
+      logo.style.transform = `scale(${scale})`;
+    };
+    updateScale();
+    window.addEventListener('scroll', updateScale, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', updateScale);
+      if (logoRef.current) logoRef.current.style.transform = 'scale(1)';
+    };
+  }, [isHomepage]);
 
   // Close menu on navigation
   useEffect(() => { setMenuOpen(false); }, [pathname]);
@@ -58,18 +87,15 @@ export function NavInner() {
 
   const showBlur = !bodyBgActive && !onHero;
 
-  // Symbol scales up on homepage hero, shrinks on scroll
-  const t = Math.min(1, scrollY / SYMBOL_SCALE_END);
-  const symbolScale = isHomepage
-    ? SYMBOL_SCALE_MAX - t * (SYMBOL_SCALE_MAX - 1)
-    : 1;
-
   return (
     <div className="nav-shell" style={{ overflow: 'visible' }}>
       <div
         aria-hidden="true"
         className={`nav-bg${showBlur ? ' nav-bg--blur' : ''}`}
-        style={{ background: bgValue, transition: 'background 300ms ease' }}
+        style={{
+          background: bgValue,
+          transition: 'background 250ms ease, backdrop-filter 250ms ease, -webkit-backdrop-filter 250ms ease',
+        }}
       />
       <nav
         className="nav-inner nav-grid"
@@ -80,14 +106,14 @@ export function NavInner() {
           <NavLink href="/map">EARTH</NavLink>
         </div>
 
-        {/* Center — alchemical symbol, scales on homepage */}
+        {/* Center — alchemical symbol, scale driven via ref for smooth animation */}
         <div className="nav-grid-center">
-          <Link href="/" aria-label="Arman's Wanderings — home" className="logo-link"
-            style={{
-              transform: `scale(${symbolScale})`,
-              transformOrigin: 'center center',
-              transition: 'transform 60ms linear',
-            }}
+          <Link
+            href="/"
+            ref={logoRef}
+            aria-label="Arman's Wanderings — home"
+            className="logo-link"
+            style={{ transformOrigin: 'center center' }}
           >
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
               <polygon
