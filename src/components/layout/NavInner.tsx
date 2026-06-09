@@ -43,9 +43,11 @@ export function NavInner() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Re-sync scrollY when route changes (prevents stale value on navigation)
+  // Re-sync scrollY on route change.
+  // When navigating TO the homepage Next.js scrolls to top — assume 0 immediately
+  // so the nav doesn't briefly show opaque from a stale previous-page position.
   useLayoutEffect(() => {
-    setScrollY(window.scrollY);
+    setScrollY(pathname === '/' ? 0 : window.scrollY);
   }, [pathname]);
 
   // Smooth symbol scale via direct DOM update — bypasses React batching for 60fps
