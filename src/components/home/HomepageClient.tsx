@@ -207,7 +207,7 @@ export function HomepageClient({
           {/* ── All articles link ─────────────────────────────── */}
           <div style={{ paddingTop: '52px', paddingBottom: '148px', paddingLeft: px, paddingRight: px }}>
             <Link href="/articles" className="home-read-more">
-              All articles
+              All work
             </Link>
           </div>
         </div>

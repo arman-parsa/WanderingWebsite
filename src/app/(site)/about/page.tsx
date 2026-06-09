@@ -16,7 +16,7 @@ export default function AboutPage() {
         modernity to real, grounded, intimate stories collected across the world.
       </p>
       <p className="mt-6 font-normal font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
-        Amir Arman Ghanbari Parsa is a London-born, 23 years-old, Oxford-educated
+        Amir Arman Ghanbari Parsa is a London-born, 23 year-old, Oxford-educated
         Iranian journalist and photographer/videographer.
       </p>
     </main>
