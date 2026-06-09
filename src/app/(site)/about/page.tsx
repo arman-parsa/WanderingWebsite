@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <main id="main-content" className="mx-auto flex flex-1 w-full max-w-[var(--content-max-width)] flex-col items-center justify-center px-[var(--content-padding-x)] pt-16 pb-8 text-center">
+    <main id="main-content" className="mx-auto flex flex-1 w-full max-w-[var(--content-max-width)] flex-col justify-center px-[var(--content-padding-x)] pt-16 pb-8 text-center">
       <p className="w-full font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
         Stories long to be caught on pen and paper, or through the lens of a camera.
       </p>
