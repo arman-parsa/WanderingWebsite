@@ -9,7 +9,7 @@ export default function ContactPage() {
   return (
     <main
       id="main-content"
-      className="flex flex-1 flex-col justify-center px-[var(--content-padding-x)] py-16"
+      className="flex flex-1 w-full min-w-0 flex-col justify-center px-[var(--content-padding-x)] py-16"
     >
       <div className="mx-auto w-full max-w-[var(--content-max-width)] break-words text-center">
         <p className="font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
