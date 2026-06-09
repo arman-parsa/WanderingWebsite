@@ -396,7 +396,7 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
           moved = true;
         }
         if (Math.abs(ia.velY) > 0.00005) {
-          ia.tiltAngle = Math.max(TILT_MIN, Math.min(TILT_MAX, ia.tiltAngle - ia.velY));
+          ia.tiltAngle = Math.max(TILT_MIN, Math.min(TILT_MAX, ia.tiltAngle + ia.velY));
           ia.velY *= MOMENTUM_DECAY;
           moved = true;
         }
@@ -497,7 +497,7 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
       ia.spinQ.premultiply(
         new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), dx)
       );
-      ia.tiltAngle = Math.max(TILT_MIN, Math.min(TILT_MAX, ia.tiltAngle - dy));
+      ia.tiltAngle = Math.max(TILT_MIN, Math.min(TILT_MAX, ia.tiltAngle + dy));
       applyGlobeRotation();
       ia.lastX = e.clientX;
       ia.lastY = e.clientY;
