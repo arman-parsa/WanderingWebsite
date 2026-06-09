@@ -253,6 +253,52 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
       })
     ));
 
+    // ── Star field ───────────────────────────────────────────────────────
+    const STAR_COUNT = 1800;
+    const sPosArr   = new Float32Array(STAR_COUNT * 3);
+    const sPhaseArr = new Float32Array(STAR_COUNT);
+    const sSizeArr  = new Float32Array(STAR_COUNT);
+    for (let i = 0; i < STAR_COUNT; i++) {
+      const theta = Math.random() * Math.PI * 2;
+      const phi   = Math.acos(2 * Math.random() - 1);
+      const r     = 40;
+      sPosArr[i * 3]     = r * Math.sin(phi) * Math.cos(theta);
+      sPosArr[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      sPosArr[i * 3 + 2] = r * Math.cos(phi);
+      sPhaseArr[i] = Math.random() * Math.PI * 2;
+      sSizeArr[i]  = 1.0 + Math.random() * 2.2;
+    }
+    const starGeo = new THREE.BufferGeometry();
+    starGeo.setAttribute('position', new THREE.BufferAttribute(sPosArr, 3));
+    starGeo.setAttribute('aPhase',   new THREE.BufferAttribute(sPhaseArr, 1));
+    starGeo.setAttribute('aSize',    new THREE.BufferAttribute(sSizeArr, 1));
+    const starUniforms = { uTime: { value: 0 } };
+    const starMat = new THREE.ShaderMaterial({
+      uniforms: starUniforms,
+      vertexShader: `
+        uniform float uTime;
+        attribute float aPhase;
+        attribute float aSize;
+        void main() {
+          float twinkle = 0.55 + 0.45 * sin(uTime * 1.4 + aPhase);
+          gl_PointSize = aSize * twinkle;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        void main() {
+          float d = length(gl_PointCoord - vec2(0.5));
+          if (d > 0.5) discard;
+          float alpha = 1.0 - smoothstep(0.1, 0.5, d);
+          gl_FragColor = vec4(0.88, 0.93, 1.0, alpha);
+        }
+      `,
+      transparent: true,
+      depthWrite: false,
+    });
+    const starPoints = new THREE.Points(starGeo, starMat);
+    scene.add(starPoints);
+
     // ── Land (async) ─────────────────────────────────────────────────────
     let landMesh: THREE.Mesh | null = null;
     fetch('/data/ne_110m_land.json')
@@ -299,13 +345,6 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
     let hoveredPin: THREE.Mesh | null = null;
     let elapsed = 0;
 
-    const TILT_LIMIT = Math.PI / 6; // ±30°
-    function clampTilt() {
-      const euler = new THREE.Euler().setFromQuaternion(globeGroup.quaternion, 'YXZ');
-      euler.x = Math.max(-TILT_LIMIT, Math.min(TILT_LIMIT, euler.x));
-      globeGroup.quaternion.setFromEuler(euler);
-    }
-
     const scheduleResumeAutoRot = () => {
       if (ia.inactivityTimer) clearTimeout(ia.inactivityTimer);
       ia.inactivityTimer = setTimeout(() => {
@@ -332,15 +371,15 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
       }
 
       // Momentum
-      if (!ia.isDragging && !ia.isAutoRotating && (Math.abs(ia.velX) > 0.00005 || Math.abs(ia.velY) > 0.00005)) {
-        const qY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), ia.velX);
-        const qX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), ia.velY);
-        globeGroup.quaternion.premultiply(qY);
-        globeGroup.quaternion.premultiply(qX);
-        clampTilt();
+      if (!ia.isDragging && !ia.isAutoRotating && Math.abs(ia.velX) > 0.00005) {
+        globeGroup.quaternion.premultiply(
+          new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), ia.velX)
+        );
         ia.velX *= MOMENTUM_DECAY;
-        ia.velY *= MOMENTUM_DECAY;
       }
+
+      // Star twinkling
+      starUniforms.uTime.value = elapsed;
 
       // Pin pulse
       if (!reducedMotion) {
@@ -427,14 +466,11 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
       updatePointer(e.clientX, e.clientY);
       if (!ia.isDragging) return;
       const dx = (e.clientX - ia.lastX) * 0.005;
-      const dy = (e.clientY - ia.lastY) * 0.005;
       ia.velX = dx;
-      ia.velY = dy;
-      const qY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), dx);
-      const qX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), dy);
-      globeGroup.quaternion.premultiply(qY);
-      globeGroup.quaternion.premultiply(qX);
-      clampTilt();
+      ia.velY = 0;
+      globeGroup.quaternion.premultiply(
+        new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), dx)
+      );
       ia.lastX = e.clientX;
       ia.lastY = e.clientY;
     }
@@ -533,6 +569,8 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
         landMesh.geometry.dispose();
         (landMesh.material as THREE.Material).dispose();
       }
+      starGeo.dispose();
+      starMat.dispose();
       renderer.dispose();
       if (wrap.contains(canvas)) wrap.removeChild(canvas);
     };

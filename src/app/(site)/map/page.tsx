@@ -35,7 +35,7 @@ export default async function MapPage() {
         position: 'fixed',
         inset: 0,
         top: '3.5rem',
-        backgroundColor: '#f8f4ef',
+        backgroundColor: '#070b12',
       }}
       aria-label="Geographic archive globe"
     >
