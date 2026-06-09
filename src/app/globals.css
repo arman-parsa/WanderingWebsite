@@ -618,6 +618,96 @@ a, button {
   }
 }
 
+/* ── Explore / library card hover (echoes homepage reveal) ─────── */
+.explore-card-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background-color: rgba(28, 24, 20, 0.08);
+}
+.explore-card-img {
+  object-fit: cover;
+  transition: transform 600ms var(--ease-out);
+  will-change: transform;
+}
+.explore-card-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  padding: 1.1rem;
+  background: linear-gradient(to top, rgba(28, 24, 20, 0.55), rgba(28, 24, 20, 0) 65%);
+  opacity: 0;
+  transition: opacity 250ms var(--ease-out);
+}
+.explore-card-caption {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #f8f4ef;
+  transform: translateY(6px);
+  transition: transform 300ms var(--ease-out);
+}
+.explore-card-title {
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 1.4vw, 1.25rem);
+  font-weight: 300;
+  line-height: 1.35;
+  color: var(--color-ink);
+  transition: color 200ms var(--ease-out);
+}
+.explore-card:hover .explore-card-img { transform: scale(1.05); }
+.explore-card:hover .explore-card-overlay { opacity: 1; }
+.explore-card:hover .explore-card-caption { transform: translateY(0); }
+.explore-card:hover .explore-card-title { color: var(--color-accent); }
+
+/* ── Intro loader (first-visit animation) ──────────────────────── */
+.intro-active { overflow: hidden; }
+html.intro-seen .intro-loader { display: none !important; }
+
+.intro-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-paper);
+  animation: intro-overlay-out 800ms var(--ease-out) 3200ms forwards;
+}
+.intro-loader__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+  padding: 0 1.5rem;
+}
+.intro-loader__symbol {
+  opacity: 0;
+  animation: intro-fade-in 1200ms var(--ease-out) 200ms forwards;
+}
+.intro-loader__tagline {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.05rem, 2vw, 1.4rem);
+  letter-spacing: 0.01em;
+  color: var(--color-ink-muted);
+  text-align: center;
+  opacity: 0;
+  animation: intro-fade-in 1000ms var(--ease-out) 1500ms forwards;
+}
+
+@keyframes intro-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes intro-overlay-out {
+  to { opacity: 0; visibility: hidden; }
+}
+
 /* ── Globe panel read-link arrow ────────────────────────────── */
 .read-link .read-link-arrow {
   display: inline-block;

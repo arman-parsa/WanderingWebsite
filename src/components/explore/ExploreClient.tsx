@@ -9,6 +9,7 @@ type ContentItem = {
   _type: 'writing' | 'mixedMedia' | 'photography' | 'videography';
   title: string;
   slug: string;
+  description?: string;
   coverImage?: { asset?: object; alt?: string; hotspot?: { x: number; y: number } };
 };
 
@@ -94,19 +95,25 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
             const objectPosition = hotspot ? `${hotspot.x * 100}% ${hotspot.y * 100}%` : 'center';
 
             return (
-              <div key={item.slug}>
+              <div key={item.slug} className="explore-card">
                 <Link href={href} style={{ display: 'block', textDecoration: 'none' }}>
                   {/* Image */}
-                  <div style={{ position: 'relative', width: '100%', aspectRatio: '3/2', overflow: 'hidden', backgroundColor: 'rgba(28,24,20,0.08)' }}>
+                  <div className="explore-card-frame">
                     {item.coverImage?.asset && (
                       <Image
+                        className="explore-card-img"
                         src={urlFor(item.coverImage).width(900).height(600).fit('crop').format('webp').quality(80).url()}
                         alt={(item.coverImage as { alt?: string }).alt ?? item.title}
                         fill
                         loading="lazy"
                         sizes="(max-width: 639px) 100vw, 50vw"
-                        style={{ objectFit: 'cover', objectPosition }}
+                        style={{ objectPosition }}
                       />
+                    )}
+                    {item.description && (
+                      <div className="explore-card-overlay">
+                        <span className="explore-card-caption">{item.description}</span>
+                      </div>
                     )}
                   </div>
 
@@ -115,7 +122,7 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
                     <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(28,24,20,0.45)', marginBottom: '0.5rem' }}>
                       {TYPE_LABEL[item._type]}
                     </p>
-                    <p style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(1rem, 1.4vw, 1.25rem)', fontWeight: 300, lineHeight: 1.35, color: '#1c1814' }}>
+                    <p className="explore-card-title">
                       {item.title}
                     </p>
                   </div>
