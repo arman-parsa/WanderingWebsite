@@ -7,14 +7,15 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <main id="main-content" className="mx-auto flex flex-1 w-full max-w-[var(--content-max-width)] flex-col justify-center px-[var(--content-padding-x)] pt-16 pb-8 text-center">
-      <p className="w-full font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
+    <main id="main-content" className="flex flex-1 flex-col justify-center w-full">
+      <div className="mx-auto w-full max-w-[var(--content-max-width)] px-[var(--content-padding-x)] py-8 pt-16 text-center">
+      <p className="font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
         For partnerships, editorial enquiries, or just to say hello — reach out by email.
       </p>
 
       <a
         href="mailto:armanparsa03@gmail.com"
-        className="mt-8 font-sans text-sm uppercase tracking-widest text-ink underline-offset-4 opacity-60 transition-opacity duration-[var(--duration-fast)] hover:opacity-100"
+        className="mt-8 block font-sans text-sm uppercase tracking-widest text-ink underline-offset-4 opacity-60 transition-opacity duration-[var(--duration-fast)] hover:opacity-100"
       >
         armanparsa03@gmail.com
       </a>
@@ -59,6 +60,7 @@ export default function ContactPage() {
             <circle cx="4" cy="4" r="2" />
           </svg>
         </a>
+      </div>
       </div>
     </main>
   );
