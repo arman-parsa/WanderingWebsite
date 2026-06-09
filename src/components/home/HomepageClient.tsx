@@ -26,9 +26,16 @@ export type HomeItem = {
   coverImageUrl?: string;
 };
 
-export function HomepageClient({ items }: { items: HomeItem[] }) {
+export function HomepageClient({
+  items,
+  heroImages = [],
+}: {
+  items: HomeItem[];
+  heroImages?: string[];
+}) {
   const [hovered, setHovered]   = useState<HomeItem | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [bgIdx, setBgIdx]       = useState(0);
 
   const bgActive = hovered !== null;
   const bgUrl    = hovered?.coverImageUrl;
@@ -40,7 +47,16 @@ export function HomepageClient({ items }: { items: HomeItem[] }) {
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  // Preload cover images so first hover is instant
+  // Rotate hero background images
+  useEffect(() => {
+    if (heroImages.length <= 1) return;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducedMotion) return;
+    const id = setInterval(() => setBgIdx(i => (i + 1) % heroImages.length), 5000);
+    return () => clearInterval(id);
+  }, [heroImages]);
+
+  // Preload article cover images
   useEffect(() => {
     items.forEach(item => {
       if (item.coverImageUrl) {
@@ -50,7 +66,7 @@ export function HomepageClient({ items }: { items: HomeItem[] }) {
     });
   }, [items]);
 
-  // Sync body class → NavInner reads it via MutationObserver
+  // Sync body class for NavInner bg-active detection
   useEffect(() => {
     document.body.classList.toggle('bg-active', bgActive);
   }, [bgActive]);
@@ -63,7 +79,7 @@ export function HomepageClient({ items }: { items: HomeItem[] }) {
 
   return (
     <>
-      {/* Fixed full-bleed background layer */}
+      {/* Fixed full-bleed background layer — article hover effect */}
       <div
         aria-hidden="true"
         style={{
@@ -77,57 +93,54 @@ export function HomepageClient({ items }: { items: HomeItem[] }) {
         }}
       >
         {bgUrl && (
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              backgroundImage: `url('${bgUrl}')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-            }}
-          />
+          <div style={{
+            position: 'absolute', inset: 0,
+            backgroundImage: `url('${bgUrl}')`,
+            backgroundSize: 'cover', backgroundPosition: 'center',
+          }} />
         )}
-        {/* Dark tint overlay */}
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(28,24,20,0.38)' }} />
       </div>
 
       <main id="main-content" style={{ position: 'relative', zIndex: 2 }}>
 
-        {/* Opening — tagline left / title right */}
+        {/* ── Hero ─────────────────────────────────────────── */}
         <section
-          className="home-opening"
+          className="hero-section"
           aria-label="Site introduction"
-          style={{ paddingLeft: px, paddingRight: px }}
+          style={{ background: '#070b12' }}
         >
-          <p
-            className="home-tagline"
-            style={{
-              color: bgActive ? 'rgba(248,244,239,0.55)' : 'var(--color-ink-muted)',
-              transition: 'color 100ms ease',
-            }}
-          >
-            Writing and visual media<br />collected across the world
-          </p>
-          <h1
-            className="home-title"
-            style={{
-              color: bgActive ? 'rgba(248,244,239,0.90)' : 'var(--color-ink)',
-              transition: 'color 100ms ease',
-            }}
-          >
-            Arman&apos;s Wanderings
-          </h1>
+          {heroImages.map((url, i) => (
+            <div
+              key={url}
+              style={{
+                position: 'absolute', inset: 0,
+                backgroundImage: `url('${url}')`,
+                backgroundSize: 'cover', backgroundPosition: 'center',
+                opacity: i === bgIdx ? 1 : 0,
+                transition: 'opacity 1500ms ease',
+              }}
+            />
+          ))}
+          {/* Overlay */}
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(28,24,20,0.48)', zIndex: 1 }} />
+          {/* Tagline */}
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 2,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <p className="hero-tagline">Stories collected around the world.</p>
+          </div>
         </section>
 
-        {/* Article list */}
+        {/* ── Article list ─────────────────────────────────── */}
         <section
           aria-label="Recent work"
-          style={{ paddingLeft: px, paddingRight: px }}
+          style={{ paddingLeft: px, paddingRight: px, paddingTop: '4rem' }}
         >
           {items.map(item => {
-            const href   = `${TYPE_HREF[item._type] ?? '/articles'}/${item.slug}`;
-            const isHov  = hovered?.slug === item.slug;
+            const href     = `${TYPE_HREF[item._type] ?? '/articles'}/${item.slug}`;
+            const isHov    = hovered?.slug === item.slug;
             const showMeta = isMobile || isHov;
 
             return (
@@ -139,7 +152,6 @@ export function HomepageClient({ items }: { items: HomeItem[] }) {
               >
                 <Link href={href} style={{ display: 'block', textDecoration: 'none' }}>
                   <div className="home-article-row">
-
                     <h2
                       className="home-article-title"
                       style={{
@@ -149,7 +161,6 @@ export function HomepageClient({ items }: { items: HomeItem[] }) {
                     >
                       {item.title}
                     </h2>
-
                     <div
                       className="home-article-meta"
                       aria-hidden="true"
@@ -157,41 +168,30 @@ export function HomepageClient({ items }: { items: HomeItem[] }) {
                     >
                       {item.location && (
                         <span style={{
-                          fontFamily: 'var(--font-sans)',
-                          fontSize: '12px',
-                          fontWeight: 400,
-                          letterSpacing: '0.08em',
-                          textTransform: 'uppercase',
+                          fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 400,
+                          letterSpacing: '0.08em', textTransform: 'uppercase',
                           color: isMobile ? 'var(--color-ink-muted)' : '#f8f4ef',
                         }}>
                           {item.location}
                         </span>
                       )}
                       <span style={{
-                        fontFamily: 'var(--font-sans)',
-                        fontSize: '12px',
-                        fontWeight: 300,
-                        letterSpacing: '0.04em',
+                        fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 300,
+                        letterSpacing: '0.04em', marginTop: '1px',
                         color: isMobile ? 'rgba(122,112,103,0.7)' : 'rgba(248,244,239,0.60)',
-                        marginTop: '1px',
                       }}>
                         {TYPE_LABEL[item._type] ?? ''}
                       </span>
                       {item.description && (
                         <p style={{
-                          fontFamily: 'var(--font-sans)',
-                          fontSize: '12px',
-                          fontWeight: 300,
-                          fontStyle: 'italic',
-                          lineHeight: 1.7,
+                          fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 300,
+                          fontStyle: 'italic', lineHeight: 1.7, marginTop: '9px',
                           color: isMobile ? 'rgba(122,112,103,0.80)' : 'rgba(248,244,239,0.70)',
-                          marginTop: '9px',
                         }}>
                           {item.description}
                         </p>
                       )}
                     </div>
-
                   </div>
                 </Link>
               </article>
@@ -199,13 +199,8 @@ export function HomepageClient({ items }: { items: HomeItem[] }) {
           })}
         </section>
 
-        {/* All articles link */}
-        <div style={{
-          paddingTop: '52px',
-          paddingBottom: '148px',
-          paddingLeft: px,
-          paddingRight: px,
-        }}>
+        {/* ── All articles link ─────────────────────────────── */}
+        <div style={{ paddingTop: '52px', paddingBottom: '148px', paddingLeft: px, paddingRight: px }}>
           <Link href="/articles" className="home-read-more">
             All articles
           </Link>

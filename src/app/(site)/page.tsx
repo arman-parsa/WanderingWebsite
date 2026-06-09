@@ -42,5 +42,10 @@ export default async function HomePage() {
       : undefined,
   }));
 
-  return <HomepageClient items={homeItems} />;
+  // Use article cover images as hero backgrounds; user can supply dedicated hero images later
+  const heroImages = homeItems
+    .map(i => i.coverImageUrl)
+    .filter((u): u is string => Boolean(u));
+
+  return <HomepageClient items={homeItems} heroImages={heroImages} />;
 }
