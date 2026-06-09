@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <main id="main-content" className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-[var(--content-max-width)] flex-col items-center justify-center px-[var(--content-padding-x)] py-24 text-center">
+    <main id="main-content" className="mx-auto flex flex-1 w-full max-w-[var(--content-max-width)] flex-col items-center justify-center px-[var(--content-padding-x)] pt-16 pb-8 text-center">
       <p className="font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
         Stories long to be caught on pen and paper, or through the lens of a camera.
       </p>
@@ -16,7 +16,7 @@ export default function AboutPage() {
         modernity to real, grounded, intimate stories collected across the world.
       </p>
       <p className="mt-6 font-normal font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
-        Amir Arman Ghanbari Parsa is a London-born, 23 years-old, Oxford-educated
+        Amir Arman Ghanbari Parsa is a London-born, 23 year-old, Oxford-educated
         Iranian journalist and photographer/videographer.
       </p>
     </main>

@@ -126,7 +126,7 @@ export function NavInner() {
                 style={{ stroke: textColour, transition: 'stroke 250ms ease' }}
               />
               <line
-                x1="10" y1="11" x2="18" y2="11"
+                x1="2" y1="11" x2="26" y2="11"
                 strokeWidth="1.2"
                 strokeLinecap="round"
                 style={{ stroke: textColour, transition: 'stroke 250ms ease' }}

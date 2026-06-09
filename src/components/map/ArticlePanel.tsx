@@ -62,14 +62,18 @@ export default function ArticlePanel({ cluster, onClose, isMobile }: Props) {
   return (
     <div style={panelStyle} aria-hidden={!open}>
       {cluster && (
-        <div style={{ padding: '2rem', position: 'relative' }}>
+        <div style={{
+          padding: '2rem',
+          paddingTop: isMobile ? '1.5rem' : 'calc(4rem + 1.5rem)',
+          position: 'relative',
+        }}>
           {/* Close */}
           <button
             onClick={onClose}
             aria-label="Close panel"
             style={{
               position: 'absolute',
-              top: '1.25rem',
+              top: isMobile ? '1.25rem' : 'calc(4rem + 1.25rem)',
               right: '1.25rem',
               fontFamily: 'var(--font-sans)',
               fontSize: '1rem',
