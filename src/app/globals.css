@@ -118,11 +118,6 @@
   --font-sans:  var(--font-sans);
   --font-mono:  var(--font-mono);
 
-  /* Max-widths */
-  --width-content: var(--content-max-width);
-  --width-wide:    var(--content-wide-width);
-  --width-full:    var(--content-full-width);
-
   /* Transition durations */
   --transition-duration-fast:   var(--duration-fast);
   --transition-duration-normal: var(--duration-normal);
