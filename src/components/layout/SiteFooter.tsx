@@ -25,7 +25,7 @@ export function SiteFooter() {
         </div>
 
         <p className="font-sans text-xs uppercase tracking-widest text-ink-faint">
-          © {year} Wandering Website
+          © {year} armanparsa.earth
         </p>
 
       </div>

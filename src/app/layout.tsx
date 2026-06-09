@@ -3,11 +3,16 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: {
-    default: 'Wandering Website',
-    template: '%s — Wandering Website',
+    default: "ARMAN'S WANDERINGS",
+    template: "%s — ARMAN'S WANDERINGS",
   },
-  description: 'A personal editorial website: travel writing, photography, and mixed media.',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'),
+  description: 'A personal archive of written and visual media capturing stories around the earth',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://armanparsa.earth'),
+  openGraph: {
+    title: "ARMAN'S WANDERINGS",
+    description: 'A personal archive of written and visual media capturing stories around the earth',
+    siteName: "ARMAN'S WANDERINGS",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
