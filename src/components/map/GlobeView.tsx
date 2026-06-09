@@ -233,6 +233,8 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
 
     // ── Globe group ──────────────────────────────────────────────────────
     const globeGroup = new THREE.Group();
+    // Tilt ~23° toward viewer so high-latitude pins are accessible during Y-axis spin
+    globeGroup.quaternion.setFromEuler(new THREE.Euler(-0.4, 0, 0));
     scene.add(globeGroup);
 
     const oceanMesh = new THREE.Mesh(
