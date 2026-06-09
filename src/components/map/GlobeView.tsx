@@ -237,7 +237,7 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
 
     const oceanMesh = new THREE.Mesh(
       new THREE.SphereGeometry(GLOBE_RADIUS, 64, 64),
-      new THREE.MeshStandardMaterial({ color: 0xd4cfc9, roughness: 0.95, metalness: 0 })
+      new THREE.MeshStandardMaterial({ color: 0x7a9aaa, roughness: 0.95, metalness: 0 })
     );
     globeGroup.add(oceanMesh);
 
@@ -259,7 +259,7 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
       .then((r) => r.json() as Promise<GeoCollection>)
       .then((geojson) => {
         const landGeo = buildLandGeometry(geojson);
-        const landMat = new THREE.MeshStandardMaterial({ color: 0x7a6e62, roughness: 0.9, metalness: 0, side: THREE.DoubleSide });
+        const landMat = new THREE.MeshStandardMaterial({ color: 0x8a9a6a, roughness: 0.9, metalness: 0, side: THREE.DoubleSide });
         landMesh = new THREE.Mesh(landGeo, landMat);
         globeGroup.add(landMesh);
       });
@@ -299,6 +299,13 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
     let hoveredPin: THREE.Mesh | null = null;
     let elapsed = 0;
 
+    const TILT_LIMIT = Math.PI / 6; // ±30°
+    function clampTilt() {
+      const euler = new THREE.Euler().setFromQuaternion(globeGroup.quaternion, 'YXZ');
+      euler.x = Math.max(-TILT_LIMIT, Math.min(TILT_LIMIT, euler.x));
+      globeGroup.quaternion.setFromEuler(euler);
+    }
+
     const scheduleResumeAutoRot = () => {
       if (ia.inactivityTimer) clearTimeout(ia.inactivityTimer);
       ia.inactivityTimer = setTimeout(() => {
@@ -330,6 +337,7 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
         const qX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), ia.velY);
         globeGroup.quaternion.premultiply(qY);
         globeGroup.quaternion.premultiply(qX);
+        clampTilt();
         ia.velX *= MOMENTUM_DECAY;
         ia.velY *= MOMENTUM_DECAY;
       }
@@ -426,6 +434,7 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
       const qX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), dy);
       globeGroup.quaternion.premultiply(qY);
       globeGroup.quaternion.premultiply(qX);
+      clampTilt();
       ia.lastX = e.clientX;
       ia.lastY = e.clientY;
     }

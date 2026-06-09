@@ -7,7 +7,7 @@ import { ExploreClient } from '@/components/explore/ExploreClient';
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: 'Explore',
+  title: 'Library',
   description: 'Writing, photography, mixed media, and videography.',
 };
 

@@ -54,8 +54,8 @@ export function NavInner() {
         style={{ '--nav-text': textColour } as React.CSSProperties}
       >
         <ul className="nav-links" role="list">
-          <li><NavLink href="/articles">EXPLORE</NavLink></li>
-          <li><NavLink href="/map">MAP</NavLink></li>
+          <li><NavLink href="/map">EARTH</NavLink></li>
+          <li><NavLink href="/articles">LIBRARY</NavLink></li>
           <li><NavLink href="/about">ABOUT</NavLink></li>
           <li><NavLink href="/contact">CONTACT</NavLink></li>
         </ul>
