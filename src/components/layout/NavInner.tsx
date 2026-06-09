@@ -123,7 +123,7 @@ export function NavInner() {
           <Link
             href="/"
             ref={logoRef}
-            aria-label="Arman's Wanderings — home"
+            aria-label="Arman Parsa - Dispatches — home"
             className="logo-link"
             style={{ transformOrigin: 'center center' }}
           >

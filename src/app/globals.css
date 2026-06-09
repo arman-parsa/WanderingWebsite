@@ -149,6 +149,9 @@ html {
   font-family: var(--font-serif);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Stop iOS Safari inflating text (and overflowing) on rotation to landscape */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 a, button {

@@ -3,15 +3,15 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: {
-    default: "ARMAN'S WANDERINGS",
-    template: "%s — ARMAN'S WANDERINGS",
+    default: 'Arman Parsa - Dispatches',
+    template: '%s · Arman Parsa - Dispatches',
   },
   description: 'A personal archive of written and visual media capturing stories around the earth',
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://armanparsa.earth'),
   openGraph: {
-    title: "ARMAN'S WANDERINGS",
+    title: 'Arman Parsa - Dispatches',
     description: 'A personal archive of written and visual media capturing stories around the earth',
-    siteName: "ARMAN'S WANDERINGS",
+    siteName: 'Arman Parsa - Dispatches',
   },
 };
 

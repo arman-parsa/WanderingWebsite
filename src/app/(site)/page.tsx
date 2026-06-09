@@ -10,8 +10,8 @@ import { HomepageClient, type HomeItem } from '@/components/home/HomepageClient'
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "ARMAN'S WANDERINGS",
-  description: "A personal archive of travel writing, photography, and editorial work from the field.",
+  title: { absolute: 'Arman Parsa - Dispatches' },
+  description: 'A personal archive of written and visual media capturing stories around the earth',
 };
 
 type ContentItem = {
