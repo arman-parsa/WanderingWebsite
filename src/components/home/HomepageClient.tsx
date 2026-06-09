@@ -205,7 +205,7 @@ export function HomepageClient({
           </section>
 
           {/* ── All articles link ─────────────────────────────── */}
-          <div style={{ paddingTop: '52px', paddingBottom: '148px', paddingLeft: px, paddingRight: px }}>
+          <div className="home-articles-footer" style={{ paddingLeft: px, paddingRight: px }}>
             <Link href="/articles" className="home-read-more">
               All work
             </Link>

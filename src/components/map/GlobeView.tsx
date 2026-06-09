@@ -468,6 +468,8 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
 
     // ── Pointer handlers ─────────────────────────────────────────────────
     const canvas = renderer.domElement;
+    canvas.style.touchAction = 'none';
+    canvas.style.userSelect = 'none';
 
     function updatePointer(clientX: number, clientY: number) {
       const rect = canvas.getBoundingClientRect();
@@ -626,6 +628,7 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
           inset: 0,
           transition: 'transform 400ms cubic-bezier(0, 0, 0.2, 1)',
           transform: panelOpen && !isMobile ? `translateX(-${PANEL_SHIFT}px)` : 'translateX(0)',
+          touchAction: 'none',
         }}
       />
 

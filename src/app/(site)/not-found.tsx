@@ -7,7 +7,7 @@ export default function NotFound() {
       <h1 className="mt-4 font-serif text-[var(--text-4xl)] font-light tracking-tight text-ink">Page not found</h1>
       <Link
         href="/"
-        className="mt-8 font-sans text-sm uppercase tracking-widest text-ink underline-offset-4 hover:underline"
+        className="mt-8 inline-block py-3 px-2 font-sans text-sm uppercase tracking-widest text-ink underline-offset-4 hover:underline"
       >
         Return home
       </Link>

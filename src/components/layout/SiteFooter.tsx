@@ -17,7 +17,7 @@ export function SiteFooter() {
               fill="none"
             />
             <line
-              x1="10" y1="11" x2="18" y2="11"
+              x1="2" y1="11" x2="26" y2="11"
               stroke="#7a7067" strokeWidth="1.2"
               strokeLinecap="round"
             />
@@ -25,7 +25,7 @@ export function SiteFooter() {
         </div>
 
         <p className="font-sans text-xs uppercase tracking-widest text-ink-faint">
-          © {year} Wandering Website
+          © {year} armanparsa.earth
         </p>
 
       </div>
