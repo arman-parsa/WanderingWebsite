@@ -74,18 +74,19 @@ export function NavInner() {
   // Close menu on navigation
   useEffect(() => { setMenuOpen(false); }, [pathname]);
 
+  const isMapPage = pathname === '/map';
   const scrolled  = scrollY > 60;
   const onHero    = isHomepage && !scrolled;
   const isLight   = isDarkPage || bodyBgActive || onHero;
   const textColour = isLight ? '#f8f4ef' : '#1c1814';
 
-  const bgValue = bodyBgActive || onHero
+  const bgValue = bodyBgActive || onHero || isMapPage
     ? 'transparent'
     : isDarkPage
     ? 'rgba(28, 24, 20, 0.92)'
     : 'rgba(248, 244, 239, 0.92)';
 
-  const showBlur = !bodyBgActive && !onHero;
+  const showBlur = !bodyBgActive && !onHero && !isMapPage;
 
   return (
     <div className="nav-shell" style={{ overflow: 'visible' }}>

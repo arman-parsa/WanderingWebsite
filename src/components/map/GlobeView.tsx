@@ -239,7 +239,7 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
 
     const oceanMesh = new THREE.Mesh(
       new THREE.SphereGeometry(GLOBE_RADIUS, 64, 64),
-      new THREE.MeshStandardMaterial({ color: 0x7a9aaa, roughness: 0.95, metalness: 0 })
+      new THREE.MeshStandardMaterial({ color: 0x1a2a3a, roughness: 0.95, metalness: 0 })
     );
     globeGroup.add(oceanMesh);
 
