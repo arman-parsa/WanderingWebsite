@@ -24,15 +24,12 @@ Content is organised into four types: writing (pure longform text), mixed media 
 | CMS | Sanity v5 | `^5.30.0` via `next-sanity ^13.0.11`; project ID `8p5lsu79`, dataset `production`; **connected but contains no real content** |
 | Hosting | Vercel | Production deploys from `main` |
 | Styling | Tailwind CSS v4 | `^4`; configured via `@theme inline {}` in `globals.css` — **no `tailwind.config.ts` exists** |
-| Animation | GSAP `^3.15.0` | ScrollTrigger imported dynamically inside `useEffect` only (SSR safety); `prefers-reduced-motion` guard required |
-| Animation | CSS keyframes | `fade-up`, `fade-in` defined in `globals.css`; used for homepage entrance sequence |
-| Scroll | Lenis `^1.3.23` | Installed; **not yet wired up** |
-| Maps | MapLibre GL `^5.24.0` + react-map-gl `^8.1.1` | Used on `/map` page via dynamic import (SSR disabled) |
-| Photography lightbox | PhotoSwipe `^5.4.4` | Installed; **not yet wired up** |
-| Motion library | Framer Motion `^12.40.0` | Installed; **not yet used** |
-| Font loading | CSS `@font-face` in `globals.css` | `Lyon_Regular.ttf` and `SuisseIntl_Light.ttf` present in `public/fonts/`; loaded via `@font-face` declarations at top of `globals.css` |
+| Globe | Three.js `^0.184.0` | Full custom WebGL globe on `/map`. Do not replace or refactor. |
+| Font loading | CSS `@font-face` in `globals.css` | `Lyon_Regular.ttf` and `SuisseIntl_Light.ttf` present in `public/fonts/`; loaded via `@font-face` at top of `globals.css` |
 | Import aliases | `@/` → `./src/*` | Defined in `tsconfig.json` |
-| Image optimisation | `next/image` | Required for all images, no exceptions |
+| Image optimisation | `next/image` | Required for all images — no `<img>` tags ever |
+
+> **Removed from active use (still installed):** MapLibre GL, react-map-gl — replaced by Three.js globe. GSAP, Lenis, Framer Motion, PhotoSwipe — installed but unwired; not used in any current component.
 
 ---
 
@@ -41,6 +38,7 @@ Content is organised into four types: writing (pure longform text), mixed media 
 **https://wandering-website-blush.vercel.app**
 
 Production branch: `main` — Vercel auto-deploys on every push to `main`.
+Development branch convention: `claude/<session-id>` — merge to `main` when confirmed.
 
 ---
 
@@ -54,129 +52,105 @@ WanderingWebsite/
 ├── CLAUDE.md                          # Re-exports AGENTS.md via @AGENTS.md
 ├── README.md                          # Default create-next-app readme — not project-specific
 ├── SESSION_HANDOFF.md                 # This file
-├── STUDIO_SETUP_HANDOFF.md            # One-time studio setup notes — historical, not active
 ├── package.json
 ├── tsconfig.json
 ├── next.config.ts
 ├── postcss.config.mjs
 ├── eslint.config.mjs
 ├── vercel.json
-├── .env.example
-├── .nvmrc
 │
 ├── public/
-│   └── fonts/
-│       ├── .gitkeep
-│       ├── Lyon_Regular.ttf           # Lyon Text — serif, weight 400
-│       └── SuisseIntl_Light.ttf       # Suisse Int'l — sans, weight 300–400
-│                                      # NOTE: public/images/ directory does NOT exist.
-│                                      # HeroSection falls back to /images/hero-placeholder.jpg
-│                                      # which will 404 until the file is added.
+│   ├── fonts/
+│   │   ├── Lyon_Regular.ttf           # Lyon Text — serif, weight 400
+│   │   └── SuisseIntl_Light.ttf       # Suisse Int'l — sans, weight 300–400
+│   └── data/
+│       └── ne_110m_land.json          # 252KB Natural Earth GeoJSON — used by GlobeView
+│                                      # NOTE: public/images/ does NOT exist.
 │
-├── sanity/                            # Sanity studio — separate from Next.js src
-│   ├── sanity.config.ts               # projectId and dataset hardcoded (env vars don't resolve in NextStudio)
+├── sanity/
+│   ├── sanity.config.ts
 │   ├── sanity.cli.ts
 │   ├── lib/
-│   │   ├── client.ts                  # Sanity client configuration
-│   │   └── queries.ts                 # All GROQ queries (see section 7 for names)
+│   │   ├── client.ts
+│   │   └── queries.ts                 # All GROQ queries
 │   └── schemas/
-│       ├── index.ts                   # Schema registry
+│       ├── index.ts
 │       ├── documents/
-│       │   ├── essay.ts               # Exports `writing` type (filename is legacy, type name is correct)
-│       │   ├── editorial.ts           # Exports `mixedMedia` type (filename is legacy)
-│       │   ├── photoSeries.ts         # Exports `photography` type (filename is legacy)
+│       │   ├── essay.ts               # Exports `writing` type
+│       │   ├── editorial.ts           # Exports `mixedMedia` type
+│       │   ├── photoSeries.ts         # Exports `photography` type
 │       │   ├── videography.ts         # Exports `videography` type
-│       │   └── author.ts              # Exports `author` type — not used in frontend yet
+│       │   └── author.ts              # Exports `author` type — not used in frontend
 │       ├── objects/
 │       │   ├── portableText.ts
-│       │   ├── imageBlock.ts          # Includes `description` field (text, optional)
-│       │   ├── videoBlock.ts          # Includes `description` field (text, optional)
+│       │   ├── imageBlock.ts
+│       │   ├── videoBlock.ts
 │       │   ├── pullQuote.ts
 │       │   └── seoFields.ts
 │       └── singletons/
-│           └── siteSettings.ts        # Not used in frontend yet
+│           └── siteSettings.ts        # Not used in frontend
 │
 └── src/
     ├── app/
     │   ├── layout.tsx                 # Root layout — no header/footer here
-    │   ├── globals.css                # @font-face + design tokens + Tailwind v4 @theme + base styles
+    │   ├── globals.css                # @font-face + design tokens + Tailwind v4 @theme + all component CSS
     │   ├── favicon.ico
-    │   ├── studio/
-    │   │   └── [[...index]]/
-    │   │       └── page.tsx           # Sanity Studio embedded at /studio
-    │   ├── api/
-    │   │   └── revalidate/
-    │   │       └── route.ts           # ISR webhook endpoint — not yet configured in Sanity
-    │   └── (site)/                    # Route group: shares SiteHeader + SiteFooter layout
+    │   ├── studio/[[...index]]/page.tsx
+    │   ├── api/revalidate/route.ts    # ISR webhook endpoint
+    │   └── (site)/
     │       ├── layout.tsx             # Renders SiteHeader + SiteFooter around children
-    │       ├── page.tsx               # Homepage: hero + 3-col portrait grid + VIEW ALL
+    │       ├── page.tsx               # Homepage: delegates to HomepageClient
     │       ├── not-found.tsx
-    │       ├── about/
-    │       │   └── page.tsx           # [STUB] Static placeholder copy only
-    │       ├── contact/
-    │       │   └── page.tsx           # [STUB] Static placeholder copy only
-    │       ├── map/
-    │       │   └── page.tsx           # Geographic archive — DO NOT TOUCH
-    │       ├── articles/
-    │       │   └── page.tsx           # All content index — delegates to ArticlesClient
+    │       ├── about/page.tsx         # Stub — static placeholder copy
+    │       ├── contact/page.tsx       # Stub — static placeholder copy
+    │       ├── map/page.tsx           # Globe page — dark bg #070b12, inset:0, delegates to GlobeLoader
+    │       ├── articles/page.tsx      # Library — delegates to ExploreClient
     │       ├── (journal)/
-    │       │   ├── writing/
-    │       │   │   └── [slug]/
-    │       │   │       └── page.tsx   # Writing detail — EssayHero + PortableTextRenderer
-    │       │   └── mixed-media/
-    │       │       └── [slug]/
-    │       │           └── page.tsx   # Mixed media detail — same layout as writing
+    │       │   ├── writing/[slug]/page.tsx
+    │       │   └── mixed-media/[slug]/page.tsx
     │       └── (visual)/
-    │           ├── photography/
-    │           │   └── [slug]/
-    │           │       └── page.tsx   # Photography detail — optional cover hero + image grid
-    │           └── videography/
-    │               └── [slug]/
-    │                   └── page.tsx   # Videography detail — no placeholder data exists
+    │           ├── photography/[slug]/page.tsx
+    │           └── videography/[slug]/page.tsx
     │
     ├── components/
+    │   ├── home/
+    │   │   └── HomepageClient.tsx     # ★ Full homepage — hero + article list (see section 8)
+    │   ├── layout/
+    │   │   ├── SiteHeader.tsx         # Fixed header wrapper h-16, z-50, overflow:visible
+    │   │   ├── NavInner.tsx           # ★ All nav logic — 3-col grid, scroll, symbol (see section 8)
+    │   │   ├── NavLink.tsx            # Active-underline nav anchor
+    │   │   ├── SiteFooter.tsx         # SVG symbol + copyright
+    │   │   ├── SiteNav.tsx            # Legacy — not imported; do not delete without checking
+    │   │   └── PageWrapper.tsx        # Generic content-width wrapper
+    │   ├── explore/
+    │   │   └── ExploreClient.tsx      # Library page — multi-select filter pills + content grid
+    │   ├── map/
+    │   │   ├── index.ts               # Exports GlobeLoader + GlobeItem type
+    │   │   ├── GlobeLoader.tsx        # 'use client'; dynamic import wrapper for GlobeView
+    │   │   ├── GlobeView.tsx          # ★ Three.js globe — see section 8 for full spec
+    │   │   └── ArticlePanel.tsx       # Slide-in panel for article pins on globe
     │   ├── articles/
-    │   │   └── ArticlesClient.tsx     # 'use client'; filter + featured card (grid) + 2-col grid
+    │   │   └── ArticlesClient.tsx     # (legacy articles client — may be superseded by ExploreClient)
     │   ├── content/
-    │   │   ├── index.ts
-    │   │   ├── EssayHero.tsx          # Hero block for writing/mixed-media detail pages
-    │   │   ├── ImageBlock.tsx         # Portable Text image renderer
+    │   │   ├── EssayHero.tsx
+    │   │   ├── ImageBlock.tsx
     │   │   ├── PortableTextRenderer.tsx
     │   │   ├── PullQuote.tsx
-    │   │   └── VideoBlock.tsx         # 'use client'; Vimeo embed
-    │   ├── home/
-    │   │   └── HeroSection.tsx        # 'use client'; GSAP parallax hero for homepage
-    │   ├── layout/
-    │   │   ├── index.ts
-    │   │   ├── SiteHeader.tsx         # 'use client'; fixed nav, scroll-aware, dark-page aware
-    │   │   ├── SiteNav.tsx            # Legacy nav component — not imported by SiteHeader; verify before deleting
-    │   │   ├── SiteFooter.tsx         # Simple footer with nav links
-    │   │   └── PageWrapper.tsx        # Generic content width wrapper utility
-    │   ├── map/
-    │   │   ├── index.ts
-    │   │   ├── MapLoader.tsx          # 'use client'; dynamic import wrapper — DO NOT TOUCH
-    │   │   └── MapView.tsx            # MapLibre GL — SSR disabled — DO NOT TOUCH
-    │   ├── navigation/
-    │   │   ├── index.ts               # [STUB]
-    │   │   └── ContentCard.tsx        # Card component — not used by ArticlesClient; may be orphaned
-    │   ├── photography/
-    │   │   └── index.ts               # [STUB]
-    │   └── ui/
-    │       └── index.ts               # [STUB]
+    │   │   └── VideoBlock.tsx
+    │   └── navigation/
+    │       └── ContentCard.tsx        # Possibly orphaned — verify before deleting
     │
     └── lib/
-        ├── sanity.ts                  # Re-exports client + all queries
-        ├── sanityImage.ts             # @sanity/image-url builder (default export deprecated; works)
-        ├── placeholders.ts            # 6 placeholder items + PLACEHOLDER_WRITING + PLACEHOLDER_PHOTO_SERIES
-        ├── metadata.ts                # Shared metadata helpers
-        └── utils.ts                   # cn() (clsx + tailwind-merge), formatDate()
+        ├── sanity.ts
+        ├── sanityImage.ts
+        ├── placeholders.ts            # All placeholder data incl. PLACEHOLDER_GLOBE_ITEMS
+        ├── metadata.ts
+        └── utils.ts
 ```
 
 ---
 
 ## 5. DESIGN SYSTEM — NON-NEGOTIABLES
-
-DESIGN_SYSTEM.md does not exist. All values below are extracted from `src/app/globals.css` and enforced in code.
 
 ### Colour tokens
 
@@ -190,37 +164,18 @@ DESIGN_SYSTEM.md does not exist. All values below are extracted from `src/app/gl
 | `--color-border` | `#ddd9d2` | Borders and dividers on light pages |
 | `--color-accent` | `#453e36` | **Interactive states only — hover, active, focus. Never decorative.** |
 
-Dark pages (articles, all detail pages) use these exact values, inline via `style={{}}` or Tailwind arbitrary values:
+Dark pages (articles, all detail pages): `#1c1814` bg, `#f8f4ef` primary text, `#a09890` secondary, `rgba(248,244,239,0.12)` borders, `rgba(255,255,255,0.04)` card surface.
 
-| Purpose | Value |
-|---|---|
-| Page background | `#1c1814` |
-| Primary text | `#f8f4ef` |
-| Metadata / secondary text | `#a09890` |
-| Borders | `rgba(248, 244, 239, 0.12)` |
-| Card surface | `rgba(255, 255, 255, 0.04)` |
+Map page background: `#070b12` (deep navy-black — distinct from dark-page ink colour).
 
 ### Typefaces
 
-| Face | CSS variable | Fallback stack | Usage domain |
-|---|---|---|---|
-| Lyon Text | `--font-serif` | `Georgia, serif` | All editorial text: headings, body copy, article titles, nav wordmark |
-| Suisse Int'l | `--font-sans` | `'Helvetica Neue', Arial, sans-serif` | All UI chrome: nav links, category labels, metadata, captions, buttons, filter tabs |
+| Face | CSS variable | Usage domain |
+|---|---|---|
+| Lyon Text | `--font-serif` | All editorial text: headings, body copy, article titles |
+| Suisse Int'l | `--font-sans` | All UI chrome: nav links, labels, metadata, captions, buttons, filters |
 
-Font files (`Lyon_Regular.ttf`, `SuisseIntl_Light.ttf`) are present in `public/fonts/` and declared via `@font-face` at the top of `globals.css`. No `next/font/local` is used — the CSS variables reference the font families by name.
-
-**Rule:** Any text that is part of the content (article descriptions, titles, body) must use `font-serif`. Any text that is navigation, UI chrome, or labelling must use `font-sans`.
-
-### Body text specifications
-
-```
-font-family: var(--font-serif)
-font-size:   var(--text-lg)  → clamp(1.1rem, 1rem + 0.5vw, 1.25rem)
-line-height: var(--leading-relaxed)  → 1.7
-max-width:   var(--content-max-width)  → 740px
-```
-
-Applied via `.article-body` class. First paragraph gets a drop-cap via `::first-letter` (4.5em, float left, `--color-accent`).
+**Rule:** content text = `font-serif`. Navigation, UI, labelling = `font-sans`.
 
 ### Fluid type scale
 
@@ -236,238 +191,190 @@ Applied via `.article-body` class. First paragraph gets a drop-cap via `::first-
 --text-display: clamp(3rem,     2rem    + 5vw,    7rem)
 ```
 
-### Animation rules
+### Animation
 
 ```
---duration-instant: 100ms
---duration-fast:    200ms   ← hover transitions
---duration-normal:  350ms
---duration-slow:    600ms   ← entrance animations
---duration-slower:  900ms
-
---ease-default: cubic-bezier(0.4, 0, 0.2, 1)
---ease-in:      cubic-bezier(0.4, 0, 1, 1)
---ease-out:     cubic-bezier(0, 0, 0.2, 1)
---ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1)
+--duration-fast:   200ms   --ease-default: cubic-bezier(0.4, 0, 0.2, 1)
+--duration-normal: 350ms   --ease-out:     cubic-bezier(0, 0, 0.2, 1)
+--duration-slow:   600ms   --ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1)
 ```
 
-Homepage entrance sequence (CSS, no JS timers):
-- Nav links: `animation-delay: 600ms`, `animation-duration: 500ms`, `animate-fade-up`
-- Hero image: `animation-delay: 400ms`, `animation-duration: 800ms`, `animate-fade-in`
-- Hero text stack: `animation-delay: 800ms`, `animation-duration: 600ms`, `animate-fade-up`
-
-All animation must be wrapped in `prefers-reduced-motion: reduce` guard. `globals.css` already disables `.animate-fade-up` and `.animate-fade-in` globally. GSAP checks `window.matchMedia('(prefers-reduced-motion: reduce)').matches` at the top of its `useEffect`.
-
-### Spacing (8-point grid)
-
-```
---space-1: 0.25rem    --space-12: 3rem
---space-2: 0.5rem     --space-16: 4rem
---space-3: 0.75rem    --space-20: 5rem
---space-4: 1rem       --space-24: 6rem
---space-5: 1.25rem    --space-32: 8rem
---space-6: 1.5rem     --space-40: 10rem
---space-8: 2rem       --space-48: 12rem
---space-10: 2.5rem
-```
-
-Content widths:
-```
---content-max-width:  740px    ← article body column
---content-wide-width: 1100px   ← video embeds, wide layouts
---content-full-width: 1440px   ← page container cap
---content-padding-x:  clamp(1rem, 4vw, 3rem)
-```
-
-### Colophon rule
-
-No colophon convention is documented anywhere in the codebase. Do not invent one.
+All animation wrapped in `prefers-reduced-motion: reduce` guard. `globals.css` disables `.animate-fade-up` and `.animate-fade-in` globally.
 
 ---
 
 ## 6. CONTENT TYPES
 
-Derived from Sanity schemas and page implementations. No DESIGN_SYSTEM.md exists.
+### Writing (`writing`) — `/writing/[slug]`
+Dark background. `EssayHero` + `.article-body` + `PortableTextRenderer`. Drop-cap on first paragraph.
 
-### Writing (`writing`) — Pure Writing
-URL pattern: `/writing/[slug]`
-Sanity file: `sanity/schemas/documents/essay.ts` (exports `writing`)
-Fields: `title`, `slug`, `publishedAt`, `description`, `coverImage` (with hotspot + alt), `body` (portableText), `location`, `coordinates`, `readingTime`, `tags`, `seo`
-Layout: dark background (`#1c1814`), nav clearance `clamp(5rem, 10vh, 8rem)`. `EssayHero` component (title, description, metadata, optional cover image) followed by `PortableTextRenderer` in a `740px` max-width column. Drop-cap on first paragraph via `.article-body::first-letter`.
+### Mixed Media (`mixedMedia`) — `/mixed-media/[slug]`
+Identical layout to writing. Superset of fields (adds `images[]`, `videos[]`).
 
-### Mixed Media (`mixedMedia`) — Writing + Visual
-URL pattern: `/mixed-media/[slug]`
-Sanity file: `sanity/schemas/documents/editorial.ts` (exports `mixedMedia`)
-Fields: superset of writing fields plus `images[]` (imageBlock with `description`), `videos[]` (videoBlock with `description`), `photographyCredit`
-Layout: identical to writing — `EssayHero` + `PortableTextRenderer`. Dark background. Same nav clearance.
+### Photography (`photography`) — `/photography/[slug]`
+Dark background. Optional full-bleed cover hero + image grid.
 
-### Photography (`photography`) — Pure Visual
-URL pattern: `/photography/[slug]`
-Sanity file: `sanity/schemas/documents/photoSeries.ts` (exports `photography`)
-Fields: `title`, `slug`, `publishedAt`, `description`, `coverImage`, `images[]` (imageBlock with `description` + metadata), `location`, `coordinates`, `tags`, `displayMode`, `seo`
-Layout: optional full-bleed cover image, followed by image grid. Dark background (`#1c1814`). Nav clearance: `clamp(5rem, 10vh, 8rem)`.
-
-### Videography (`videography`) — Pure Video
-URL pattern: `/videography/[slug]`
-Sanity file: `sanity/schemas/documents/videography.ts` (exports `videography`)
-Fields: `title`, `slug`, `publishedAt`, `description`, `coverImage`, `videos[]` (videoBlock with `description`), `location`, `coordinates`, `tags`, `seo`
-Layout: dark background. Nav clearance. **No placeholder data exists for this type** — the detail page will 404 for any slug until real Sanity content is published.
+### Videography (`videography`) — `/videography/[slug]`
+Dark background. **No placeholder data — any slug 404s until real Sanity content.**
 
 ---
 
-## 7. SANITY CMS STATUS
+## 7. SANITY STATUS
 
-- **Connected:** yes. Project ID `8p5lsu79`, dataset `production`.
-- **Real content:** none. All articles visible on the site are placeholder data hardcoded in `src/lib/placeholders.ts`.
-- **Placeholder strategy:** every page wraps Sanity fetches in `try/catch`. On failure or empty result, falls back to hardcoded placeholders. Placeholder slugs begin with `_placeholder-`.
-- **ISR webhook:** not configured. Publishing in Sanity will not automatically update the live site. The endpoint `/api/revalidate` exists but no webhook is set up in Sanity → API → Webhooks, and `SANITY_WEBHOOK_SECRET` is not set in Vercel env vars.
-- **Schema changes:** document type names were updated in a recent session. Old file names remain (legacy) but exported type names are now correct.
-
-### Document schemas
-
-| Schema type name | File | Purpose |
-|---|---|---|
-| `writing` | `sanity/schemas/documents/essay.ts` | Longform travel writing |
-| `mixedMedia` | `sanity/schemas/documents/editorial.ts` | Writing + photos/videos |
-| `photography` | `sanity/schemas/documents/photoSeries.ts` | Photography series |
-| `videography` | `sanity/schemas/documents/videography.ts` | Videography |
-| `author` | `sanity/schemas/documents/author.ts` | Author profile — not used in frontend |
-| `siteSettings` | `sanity/schemas/singletons/siteSettings.ts` | Global singleton — not used in frontend |
-
-### Object schemas
-
-| Schema | File | Purpose |
-|---|---|---|
-| `portableText` | `sanity/schemas/objects/portableText.ts` | Rich text body field |
-| `imageBlock` | `sanity/schemas/objects/imageBlock.ts` | Image with alt, caption, and description |
-| `videoBlock` | `sanity/schemas/objects/videoBlock.ts` | Vimeo embed with title and description |
-| `pullQuote` | `sanity/schemas/objects/pullQuote.ts` | Pull-quote block |
-| `seoFields` | `sanity/schemas/objects/seoFields.ts` | SEO meta fields |
-
-### GROQ queries (all in `sanity/lib/queries.ts`)
-
-`ALL_WRITING_QUERY`, `WRITING_QUERY`, `WRITING_SLUGS_QUERY`,
-`ALL_MIXED_MEDIA_QUERY`, `MIXED_MEDIA_QUERY`, `MIXED_MEDIA_SLUGS_QUERY`,
-`ALL_PHOTOGRAPHY_QUERY`, `PHOTOGRAPHY_QUERY`, `PHOTOGRAPHY_SLUGS_QUERY`,
-`ALL_VIDEOGRAPHY_QUERY`, `VIDEOGRAPHY_QUERY`, `VIDEOGRAPHY_SLUGS_QUERY`,
-`ALL_CONTENT_QUERY` (used by homepage + articles index),
-`MAP_CONTENT_QUERY` (used by map page),
-`SITE_SETTINGS_QUERY`
-
-All queries use `description` (not `excerpt`) — this is the correct field name in all schemas.
+- **Connected:** yes. Project `8p5lsu79`, dataset `production`.
+- **Real content:** none. All items on site are from `src/lib/placeholders.ts`.
+- **ISR webhook:** not configured. Sanity publish ≠ automatic site update.
+- GROQ queries in `sanity/lib/queries.ts`: `ALL_CONTENT_QUERY`, `MAP_CONTENT_QUERY`, per-type queries. All use `description` (not `excerpt`).
 
 ---
 
-## 8. WHAT HAS BEEN BUILT — CURRENT STATE
+## 8. COMPONENT DEEP DIVES — KEY IMPLEMENTATIONS
 
-### Pages
+### NavInner (`src/components/layout/NavInner.tsx`)
 
-| Page | Route | Status |
-|---|---|---|
-| Homepage | `/` | **Built.** Hero (full-viewport, GSAP parallax, no cover image fallback is a 404 — see issues), 3-column portrait card grid (up to 6 items), hover overlay with location + date, VIEW ALL link, fade-in entrance sequence. |
-| Articles | `/articles` | **Built.** Dark background (`#1c1814`). Filter bar: ALL / Writing / Photography / Mixed Media / Videography (fade transition 200ms out). Featured card: CSS grid `3fr 2fr`, `max-w-[1280px]` wrapper. 2-column grid for remaining items with 16:9 images. |
-| Writing detail | `/writing/[slug]` | **Built.** Dark background. Nav clearance `clamp(5rem, 10vh, 8rem)`. `EssayHero` + `.article-body` + `PortableTextRenderer`. Placeholder data exists for `_placeholder-atlas` and `_placeholder-train`. |
-| Mixed-media detail | `/mixed-media/[slug]` | **Built.** Identical layout to writing detail. Placeholder data for `_placeholder-nocamera` and `_placeholder-medina`. |
-| Photography detail | `/photography/[slug]` | **Built.** Dark background. Optional full-bleed cover hero. Image grid. Placeholder data for `_placeholder-harbour` and `_placeholder-riads`. |
-| Videography detail | `/videography/[slug]` | **Built but incomplete.** Dark background. Nav clearance. **No placeholder data** — any slug will 404 until real Sanity content exists. |
-| Map | `/map` | **Built. Do not touch.** MapLibre GL via dynamic import (SSR disabled). Shows empty map when Sanity has no geo content. |
-| About | `/about` | **Stub.** Heading and two lines of placeholder copy. Light background. |
-| Contact | `/contact` | **Stub.** Heading and placeholder copy. Light background. |
-| Studio | `/studio` | **Built.** Embedded Sanity Studio with all four content type schemas. |
-| Not Found | `/_not-found` | **Built.** |
+3-column CSS grid: `EARTH (left) | alchemical symbol (center) | hamburger (right)`.
 
-### Components
+**State:**
+- `bodyBgActive` — MutationObserver watches `document.body.classList` for `'bg-active'` class (set by HomepageClient on article hover)
+- `scrollY` — tracked via `useLayoutEffect` (fires before paint, preventing cream flash on load/navigation)
+- `menuOpen` — hamburger toggle
 
-| Component | File | Notes |
-|---|---|---|
-| `SiteHeader` | `components/layout/SiteHeader.tsx` | Fixed, z-50. Transparent on homepage (until 90% scroll) and dark pages. Dark-page aware: white text on `/articles`, `/writing/*`, `/photography/*`, `/mixed-media/*`, `/videography/*`. Wordmark (`ARMAN'S WANDERINGS`) in `font-serif` (Lyon Text). Nav links in `font-sans` (Suisse Int'l). |
-| `SiteFooter` | `components/layout/SiteFooter.tsx` | Simple footer with nav links. |
-| `SiteNav` | `components/layout/SiteNav.tsx` | Legacy — not imported by `SiteHeader`. Do not delete without verifying nothing imports it. |
-| `PageWrapper` | `components/layout/PageWrapper.tsx` | Generic content width wrapper. |
-| `HeroSection` | `components/home/HeroSection.tsx` | `'use client'`. GSAP ScrollTrigger parallax (dynamic import). Falls back to `/images/hero-placeholder.jpg` — **this file does not exist, causing a 404**. Top + bottom gradient overlays. Category label (`font-sans`), title (`font-serif`), description (`font-serif italic font-light`), CTA button. |
-| `ArticlesClient` | `components/articles/ArticlesClient.tsx` | `'use client'`. Dark page. Featured card uses CSS grid `md:grid-cols-[3fr_2fr]`. Remaining items in 2-col grid. Filter state with 200ms fade. |
-| `EssayHero` | `components/content/EssayHero.tsx` | Hero block for writing and mixed-media detail pages. Accepts `title`, `description`, `publishedAt`, `location`, `tags`, `coverImage`. |
-| `ImageBlock` | `components/content/ImageBlock.tsx` | Portable Text custom image renderer via `next/image`. |
-| `PortableTextRenderer` | `components/content/PortableTextRenderer.tsx` | Maps Sanity block content to React components. |
-| `PullQuote` | `components/content/PullQuote.tsx` | Pull-quote Portable Text block renderer. |
-| `VideoBlock` | `components/content/VideoBlock.tsx` | `'use client'`. Vimeo embed with `aspect-video` wrapper. |
-| `ContentCard` | `components/navigation/ContentCard.tsx` | Card component. Not used by `ArticlesClient`. May be orphaned — verify before deleting. |
-| `MapLoader` | `components/map/MapLoader.tsx` | `'use client'`. Dynamic import wrapper for `MapView`. **Do not touch.** |
-| `MapView` | `components/map/MapView.tsx` | MapLibre GL map with type-based marker colours. **Do not touch.** |
+**Logic:**
+```
+DARK_PAGE_PREFIXES = ['/writing', '/photography', '/mixed-media', '/videography', '/map']
+isMapPage  = pathname === '/map'
+isHomepage = pathname === '/'
+scrolled   = scrollY > 60
+onHero     = isHomepage && !scrolled
+isLight    = isDarkPage || bodyBgActive || onHero
+textColour = isLight ? '#f8f4ef' : '#1c1814'
+bgValue    = (bodyBgActive || onHero || isMapPage) ? 'transparent'
+           : isDarkPage ? 'rgba(28,24,20,0.92)'
+           : 'rgba(248,244,239,0.92)'
+showBlur   = !bodyBgActive && !onHero && !isMapPage
+```
 
-### Stub index files (empty barrels — do not mistake for implemented modules)
+**Symbol scaling (Bug 2 fix):** Uses a `useRef<HTMLAnchorElement>` (`logoRef`) — transform is set via direct DOM mutation inside a `useEffect` scroll handler (bypasses React re-render batching for 60fps). `SYMBOL_SCALE_MAX = 2.0` (28px SVG → 56px at peak, within 64px nav bounds). `SYMBOL_SCALE_END = 220px`. No CSS transition on the transform — direct assignment per frame.
 
-- `src/components/photography/index.ts`
-- `src/components/ui/index.ts`
-- `src/components/navigation/index.ts`
+**Flash prevention (Bug 1 fix):** Scroll listener set up in `useLayoutEffect` (runs before paint). A second `useLayoutEffect` keyed on `pathname` re-syncs `scrollY` on every route change, preventing stale values when navigating to homepage.
+
+**Hamburger:** Two-bar icon (`nav-hamburger-bars`) toggles to `✕`. Menu links (`LIBRARY`, `ABOUT`, `CONTACT`) appear with `.nav-menu-expanded` animation (180ms translateX). Closes on pathname change.
+
+**Nav CSS classes in `globals.css`:** `.nav-shell`, `.nav-bg`, `.nav-bg--blur`, `.nav-inner`, `.nav-grid`, `.nav-grid-left`, `.nav-grid-center`, `.nav-grid-right`, `.nav-hamburger-btn`, `.nav-hamburger-bars`, `.nav-menu-expanded`, `.nav-close-x`, `.nav-link`, `.nav-link--active`, `.logo-link`.
 
 ---
 
-## 9. KNOWN REMAINING ISSUES
+### HomepageClient (`src/components/home/HomepageClient.tsx`)
 
-1. **Hero image missing.** `public/images/hero-placeholder.jpg` does not exist and the directory `public/images/` does not exist either. `HeroSection` falls back to `/images/hero-placeholder.jpg` — this 404s. The homepage hero background is invisible until a real Sanity cover image is present or the placeholder file is created.
+**Z-index structure (Bug 3 fix):**
+```
+z-50  fixed nav header
+z-3   article + footer wrapper (position:relative) — article titles always above bg
+z-2   fixed hover bg div (opacity 0→1 on article hover, 100ms ease)
+z-1   hero section (position:relative) — covered by hover bg when hovering articles
+      <main> has position:relative but NO z-index (no stacking context)
+```
 
-2. **Articles page featured card — text cut off on right edge.** The featured card text column (`title`, `description`, `VIEW` button) is cut off at the right side of the viewport at ~1366px screen widths (MacBook Air). A fix was pushed in the most recent commit: `max-w-[1280px]` wrapper and `grid md:grid-cols-[3fr_2fr]` layout. **Verify on the live site after the next Vercel deployment.**
+This structure means the article hover background (showing the hovered article's cover image) cleanly covers the hero section when both are visible in the viewport simultaneously.
 
-3. **ISR webhook not configured.** Publishing content in Sanity will not automatically update the live site. To fix: (a) add a webhook in Sanity → API → Webhooks pointing to `https://wandering-website-blush.vercel.app/api/revalidate`, (b) generate a secret and add it as `SANITY_WEBHOOK_SECRET` in both `.env.local` and Vercel environment variables.
+**Hero section:** `.hero-section` (100vh, overflow:hidden). Array of rotating background images (`heroImages[]`), each as an `position:absolute` div with opacity 0/1 and `transition: opacity 1500ms ease`. Rotates every 5000ms via `setInterval`. Skips if `prefers-reduced-motion`. Dark overlay `rgba(28,24,20,0.48)`. Centered tagline: *"Stories collected around the world."* (`font-serif italic`).
 
-4. **`NEXT_PUBLIC_SITE_URL` not set.** The root layout metadata base URL falls back to `'https://yourdomain.com'`. Set `NEXT_PUBLIC_SITE_URL=https://wandering-website-blush.vercel.app` in Vercel environment settings.
+**Article list:** 3 most recent items. `onMouseEnter/Leave` sets `hovered` state. On hover: article title changes to `#f8f4ef`, meta fades in (location, type label, description). `isMobile` (≤860px) — meta always visible on mobile. Fixed hover bg shows hovered item's `coverImageUrl` with `rgba(28,24,20,0.38)` overlay.
 
-5. **Videography detail page has no placeholder data.** Navigating to `/videography/anything` will 404. This is expected until real Sanity content is published, but it means the filter tab on articles page will show videography items in the index (if any exist) but clicking through will always 404.
+**Body class sync:** `document.body.classList.toggle('bg-active', bgActive)` — NavInner MutationObserver reads this to stay in sync with article hover state (keeps nav text cream while bg is active).
 
-6. **About and Contact pages are stubs.** No design work has been done on these pages — they render heading and placeholder text only.
+**CSS classes in `globals.css`:** `.hero-section`, `.hero-tagline`, `.home-article-item`, `.home-article-row`, `.home-article-title`, `.home-article-meta`, `.home-read-more`.
 
-7. **`SiteNav.tsx` is likely unused.** It exists in `components/layout/` and is exported from `layout/index.ts`, but `SiteHeader` does not import it. Verify before deleting.
+**`src/app/(site)/page.tsx`:** Fetches 3 items from `ALL_CONTENT_QUERY`, maps to `HomeItem[]` with `coverImageUrl` via `urlFor()`. `heroImages` = mapped cover URLs. Falls back to `PLACEHOLDER_ITEMS.slice(0, 3)`.
 
-8. **`ContentCard` component may be orphaned.** `ArticlesClient` builds card markup inline. Verify whether any page imports `ContentCard` before removing.
+---
 
-9. **Lenis, Framer Motion, and PhotoSwipe are installed but unwired.** These packages are in `package.json` with no usage in the codebase. They represent planned functionality.
+### GlobeView (`src/components/map/GlobeView.tsx`)
 
-10. **`author` and `siteSettings` Sanity schemas defined but unused in frontend.** No queries fetch author data; no component renders it.
+Full Three.js WebGL globe. **Do not refactor without explicit instruction.**
 
-11. **Stale git branches.** `claude/happy-feynman-CICCs` and `claude/magical-newton-MB2gD` can be deleted on GitHub — all work has been merged to `main`.
+**Key constants:**
+```
+GLOBE_RADIUS  = 1.0
+LAND_RADIUS   = 1.008    ← raised to prevent chord-sag (landmass holes)
+ATMO_RADIUS   = 1.06
+PIN_RADIUS    = 0.012
+CAM_INIT_Z    = 2.8
+```
 
-12. **`@sanity/image-url` deprecation warning.** The default export is deprecated; `createImageUrlBuilder` should be used instead. This is a warning only — the site builds and runs correctly.
+**Colours:**
+```
+Ocean:      0x1a2a3a    ← MeshStandardMaterial, roughness 0.95
+Land:       0x8a9a6a    ← MeshStandardMaterial
+Background: #070b12     ← set on page container (map/page.tsx)
+Pins:       white (#ffffff)
+Atmosphere: rgba(140,170,200) shader
+```
+
+**GeoJSON rendering:** `public/data/ne_110m_land.json` (Natural Earth 110m). Each polygon face is earcut-triangulated via `ShapeGeometry`. `subdivideAndEmit()` recursively splits triangles until span ≤ 10° to prevent chord-sag where flat triangles dip below the ocean sphere.
+
+**Rotation:** Y-axis only drag (no tilt accumulation). Initial tilt: `globeGroup.quaternion.setFromEuler(new THREE.Euler(-0.4, 0, 0))` — tilts globe slightly so high-latitude pins are visible during spin. Momentum: exponential decay.
+
+**Stars:** 1800 points at r=40. `ShaderMaterial` with `uTime` uniform for per-point twinkling: `float twinkle = 0.55 + 0.45 * sin(uTime * 1.4 + aPhase); gl_PointSize = aSize * twinkle;`
+
+**Pins:** Clustered — `clusterItems()` groups items within ~800km. White spheres (`PIN_RADIUS`). Click opens `ArticlePanel` slide-in.
+
+**`src/app/(site)/map/page.tsx`:** `position: fixed; inset: 0; backgroundColor: '#070b12'` (no top offset — dark bg covers full viewport including behind the transparent nav).
+
+---
+
+## 9. KNOWN ISSUES
+
+1. **No hero images.** `public/images/` does not exist. The homepage `heroImages[]` array comes from article `coverImageUrl` values (Sanity). Until real Sanity content is published, the hero section shows no background image (falls back to placeholder articles which have no cover images). To fix: add images to Sanity and publish articles, OR add static images to `public/images/hero/` and modify `page.tsx` to use them directly.
+
+2. **ISR webhook not configured.** Publishing in Sanity does not update the live site. To fix: (a) add webhook in Sanity → API → Webhooks pointing to `https://wandering-website-blush.vercel.app/api/revalidate`; (b) add `SANITY_WEBHOOK_SECRET` to Vercel env vars.
+
+3. **`NEXT_PUBLIC_SITE_URL` not set.** Root layout metadata base URL falls back to `'https://yourdomain.com'`. Set `NEXT_PUBLIC_SITE_URL=https://wandering-website-blush.vercel.app` in Vercel.
+
+4. **Videography detail has no placeholder data.** Any `/videography/*` slug 404s until real Sanity content is published.
+
+5. **About and Contact are stubs.** No design has been done — just heading + placeholder text.
+
+6. **`@sanity/image-url` deprecation warning.** Warning only; site builds and runs correctly.
+
+7. **`SiteNav.tsx` is likely unused.** Exists in `components/layout/` but `SiteHeader` imports `NavInner` directly. Verify before deleting.
+
+8. **`ContentCard` may be orphaned.** `ExploreClient` builds card markup inline. Verify before removing.
+
+9. **Stale branches.** `claude/happy-feynman-CICCs`, `claude/jolly-wright-UBel7`, `claude/magical-newton-MB2gD`, `claude/trusting-ride-apd6cp` can be deleted — all merged to `main`.
 
 ---
 
 ## 10. WHAT NOT TO TOUCH
 
-Do not modify these files unless the task explicitly requires it:
-
-- `src/app/(site)/map/page.tsx` and all files under `src/components/map/`
-- `src/app/(site)/about/page.tsx`
-- `src/app/(site)/contact/page.tsx`
+- `src/components/map/GlobeView.tsx` — do not refactor unless explicitly asked
+- `src/app/(site)/map/page.tsx` — do not adjust unless explicitly asked
 - `src/app/studio/[[...index]]/page.tsx`
 - `src/app/api/revalidate/route.ts`
-- All files under `sanity/schemas/` — schema changes require careful coordination with any published content
-- `sanity/sanity.config.ts` and `sanity/sanity.cli.ts`
-- `CLAUDE.md` and `AGENTS.md`
-- `tsconfig.json` — path aliases are correctly set; do not alter
-- `next.config.ts` — do not add redirects, rewrites, or image domains without explicit instruction
-- `src/lib/utils.ts` — stable utility; do not modify
-- `src/lib/metadata.ts` — stable; do not modify
+- All files under `sanity/schemas/`
+- `sanity/sanity.config.ts`, `sanity/sanity.cli.ts`
+- `CLAUDE.md`, `AGENTS.md`
+- `tsconfig.json`
+- `next.config.ts`
+- `src/lib/utils.ts`, `src/lib/metadata.ts`
 
 ---
 
 ## 11. CONVENTIONS — ALWAYS ENFORCE
 
-- [ ] **Import alias:** use `@/` for all `src/` imports. Never use relative `../../` paths crossing directory roots.
-- [ ] **No `any` types.** TypeScript strict mode. Use proper types or `unknown` with narrowing.
-- [ ] **No inline `style={{}}` props** except for the established dark-page colour pattern already present in `ArticlesClient.tsx`, detail pages, and `HeroSection.tsx`. New dark-page elements must use these exact values: `#1c1814`, `#f8f4ef`, `#a09890`, `rgba(248,244,239,0.12)`, `rgba(255,255,255,0.04)`.
-- [ ] **No hardcoded colour or spacing values** outside the dark-page exception above. Light-page styling uses Tailwind token classes (`bg-paper`, `text-ink`, etc.).
-- [ ] **No `console.log` in finished code.**
-- [ ] **Server Components by default.** Add `'use client'` only when the component uses browser APIs, React hooks, or event handlers. Keep client components as leaf nodes.
-- [ ] **`next/image` for all images.** No `<img>` tags. No exceptions.
-- [ ] **All animations wrapped in `prefers-reduced-motion`.** CSS animations: handled globally in `globals.css`. GSAP: check `window.matchMedia('(prefers-reduced-motion: reduce)').matches` at the top of `useEffect` before setting up any tween.
-- [ ] **`--color-accent` (`#453e36`) for interactive states only.** Never decorative.
-- [ ] **No new npm packages** without explicit instruction from the user.
-- [ ] **Tailwind v4 config is `@theme inline {}` in `globals.css`.** Do not create `tailwind.config.ts`. Do not use `@apply` with non-existent utilities.
-- [ ] **`params` is a Promise in Next.js 16.2.7.** Always `const { slug } = await params;` — never destructure directly.
-- [ ] **`generateStaticParams` and `generateMetadata` Sanity fetches must be wrapped in `try/catch`** to prevent build failures from CORS errors.
-- [ ] **GSAP ScrollTrigger must be dynamically imported inside `useEffect`**, never at module top level.
-- [ ] **Font rule:** `font-serif` (Lyon Text) for all editorial/content text. `font-sans` (Suisse Int'l) for all nav, UI, labels, captions, buttons, metadata.
-- [ ] **No comments that describe what the code does.** Only comments explaining a non-obvious constraint, invariant, or workaround.
+- **`@/` import alias** for all `src/` imports. Never `../../` across roots.
+- **No `any` types.** Strict TypeScript. Use `unknown` with narrowing.
+- **Inline `style={{}}` is acceptable** in the current codebase — NavInner, HomepageClient, and GlobeView use them extensively for dynamic values. New light-page elements should prefer Tailwind classes; dark-page and dynamic values use inline style.
+- **No `console.log` in finished code.**
+- **Server Components by default.** `'use client'` only for browser APIs, hooks, or event handlers.
+- **`next/image` for all images.** No `<img>` tags. No exceptions.
+- **`prefers-reduced-motion` guard** for all animations (CSS: handled in `globals.css`; JS: check `window.matchMedia` in `useEffect`).
+- **`--color-accent` for interactive states only** — never decorative.
+- **No new npm packages** without explicit instruction.
+- **Tailwind v4 config is `@theme inline {}` in `globals.css`.** No `tailwind.config.ts`. No `@apply` with non-existent utilities.
+- **`params` is a Promise in Next.js 16.2.7.** Always `const { slug } = await params;`.
+- **`generateStaticParams` and `generateMetadata` Sanity fetches must be wrapped in `try/catch`** to prevent build failures from CORS errors.
+- **Font rule:** `font-serif` (Lyon Text) for content. `font-sans` (Suisse Int'l) for UI/nav/labels.
 
 ---
 
