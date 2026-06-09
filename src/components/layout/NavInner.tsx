@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { NavLink } from '@/components/layout/NavLink';
 
-const DARK_PAGE_PREFIXES = ['/writing', '/photography', '/mixed-media', '/videography'];
+const DARK_PAGE_PREFIXES = ['/writing', '/photography', '/mixed-media', '/videography', '/map'];
 
 function isDarkPagePath(path: string): boolean {
   return DARK_PAGE_PREFIXES.some(
@@ -13,55 +13,153 @@ function isDarkPagePath(path: string): boolean {
   );
 }
 
+const SYMBOL_SCALE_MAX = 2.0;
+const SYMBOL_SCALE_END = 220;
+
 export function NavInner() {
-  const pathname = usePathname();
+  const pathname   = usePathname();
   const isHomepage = pathname === '/';
   const isDarkPage = isDarkPagePath(pathname);
-  const [heroVisible, setHeroVisible] = useState(true);
 
+  const [bodyBgActive, setBodyBgActive] = useState(false);
+  const [menuOpen, setMenuOpen]         = useState(false);
+  const [scrollY, setScrollY]           = useState(0);
+  const logoRef = useRef<HTMLAnchorElement>(null);
+
+  // Detect article-hover body class (set by HomepageClient)
   useEffect(() => {
-    if (!isHomepage) return;
-    const handleScroll = () => {
-      setHeroVisible(window.scrollY < window.innerHeight * 0.6);
+    const observer = new MutationObserver(() => {
+      setBodyBgActive(document.body.classList.contains('bg-active'));
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
+  // Track scroll — useLayoutEffect fires before paint, eliminating flash on load/navigation
+  useLayoutEffect(() => {
+    const onScroll = () => setScrollY(window.scrollY);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Re-sync scrollY when route changes (prevents stale value on navigation)
+  useLayoutEffect(() => {
+    setScrollY(window.scrollY);
+  }, [pathname]);
+
+  // Smooth symbol scale via direct DOM update — bypasses React batching for 60fps
+  useEffect(() => {
+    const logo = logoRef.current;
+    if (!logo) return;
+
+    if (!isHomepage) {
+      logo.style.transform = 'scale(1)';
+      return;
+    }
+
+    const updateScale = () => {
+      const t = Math.min(1, window.scrollY / SYMBOL_SCALE_END);
+      const scale = SYMBOL_SCALE_MAX - t * (SYMBOL_SCALE_MAX - 1);
+      logo.style.transform = `scale(${scale})`;
     };
-    handleScroll();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    updateScale();
+    window.addEventListener('scroll', updateScale, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', updateScale);
+      if (logoRef.current) logoRef.current.style.transform = 'scale(1)';
+    };
   }, [isHomepage]);
 
-  const onHeroOverlay = isHomepage && heroVisible;
+  // Close menu on navigation
+  useEffect(() => { setMenuOpen(false); }, [pathname]);
 
-  const textColour = isDarkPage || onHeroOverlay ? '#f8f4ef' : '#1c1814';
+  const isMapPage = pathname === '/map';
+  const scrolled  = scrollY > 60;
+  const onHero    = isHomepage && !scrolled;
+  const isLight   = isDarkPage || bodyBgActive || onHero;
+  const textColour = isLight ? '#f8f4ef' : '#1c1814';
 
-  let bgValue: string;
-  if (onHeroOverlay) {
-    bgValue = 'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 100%)';
-  } else if (isDarkPage) {
-    bgValue = 'rgba(28, 24, 20, 0.92)';
-  } else {
-    bgValue = 'rgba(248, 244, 239, 0.92)';
-  }
+  const bgValue = bodyBgActive || onHero || isMapPage
+    ? 'transparent'
+    : isDarkPage
+    ? 'rgba(28, 24, 20, 0.92)'
+    : 'rgba(248, 244, 239, 0.92)';
+
+  const showBlur = !bodyBgActive && !onHero && !isMapPage;
 
   return (
-    <div className="nav-shell">
+    <div className="nav-shell" style={{ overflow: 'visible' }}>
       <div
         aria-hidden="true"
-        className={`nav-bg${onHeroOverlay ? '' : ' nav-bg--blur'}`}
-        style={{ background: bgValue }}
+        className={`nav-bg${showBlur ? ' nav-bg--blur' : ''}`}
+        style={{
+          background: bgValue,
+          transition: 'background 250ms ease, backdrop-filter 250ms ease, -webkit-backdrop-filter 250ms ease',
+        }}
       />
       <nav
-        className="nav-inner"
+        className="nav-inner nav-grid"
         style={{ '--nav-text': textColour } as React.CSSProperties}
       >
-        <ul className="nav-links" role="list">
-          <li><NavLink href="/articles">EXPLORE</NavLink></li>
-          <li><NavLink href="/map">MAP</NavLink></li>
-          <li><NavLink href="/about">ABOUT</NavLink></li>
-          <li><NavLink href="/contact">CONTACT</NavLink></li>
-        </ul>
-        <Link href="/" aria-label="ARMAN'S WANDERINGS — home" className="nav-wordmark">
-          ARMAN&apos;S WANDERINGS
-        </Link>
+        {/* Left — EARTH */}
+        <div className="nav-grid-left">
+          <NavLink href="/map">EARTH</NavLink>
+        </div>
+
+        {/* Center — alchemical symbol, scale driven via ref for smooth animation */}
+        <div className="nav-grid-center">
+          <Link
+            href="/"
+            ref={logoRef}
+            aria-label="Arman's Wanderings — home"
+            className="logo-link"
+            style={{ transformOrigin: 'center center' }}
+          >
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+              <polygon
+                points="14,4 26,25 2,25"
+                fill="none"
+                strokeWidth="1.2"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                style={{ stroke: textColour, transition: 'stroke 250ms ease' }}
+              />
+              <line
+                x1="10" y1="11" x2="18" y2="11"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                style={{ stroke: textColour, transition: 'stroke 250ms ease' }}
+              />
+            </svg>
+          </Link>
+        </div>
+
+        {/* Right — hamburger / expanded links */}
+        <div className="nav-grid-right">
+          {menuOpen && (
+            <div className="nav-menu-expanded">
+              <NavLink href="/articles">LIBRARY</NavLink>
+              <NavLink href="/about">ABOUT</NavLink>
+              <NavLink href="/contact">CONTACT</NavLink>
+            </div>
+          )}
+          <button
+            className="nav-hamburger-btn"
+            onClick={() => setMenuOpen(o => !o)}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+          >
+            {menuOpen ? (
+              <span className="nav-close-x" style={{ color: textColour }}>✕</span>
+            ) : (
+              <span className="nav-hamburger-bars" aria-hidden="true">
+                <span style={{ background: textColour }} />
+                <span style={{ background: textColour }} />
+              </span>
+            )}
+          </button>
+        </div>
       </nav>
     </div>
   );

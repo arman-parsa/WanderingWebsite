@@ -26,10 +26,9 @@ const TYPE_LABEL: Record<string, string> = {
   videography: 'Videography',
 };
 
-type Filter = 'all' | 'writing' | 'photography' | 'mixedMedia' | 'videography';
+type SpecificFilter = 'writing' | 'photography' | 'mixedMedia' | 'videography';
 
-const FILTERS: { label: string; value: Filter }[] = [
-  { label: 'All',         value: 'all' },
+const FILTERS: { label: string; value: SpecificFilter }[] = [
   { label: 'Writing',     value: 'writing' },
   { label: 'Photography', value: 'photography' },
   { label: 'Mixed Media', value: 'mixedMedia' },
@@ -37,16 +36,28 @@ const FILTERS: { label: string; value: Filter }[] = [
 ];
 
 export function ExploreClient({ items }: { items: ContentItem[] }) {
-  const [filter, setFilter] = useState<Filter>('all');
+  const [active, setActive] = useState<Set<SpecificFilter>>(new Set());
 
-  const visible = filter === 'all' ? items : items.filter(i => i._type === filter);
+  function toggleFilter(value: SpecificFilter) {
+    setActive(prev => {
+      const next = new Set(prev);
+      if (next.has(value)) {
+        next.delete(value);
+      } else {
+        next.add(value);
+      }
+      return next;
+    });
+  }
+
+  const visible = active.size === 0 ? items : items.filter(i => active.has(i._type as SpecificFilter));
 
   return (
     <div style={{ backgroundColor: '#f8f4ef', color: '#1c1814', minHeight: '100vh', paddingTop: '6rem' }}>
       {/* Header */}
       <div style={{ textAlign: 'center', paddingBottom: '2.5rem' }}>
         <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(28,24,20,0.45)', marginBottom: '2rem' }}>
-          Explore
+          Library
         </p>
 
         {/* Filter pills */}
@@ -54,11 +65,11 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
           {FILTERS.map(({ label, value }) => (
             <button
               key={value}
-              onClick={() => setFilter(value)}
+              onClick={() => toggleFilter(value)}
               style={{
                 background: 'none',
-                border: `0.5px solid ${filter === value ? '#1c1814' : 'rgba(28,24,20,0.25)'}`,
-                color: filter === value ? '#1c1814' : 'rgba(28,24,20,0.45)',
+                border: `0.5px solid ${active.has(value) ? '#1c1814' : 'rgba(28,24,20,0.25)'}`,
+                color: active.has(value) ? '#1c1814' : 'rgba(28,24,20,0.45)',
                 fontFamily: 'var(--font-sans)',
                 fontSize: '0.62rem',
                 letterSpacing: '0.15em',

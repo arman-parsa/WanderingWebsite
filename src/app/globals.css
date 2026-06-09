@@ -356,6 +356,205 @@ html {
   opacity: 0.65;
 }
 
+/* ── Hero section ────────────────────────────────────────────── */
+.hero-section {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.hero-tagline {
+  font-family: var(--font-serif);
+  font-size: clamp(1.15rem, 2.2vw, 1.65rem);
+  font-style: italic;
+  font-weight: 300;
+  color: rgba(248, 244, 239, 0.88);
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  text-align: center;
+  padding: 0 clamp(1.5rem, 4vw, 3rem);
+}
+
+/* ── Nav 3-column grid ───────────────────────────────────────── */
+.nav-grid {
+  display: grid !important;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+}
+
+.nav-grid-left {
+  display: flex;
+  align-items: center;
+}
+
+.nav-grid-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Allow scaled symbol to overflow nav bounds into the hero */
+  overflow: visible;
+}
+
+.nav-grid-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: clamp(1.5rem, 3vw, 2rem);
+}
+
+/* ── Hamburger button ────────────────────────────────────────── */
+.nav-hamburger-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  min-height: 22px;
+}
+
+.nav-hamburger-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.nav-hamburger-bars span {
+  display: block;
+  width: 22px;
+  height: 1px;
+}
+
+.nav-close-x {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+/* ── Expanded menu links ─────────────────────────────────────── */
+.nav-menu-expanded {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.5rem, 3vw, 2rem);
+  animation: nav-expand 180ms ease-out;
+}
+
+@keyframes nav-expand {
+  from { opacity: 0; transform: translateX(10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Logo link (nav + footer symbol) ────────────────────────── */
+.logo-link {
+  display: block;
+  line-height: 0;
+  flex-shrink: 0;
+  transition: opacity 250ms ease;
+}
+.logo-link:hover { opacity: 0.65; }
+
+/* ── Homepage ─────────────────────────────────────────────── */
+.home-opening {
+  padding-top: 168px;
+  padding-bottom: 132px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+}
+.home-tagline {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 300;
+  font-style: italic;
+  letter-spacing: 0.01em;
+  line-height: 1.6;
+  text-align: center;
+}
+.home-title {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: clamp(60px, 5.6vw, 80px);
+  letter-spacing: -0.03em;
+  line-height: 1.04;
+}
+.home-article-item {
+  display: block;
+  padding: 36px 0;
+  cursor: pointer;
+}
+.home-article-row {
+  display: flex;
+  align-items: center;
+  gap: 52px;
+}
+.home-article-title {
+  flex: 0 0 62%;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: clamp(30px, 3.3vw, 46px);
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+  text-wrap: pretty;
+}
+.home-article-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  will-change: opacity;
+}
+.home-read-more {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: color 100ms ease;
+}
+.home-read-more::after {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 1px;
+  background: currentColor;
+  transition: width 100ms ease;
+}
+.home-read-more:hover         { color: var(--color-accent); }
+.home-read-more:hover::after  { width: 44px; }
+
+@media (max-width: 860px) {
+  .home-opening {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-top: 112px;
+    padding-bottom: 80px;
+  }
+  .home-tagline         { text-align: left; }
+  .home-article-row     { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .home-article-title   { flex: none; width: 100%; }
+  .home-article-meta    { flex: none; width: 100%; }
+}
+
+/* ── Globe panel read-link arrow ────────────────────────────── */
+.read-link .read-link-arrow {
+  display: inline-block;
+  transition: transform 150ms ease;
+}
+.read-link:hover .read-link-arrow {
+  transform: translateX(3px);
+}
+
 /* ── Reduced motion ──────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

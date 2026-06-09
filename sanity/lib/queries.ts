@@ -161,9 +161,9 @@ export const MAP_CONTENT_QUERY = defineQuery(`
     title,
     "slug": slug.current,
     publishedAt,
+    description,
     location,
-    coordinates,
-    coverImage { ..., "alt": coalesce(alt, ""), hotspot }
+    coordinates
   }
 `);
 
