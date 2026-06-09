@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import fs from 'fs';
+import path from 'path';
 import { client } from '@/lib/sanity';
 import { ALL_CONTENT_QUERY } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
@@ -42,10 +44,14 @@ export default async function HomePage() {
       : undefined,
   }));
 
-  // Use article cover images as hero backgrounds; user can supply dedicated hero images later
-  const heroImages = homeItems
-    .map(i => i.coverImageUrl)
-    .filter((u): u is string => Boolean(u));
+  // Static hero images from public/images/ — all image files discovered at build time
+  const IMAGE_EXTS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif']);
+  const imagesDir = path.join(process.cwd(), 'public', 'images');
+  const heroImages = fs.existsSync(imagesDir)
+    ? fs.readdirSync(imagesDir)
+        .filter(f => IMAGE_EXTS.has(path.extname(f).toLowerCase()))
+        .map(f => `/images/${f}`)
+    : [];
 
   return <HomepageClient items={homeItems} heroImages={heroImages} />;
 }
