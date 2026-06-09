@@ -49,6 +49,9 @@ const CAM_INIT_Z = 2.8;
 const CAM_MIN_Z = 1.5;
 const CAM_MAX_Z = 5.0;
 const PANEL_SHIFT = 170;
+const EARTH_TILT = 0.41;   // ~23.5° — natural axial tilt, starting orientation
+const TILT_MIN   = -1.22;  // ~-70° — reveals south pole
+const TILT_MAX   =  1.22;  // ~+70° — reveals north pole
 
 // ── Geometry helpers ────────────────────────────────────────────────────────
 
@@ -179,6 +182,8 @@ type InteractState = {
   inactivityTimer: ReturnType<typeof setTimeout> | null;
   pinchDist: number;
   reducedMotion: boolean;
+  tiltAngle: number;
+  spinQ: THREE.Quaternion;
 };
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -233,8 +238,6 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
 
     // ── Globe group ──────────────────────────────────────────────────────
     const globeGroup = new THREE.Group();
-    // Slight northward tilt (~11°) so Northern Hemisphere lands are naturally centered
-    globeGroup.quaternion.setFromEuler(new THREE.Euler(0.2, 0, 0));
     scene.add(globeGroup);
 
     const oceanMesh = new THREE.Mesh(
@@ -339,7 +342,18 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
       inactivityTimer: null,
       pinchDist: 0,
       reducedMotion,
+      tiltAngle: EARTH_TILT,
+      spinQ: new THREE.Quaternion(),
     };
+
+    // Compose tilt (X) and spin (Y) into globeGroup.quaternion.
+    // Called whenever either component changes.
+    function applyGlobeRotation() {
+      globeGroup.quaternion
+        .setFromEuler(new THREE.Euler(ia.tiltAngle, 0, 0))
+        .multiply(ia.spinQ);
+    }
+    applyGlobeRotation();
 
     // ── Raycaster ────────────────────────────────────────────────────────
     const raycaster = new THREE.Raycaster();
@@ -363,21 +377,30 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
       const delta = clock.getDelta();
       elapsed += delta;
 
-      // Auto-rotation
+      // Auto-rotation — spin only, tilt stays fixed
       if (ia.isAutoRotating) {
-        const q = new THREE.Quaternion().setFromAxisAngle(
-          new THREE.Vector3(0, 1, 0),
-          AUTO_ROT_SPEED * delta
+        ia.spinQ.premultiply(
+          new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), AUTO_ROT_SPEED * delta)
         );
-        globeGroup.quaternion.premultiply(q);
+        applyGlobeRotation();
       }
 
-      // Momentum
-      if (!ia.isDragging && !ia.isAutoRotating && Math.abs(ia.velX) > 0.00005) {
-        globeGroup.quaternion.premultiply(
-          new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), ia.velX)
-        );
-        ia.velX *= MOMENTUM_DECAY;
+      // Momentum — spin and tilt decay independently
+      if (!ia.isDragging && !ia.isAutoRotating) {
+        let moved = false;
+        if (Math.abs(ia.velX) > 0.00005) {
+          ia.spinQ.premultiply(
+            new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), ia.velX)
+          );
+          ia.velX *= MOMENTUM_DECAY;
+          moved = true;
+        }
+        if (Math.abs(ia.velY) > 0.00005) {
+          ia.tiltAngle = Math.max(TILT_MIN, Math.min(TILT_MAX, ia.tiltAngle - ia.velY));
+          ia.velY *= MOMENTUM_DECAY;
+          moved = true;
+        }
+        if (moved) applyGlobeRotation();
       }
 
       // Star twinkling
@@ -468,11 +491,14 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
       updatePointer(e.clientX, e.clientY);
       if (!ia.isDragging) return;
       const dx = (e.clientX - ia.lastX) * 0.005;
+      const dy = (e.clientY - ia.lastY) * 0.005;
       ia.velX = dx;
-      ia.velY = 0;
-      globeGroup.quaternion.premultiply(
+      ia.velY = dy;
+      ia.spinQ.premultiply(
         new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), dx)
       );
+      ia.tiltAngle = Math.max(TILT_MIN, Math.min(TILT_MAX, ia.tiltAngle - dy));
+      applyGlobeRotation();
       ia.lastX = e.clientX;
       ia.lastY = e.clientY;
     }
