@@ -383,3 +383,29 @@ Atmosphere: rgba(140,170,200) shader
 Copy and send this as the first message to a new Claude Code session:
 
 > "Read CLAUDE.md and SESSION_HANDOFF.md in the project root before doing anything. Note: ARCHITECTURE.md and DESIGN_SYSTEM.md do not exist — SESSION_HANDOFF.md contains all extracted design system values and current state. Do not write a single line of code until you have read both files. Then confirm you have read them and state what you understand the current state of the site to be before we begin."
+
+---
+
+## 13. FINAL-AUDIT ADDENDUM — June 2026
+
+A full pre-launch audit was carried out. Changes since the sections above were written:
+
+**New since this doc was drafted (earlier sessions):** `public/images/` now exists with 10 hero JPGs used by the homepage rotation; SEO files added (`src/app/sitemap.ts`, `robots.ts`, `manifest.ts`, `icon.svg`, `src/lib/siteConfig.ts`, `src/lib/jsonld.ts`, `src/components/seo/JsonLd.tsx`); `IntroLoader` first-visit animation added; `SiteNav.tsx` already deleted; canonical origin is `https://armanparsa.earth` (fallback in `siteConfig.ts`).
+
+**Audit changes:**
+- Hero photos recompressed in place (max 2560px, q82, EXIF stripped): 46MB → 3.6MB. Originals recoverable from git history.
+- Homepage hero rotation converted from CSS `background-image` divs to `next/image` (`fill`, first slide `priority`); slides mount progressively so the browser never fetches all heroes up front.
+- `src/app/not-found.tsx` added — unmatched URLs previously got Next's unstyled default 404. `(site)/not-found.tsx` still handles in-group `notFound()`.
+- `<main id="main-content">` landmark added to /articles and all four detail page types (skip-link now works everywhere).
+- `public/og.jpg` (1200×630) added as the site-wide social card, wired via `OG_IMAGE` in `siteConfig.ts` into every static page's `openGraph.images` and as the fallback in `buildContentMetadata` (Sanity cover/SEO images still win on detail pages). PNG icons (192/512) added for the web manifest; `src/app/favicon.ico` generated.
+- `viewport.themeColor` added. Manual font preloads in the root layout are REQUIRED — Next only auto-preloads `next/font` fonts, not `@font-face` CSS fonts.
+- NavInner: route-change scroll re-sync + menu close moved from effects to React's render-time adjustment pattern (fixes lint errors, same behaviour).
+- `sanity/lib/client.ts` falls back to public project ID `8p5lsu79` (build no longer crashes without `.env.local`).
+- `sanityImage.ts` uses named `createImageUrlBuilder` export (deprecation warning gone — Known Issue 6 resolved).
+- **Guarded-file edits (minimal, justified):** `api/revalidate/route.ts` now rejects all requests when `SANITY_WEBHOOK_SECRET` is unset (was an auth bypass); `lib/utils.ts` `formatDate` pins `timeZone: 'UTC'` (dates no longer shift a day west of UTC); dead `TooltipData` type removed from `GlobeView.tsx`.
+- Contrast fixes: footer copyright `text-ink-faint` → `text-ink-muted`; Library inactive filter pills/label darkened to meet WCAG AA. Homepage hover meta `aria-hidden` now tracks visibility instead of always-true.
+- Orphans deleted: `MapView`, `MapLoader`, `HeroSection`, `ContentCard`, `ArticlesClient`, comment-only barrels (`navigation/ui/photography/content` index.ts). Unused packages removed: maplibre-gl, react-map-gl, gsap, lenis, framer-motion, photoswipe. Dead `.map-popup` CSS removed. (`PageWrapper` kept — documented utility.)
+- React keys on content lists are now `_type-slug` composites.
+- README rewritten (was create-next-app boilerplate).
+
+**Still open (require dashboard access, not code):** Vercel env vars (`NEXT_PUBLIC_SITE_URL`, `SANITY_WEBHOOK_SECRET`) and Sanity webhook — Known Issues 2 & 3; `armanparsa.earth` domain attachment unverified; no real Sanity content yet (Known Issues 1, 4); contact page email is `armanparsa03@gmail.com` — confirm this is the intended address. `npm audit` shows 19 moderate transitive advisories in Sanity/Next tooling; the proposed fixes are breaking downgrades — do not run `npm audit fix --force`.

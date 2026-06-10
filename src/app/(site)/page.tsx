@@ -6,7 +6,7 @@ import { ALL_CONTENT_QUERY } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
 import { PLACEHOLDER_ITEMS } from '@/lib/placeholders';
 import { HomepageClient, type HomeItem } from '@/components/home/HomepageClient';
-import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from '@/lib/metadata';
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, OG_IMAGE } from '@/lib/metadata';
 
 export const revalidate = 300;
 
@@ -19,6 +19,7 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     url: SITE_URL,
     type: 'website',
+    images: [OG_IMAGE],
   },
 };
 
@@ -58,6 +59,7 @@ export default async function HomePage() {
   const heroImages = fs.existsSync(imagesDir)
     ? fs.readdirSync(imagesDir)
         .filter(f => IMAGE_EXTS.has(path.extname(f).toLowerCase()))
+        .sort()
         .map(f => `/images/${f}`)
     : [];
 

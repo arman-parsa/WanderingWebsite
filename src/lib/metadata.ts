@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { urlFor } from '@/lib/sanityImage';
-import { SITE_NAME } from '@/lib/siteConfig';
+import { SITE_NAME, OG_IMAGE } from '@/lib/siteConfig';
 
 // Re-export constants so callers can import from one place
-export { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SOCIAL_PROFILES } from '@/lib/siteConfig';
+export { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SOCIAL_PROFILES, OG_IMAGE } from '@/lib/siteConfig';
 
 type SanityImageRef = { asset?: object; alt?: string };
 
@@ -44,13 +44,13 @@ export function buildContentMetadata(input: ContentMetaInput): Metadata {
       type: 'article',
       ...(input.publishedAt && { publishedTime: input.publishedAt }),
       ...(input.tags?.length && { tags: input.tags }),
-      ...(image && { images: [{ url: image, width: 1200, height: 630 }] }),
+      images: image ? [{ url: image, width: 1200, height: 630 }] : [OG_IMAGE],
     },
     twitter: {
-      card: image ? 'summary_large_image' : 'summary',
+      card: 'summary_large_image',
       title,
       description,
-      ...(image && { images: [image] }),
+      images: [image ?? OG_IMAGE.url],
     },
   };
 }

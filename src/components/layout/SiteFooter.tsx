@@ -24,7 +24,7 @@ export function SiteFooter() {
           </svg>
         </div>
 
-        <p className="font-sans text-xs uppercase tracking-widest text-ink-faint">
+        <p className="font-sans text-xs uppercase tracking-widest text-ink-muted">
           © {year} armanparsa.earth
         </p>
 

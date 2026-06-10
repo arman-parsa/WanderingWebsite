@@ -33,8 +33,6 @@ export type Cluster = {
   items: GlobeItem[];
 };
 
-type TooltipData = { text: string; x: number; y: number };
-
 // ── Constants ───────────────────────────────────────────────────────────────
 
 const GLOBE_RADIUS = 1.0;

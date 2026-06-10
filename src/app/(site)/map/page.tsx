@@ -4,7 +4,7 @@ import { MAP_CONTENT_QUERY } from '@/lib/sanity';
 import { GlobeLoader } from '@/components/map';
 import { PLACEHOLDER_GLOBE_ITEMS } from '@/lib/placeholders';
 import type { GlobeItem } from '@/components/map';
-import { SITE_URL } from '@/lib/metadata';
+import { SITE_URL, OG_IMAGE } from '@/lib/metadata';
 
 export const revalidate = 60;
 
@@ -16,6 +16,7 @@ export const metadata: Metadata = {
     title: 'Earth · Arman Parsa',
     description: 'An interactive globe showing the geographic locations of all published work — stories collected across the world by Arman Parsa.',
     url: `${SITE_URL}/map`,
+    images: [OG_IMAGE],
   },
 };
 

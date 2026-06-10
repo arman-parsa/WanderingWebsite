@@ -191,7 +191,7 @@ function ClusterList({ items }: { items: GlobeItem[] }) {
       {items.map((item, i) => {
         const href = `${TYPE_HREF[item._type] ?? ''}/${item.slug}`;
         return (
-          <div key={item.slug}>
+          <div key={`${item._type}-${item.slug}`}>
             {i > 0 && (
               <div style={{ height: '0.5px', backgroundColor: '#ddd9d2', margin: '1.25rem 0' }} />
             )}

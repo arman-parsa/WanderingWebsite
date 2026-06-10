@@ -44,12 +44,16 @@ export function NavInner() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Re-sync scrollY on route change.
-  // When navigating TO the homepage Next.js scrolls to top — assume 0 immediately
-  // so the nav doesn't briefly show opaque from a stale previous-page position.
-  useLayoutEffect(() => {
-    setScrollY(pathname === '/' ? 0 : window.scrollY);
-  }, [pathname]);
+  // Re-sync scrollY and close the menu on route change — done during render
+  // (React's "adjusting state when props change" pattern) so the nav can never
+  // paint a stale previous-page background. When navigating TO the homepage
+  // Next.js scrolls to top, so assume 0 immediately.
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    setScrollY(pathname === '/' || typeof window === 'undefined' ? 0 : window.scrollY);
+    if (menuOpen) setMenuOpen(false);
+  }
 
   // Smooth symbol scale via direct DOM update — bypasses React batching for 60fps
   useEffect(() => {
@@ -70,7 +74,7 @@ export function NavInner() {
     window.addEventListener('scroll', updateScale, { passive: true });
     return () => {
       window.removeEventListener('scroll', updateScale);
-      if (logoRef.current) logoRef.current.style.transform = 'scale(1)';
+      logo.style.transform = 'scale(1)';
     };
   }, [isHomepage]);
 
@@ -81,9 +85,6 @@ export function NavInner() {
     window.addEventListener('resize', check, { passive: true });
     return () => window.removeEventListener('resize', check);
   }, []);
-
-  // Close menu on navigation
-  useEffect(() => { setMenuOpen(false); }, [pathname]);
 
   const isMapPage = pathname === '/map';
   const scrolled  = scrollY > 60;

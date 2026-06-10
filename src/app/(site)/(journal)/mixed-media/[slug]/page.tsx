@@ -66,7 +66,7 @@ export default async function MixedMediaPage({ params }: Props) {
   });
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef' }}>
+    <main id="main-content" className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef' }}>
       <JsonLd data={jsonLd} />
       <div style={{ paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
         <EssayHero
@@ -83,6 +83,6 @@ export default async function MixedMediaPage({ params }: Props) {
           </article>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

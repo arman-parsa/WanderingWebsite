@@ -23,7 +23,9 @@ const TYPE_PATH: Record<string, string> = {
 export async function POST(request: NextRequest) {
   const secret = request.headers.get('authorization')?.replace('Bearer ', '');
 
-  if (secret !== process.env.SANITY_WEBHOOK_SECRET) {
+  // Reject everything when the secret is unconfigured — otherwise a request
+  // with no Authorization header would compare undefined === undefined and pass.
+  if (!process.env.SANITY_WEBHOOK_SECRET || secret !== process.env.SANITY_WEBHOOK_SECRET) {
     return Response.json({ message: 'Invalid secret' }, { status: 401 });
   }
 

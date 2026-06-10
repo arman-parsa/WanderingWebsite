@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 const TYPE_HREF: Record<string, string> = {
@@ -36,6 +37,9 @@ export function HomepageClient({
   const [hovered, setHovered]   = useState<HomeItem | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [bgIdx, setBgIdx]       = useState(0);
+  // Slides 0..maxMounted render an <Image>; the rest stay empty until the
+  // rotation approaches them, so the browser never downloads all heroes at once.
+  const [maxMounted, setMaxMounted] = useState(() => Math.min(1, heroImages.length - 1));
 
   const bgActive = hovered !== null;
   const bgUrl    = hovered?.coverImageUrl;
@@ -52,7 +56,14 @@ export function HomepageClient({
     if (heroImages.length <= 1) return;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reducedMotion) return;
-    const id = setInterval(() => setBgIdx(i => (i + 1) % heroImages.length), 5000);
+    const id = setInterval(() => {
+      setBgIdx(i => {
+        const next = (i + 1) % heroImages.length;
+        // Mount one slide ahead so the upcoming image has the full 5s to load
+        setMaxMounted(m => Math.max(m, Math.min(next + 1, heroImages.length - 1)));
+        return next;
+      });
+    }, 5000);
     return () => clearInterval(id);
   }, [heroImages]);
 
@@ -116,14 +127,24 @@ export function HomepageClient({
           {heroImages.map((url, i) => (
             <div
               key={url}
+              aria-hidden="true"
               style={{
                 position: 'absolute', inset: 0,
-                backgroundImage: `url('${url}')`,
-                backgroundSize: 'cover', backgroundPosition: 'center',
                 opacity: i === bgIdx ? 1 : 0,
                 transition: 'opacity 1500ms ease',
               }}
-            />
+            >
+              {i <= maxMounted && (
+                <Image
+                  src={url}
+                  alt=""
+                  fill
+                  priority={i === 0}
+                  sizes="100vw"
+                  className="object-cover"
+                />
+              )}
+            </div>
           ))}
           {/* Overlay */}
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(28,24,20,0.48)', zIndex: 1 }} />
@@ -150,7 +171,7 @@ export function HomepageClient({
 
               return (
                 <article
-                  key={item.slug}
+                  key={`${item._type}-${item.slug}`}
                   className="home-article-item"
                   onMouseEnter={() => { if (!isMobile) setHovered(item); }}
                   onMouseLeave={() => { if (!isMobile) setHovered(null); }}
@@ -168,7 +189,7 @@ export function HomepageClient({
                       </h2>
                       <div
                         className="home-article-meta"
-                        aria-hidden="true"
+                        aria-hidden={!showMeta}
                         style={{ opacity: showMeta ? 1 : 0, transition: 'opacity 100ms ease' }}
                       >
                         {item.location && (

@@ -130,12 +130,10 @@
 
 html,
 body {
+  /* hidden = fallback for older Safari; clip avoids creating a scroll container */
+  overflow-x: hidden;
   overflow-x: clip;
   max-width: 100%;
-}
-
-html, body {
-  overflow-x: hidden;
 }
 
 html {
@@ -281,17 +279,6 @@ a, button {
   .article-body p:first-of-type::first-letter {
     font-size: 3.2em;
   }
-}
-
-/* ── MapLibre popup reset ────────────────────────────────── */
-.map-popup .maplibregl-popup-content {
-  padding: 0;
-  border-radius: 2px;
-  box-shadow: none;
-  background: transparent;
-}
-.map-popup .maplibregl-popup-tip {
-  border-top-color: var(--color-paper);
 }
 
 /* ── Nav ─────────────────────────────────────────────────── */

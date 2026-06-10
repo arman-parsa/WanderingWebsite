@@ -57,7 +57,7 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
     <div style={{ backgroundColor: '#f8f4ef', color: '#1c1814', minHeight: '100vh', paddingTop: '6rem' }}>
       {/* Header */}
       <div style={{ textAlign: 'center', paddingBottom: '2.5rem' }}>
-        <p aria-hidden="true" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(28,24,20,0.45)', marginBottom: '2rem' }}>
+        <p aria-hidden="true" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(28,24,20,0.6)', marginBottom: '2rem' }}>
           Library
         </p>
 
@@ -69,8 +69,8 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
               onClick={() => toggleFilter(value)}
               style={{
                 background: 'none',
-                border: `0.5px solid ${active.has(value) ? '#1c1814' : 'rgba(28,24,20,0.25)'}`,
-                color: active.has(value) ? '#1c1814' : 'rgba(28,24,20,0.45)',
+                border: `0.5px solid ${active.has(value) ? '#1c1814' : 'rgba(28,24,20,0.3)'}`,
+                color: active.has(value) ? '#1c1814' : 'rgba(28,24,20,0.62)',
                 fontFamily: 'var(--font-sans)',
                 fontSize: '0.62rem',
                 letterSpacing: '0.15em',
@@ -95,7 +95,7 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
             const objectPosition = hotspot ? `${hotspot.x * 100}% ${hotspot.y * 100}%` : 'center';
 
             return (
-              <div key={item.slug} className="explore-card">
+              <div key={`${item._type}-${item.slug}`} className="explore-card">
                 <Link href={href} style={{ display: 'block', textDecoration: 'none' }}>
                   {/* Image */}
                   <div className="explore-card-frame">

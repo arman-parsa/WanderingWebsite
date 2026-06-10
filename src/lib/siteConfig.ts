@@ -8,3 +8,5 @@ export const SOCIAL_PROFILES = [
   'https://www.tiktok.com/@armanparsa_',
   'https://www.linkedin.com/in/armanparsa-/',
 ];
+/** Site-wide social share image (resolved against metadataBase). */
+export const OG_IMAGE = { url: '/og.jpg', width: 1200, height: 630 };

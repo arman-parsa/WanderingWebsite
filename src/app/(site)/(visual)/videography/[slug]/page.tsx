@@ -69,7 +69,7 @@ export default async function VideographyPage({ params }: Props) {
   });
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef', paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
+    <main id="main-content" className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef', paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
       <JsonLd data={jsonLd} />
       {/* Full-bleed cover thumbnail */}
       {piece.coverImage?.asset && (
@@ -142,6 +142,6 @@ export default async function VideographyPage({ params }: Props) {
           ))}
         </section>
       )}
-    </div>
+    </main>
   );
 }
