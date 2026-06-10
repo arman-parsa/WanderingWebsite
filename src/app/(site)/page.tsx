@@ -6,12 +6,20 @@ import { ALL_CONTENT_QUERY } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
 import { PLACEHOLDER_ITEMS } from '@/lib/placeholders';
 import { HomepageClient, type HomeItem } from '@/components/home/HomepageClient';
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from '@/lib/metadata';
 
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: { absolute: 'Arman Parsa - Dispatches' },
-  description: 'A personal archive of written and visual media capturing stories around the earth',
+  title: { absolute: SITE_NAME },
+  description: SITE_DESCRIPTION,
+  alternates: { canonical: SITE_URL },
+  openGraph: {
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    type: 'website',
+  },
 };
 
 type ContentItem = {

@@ -1,8 +1,15 @@
 import type { Metadata } from 'next';
+import { SITE_URL } from '@/lib/metadata';
 
 export const metadata: Metadata = {
   title: 'About',
-  description: 'About Arman — a personal editorial archive of travel writing, photography, and mixed media.',
+  description: 'Arman Parsa is a London-born, Oxford-educated Iranian journalist, photographer and videographer — collecting intimate stories from around the world.',
+  alternates: { canonical: `${SITE_URL}/about` },
+  openGraph: {
+    title: 'About · Arman Parsa',
+    description: 'Arman Parsa is a London-born, Oxford-educated Iranian journalist, photographer and videographer — collecting intimate stories from around the world.',
+    url: `${SITE_URL}/about`,
+  },
 };
 
 export default function AboutPage() {
@@ -12,6 +19,7 @@ export default function AboutPage() {
       className="flex flex-1 flex-col justify-center py-24"
     >
       <div className="mx-auto w-full max-w-[var(--content-max-width)] px-[var(--content-padding-x)] text-center">
+        <h1 className="sr-only">About Arman Parsa</h1>
         <p className="font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
           Stories long to be caught on pen and paper, or through the lens of a camera.
         </p>

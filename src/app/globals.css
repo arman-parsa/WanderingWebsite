@@ -153,6 +153,27 @@ a, button {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Skip-to-content link — visible only on keyboard focus */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 10000;
+  padding: 0.5rem 1rem;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  border-radius: 2px;
+  transition: top 150ms ease;
+}
+.skip-link:focus {
+  top: 1rem;
+}
+
 /* ── Entrance animations ─────────────────────────────────── */
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(12px); }

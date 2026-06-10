@@ -4,8 +4,11 @@ import Image from 'next/image';
 import { client } from '@/lib/sanity';
 import { PHOTOGRAPHY_QUERY, PHOTOGRAPHY_SLUGS_QUERY } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
+import { JsonLd } from '@/components/seo/JsonLd';
 import { formatDate } from '@/lib/utils';
 import { PLACEHOLDER_ITEMS, PLACEHOLDER_PHOTO_SERIES } from '@/lib/placeholders';
+import { buildContentMetadata, contentImageUrl } from '@/lib/metadata';
+import { buildContentJsonLd } from '@/lib/jsonld';
 
 export const revalidate = 3600;
 
@@ -25,13 +28,19 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  if (slug.startsWith('_placeholder')) return { robots: { index: false } };
   try {
     const series = await client.fetch(PHOTOGRAPHY_QUERY, { slug });
     if (!series) return {};
-    return {
-      title: series.seo?.metaTitle ?? series.title,
-      description: series.seo?.metaDescription ?? series.description,
-    };
+    return buildContentMetadata({
+      title: series.title,
+      description: series.description,
+      path: `/photography/${slug}`,
+      publishedAt: series.publishedAt,
+      tags: series.tags,
+      coverImage: series.coverImage,
+      seo: series.seo,
+    });
   } catch {
     return {};
   }
@@ -56,8 +65,19 @@ export default async function PhotographyPage({ params }: Props) {
   }
   if (!series) notFound();
 
+  const jsonLd = buildContentJsonLd({
+    type: 'ImageGallery',
+    title: series.title,
+    description: series.description,
+    path: `/photography/${slug}`,
+    publishedAt: series.publishedAt,
+    tags: series.tags,
+    imageUrl: contentImageUrl(series.coverImage),
+  });
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef', paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
+      <JsonLd data={jsonLd} />
       {/* Full-bleed hero */}
       {series.coverImage?.asset && (
         <div className="relative h-screen w-full overflow-hidden">
@@ -91,18 +111,42 @@ export default async function PhotographyPage({ params }: Props) {
         </div>
       )}
 
+      {/* Text-only header when no cover image */}
+      {!series.coverImage?.asset && (
+        <div className="mx-auto max-w-[var(--content-full-width)] px-[var(--content-padding-x)] py-16">
+          {series.location && (
+            <p className="mb-2 font-sans text-xs uppercase tracking-widest" style={{ color: '#a09890' }}>
+              {series.location}
+              {series.publishedAt && ` — ${formatDate(series.publishedAt)}`}
+            </p>
+          )}
+          <h1 className="font-serif text-[var(--text-4xl)] font-light tracking-tight" style={{ color: '#f8f4ef' }}>
+            {series.title}
+          </h1>
+          {series.description && (
+            <p className="mt-3 max-w-md font-sans text-sm leading-relaxed" style={{ color: '#a09890' }}>
+              {series.description}
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Photo grid */}
       {series.images?.length > 0 && (
-        <section className="mx-auto max-w-[var(--content-full-width)] px-[var(--content-padding-x)] py-16">
+        <section
+          className="mx-auto max-w-[var(--content-full-width)] px-[var(--content-padding-x)] py-16"
+          aria-label="Photo series"
+        >
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {series.images.map((image: SanityImage, i: number) => {
               if (!image.asset) return null;
+              const altText = image.alt || image.caption || image.description || series.title;
               return (
                 <figure key={image._key} className="group overflow-hidden">
                   <div className="relative aspect-[4/3] overflow-hidden bg-surface">
                     <Image
                       src={urlFor(image).width(900).format('webp').quality(85).url()}
-                      alt={image.alt ?? ''}
+                      alt={altText}
                       fill
                       priority={i < 3}
                       placeholder="blur"

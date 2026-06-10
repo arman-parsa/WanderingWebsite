@@ -127,12 +127,12 @@ export function HomepageClient({
           ))}
           {/* Overlay */}
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(28,24,20,0.48)', zIndex: 1 }} />
-          {/* Tagline */}
+          {/* Tagline — h1 is visually styled as a tagline but semantically the page title */}
           <div style={{
             position: 'absolute', inset: 0, zIndex: 2,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <p className="hero-tagline">Stories collected around the world.</p>
+            <h1 className="hero-tagline">Stories collected around the world.</h1>
           </div>
         </section>
 

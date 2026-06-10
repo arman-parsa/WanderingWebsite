@@ -1,8 +1,15 @@
 import type { Metadata } from 'next';
+import { SITE_URL } from '@/lib/metadata';
 
 export const metadata: Metadata = {
   title: 'Contact',
-  description: 'Get in touch with Arman.',
+  description: 'Get in touch with Arman Parsa for partnerships, editorial enquiries, or to say hello.',
+  alternates: { canonical: `${SITE_URL}/contact` },
+  openGraph: {
+    title: 'Contact · Arman Parsa',
+    description: 'Get in touch with Arman Parsa for partnerships, editorial enquiries, or to say hello.',
+    url: `${SITE_URL}/contact`,
+  },
 };
 
 export default function ContactPage() {
@@ -12,6 +19,7 @@ export default function ContactPage() {
       className="flex flex-1 flex-col justify-center py-24"
     >
       <div className="mx-auto w-full max-w-[var(--content-max-width)] px-[var(--content-padding-x)] text-center">
+        <h1 className="sr-only">Contact</h1>
         <p className="font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
           For partnerships, editorial enquiries, or just to say hello — reach out by email.
         </p>
@@ -28,7 +36,7 @@ export default function ContactPage() {
             href="https://www.instagram.com/armanparsa_/"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Instagram"
+            aria-label="Arman Parsa on Instagram"
             className="text-ink opacity-55 transition-opacity duration-[var(--duration-fast)] hover:opacity-80 active:opacity-80"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -42,7 +50,7 @@ export default function ContactPage() {
             href="https://www.tiktok.com/@armanparsa_"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="TikTok"
+            aria-label="Arman Parsa on TikTok"
             className="text-ink opacity-55 transition-opacity duration-[var(--duration-fast)] hover:opacity-80 active:opacity-80"
           >
             <svg width="18" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style={{ display: 'block' }}>
@@ -54,7 +62,7 @@ export default function ContactPage() {
             href="https://www.linkedin.com/in/armanparsa-/"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="LinkedIn"
+            aria-label="Arman Parsa on LinkedIn"
             className="text-ink opacity-55 transition-opacity duration-[var(--duration-fast)] hover:opacity-80 active:opacity-80"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

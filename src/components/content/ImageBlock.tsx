@@ -24,7 +24,7 @@ export function ImageBlock({ value }: Props) {
       <div className="relative aspect-[16/9] w-full overflow-hidden">
         <Image
           src={src}
-          alt={value.alt ?? ''}
+          alt={value.alt || value.caption || ''}
           fill
           placeholder="blur"
           blurDataURL={blurSrc}

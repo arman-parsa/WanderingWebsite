@@ -3,12 +3,19 @@ import { client } from '@/lib/sanity';
 import { ALL_CONTENT_QUERY } from '@/lib/sanity';
 import { PLACEHOLDER_ITEMS } from '@/lib/placeholders';
 import { ExploreClient } from '@/components/explore/ExploreClient';
+import { SITE_URL } from '@/lib/metadata';
 
 export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Library',
-  description: 'Writing, photography, mixed media, and videography.',
+  description: 'Browse all writing, photography, mixed media, and videography by Arman Parsa — a personal archive of stories from around the world.',
+  alternates: { canonical: `${SITE_URL}/articles` },
+  openGraph: {
+    title: 'Library · Arman Parsa',
+    description: 'Browse all writing, photography, mixed media, and videography by Arman Parsa — a personal archive of stories from around the world.',
+    url: `${SITE_URL}/articles`,
+  },
 };
 
 type ContentItem = {
@@ -30,5 +37,10 @@ export default async function ArticlesPage() {
   }
   if (items.length === 0) items = PLACEHOLDER_ITEMS as ContentItem[];
 
-  return <ExploreClient items={items} />;
+  return (
+    <>
+      <h1 className="sr-only">Library — all work by Arman Parsa</h1>
+      <ExploreClient items={items} />
+    </>
+  );
 }

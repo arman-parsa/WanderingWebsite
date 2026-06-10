@@ -4,8 +4,11 @@ import Image from 'next/image';
 import { client } from '@/lib/sanity';
 import { VIDEOGRAPHY_QUERY, VIDEOGRAPHY_SLUGS_QUERY } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
+import { JsonLd } from '@/components/seo/JsonLd';
 import { formatDate } from '@/lib/utils';
 import { VideoBlock } from '@/components/content/VideoBlock';
+import { buildContentMetadata, contentImageUrl } from '@/lib/metadata';
+import { buildContentJsonLd } from '@/lib/jsonld';
 
 export const revalidate = 3600;
 
@@ -22,13 +25,19 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  if (slug.startsWith('_placeholder')) return { robots: { index: false } };
   try {
     const piece = await client.fetch(VIDEOGRAPHY_QUERY, { slug });
     if (!piece) return {};
-    return {
-      title: piece.seo?.metaTitle ?? piece.title,
-      description: piece.seo?.metaDescription ?? piece.description,
-    };
+    return buildContentMetadata({
+      title: piece.title,
+      description: piece.description,
+      path: `/videography/${slug}`,
+      publishedAt: piece.publishedAt,
+      tags: piece.tags,
+      coverImage: piece.coverImage,
+      seo: piece.seo,
+    });
   } catch {
     return {};
   }
@@ -47,8 +56,21 @@ export default async function VideographyPage({ params }: Props) {
   try { piece = await client.fetch(VIDEOGRAPHY_QUERY, { slug }); } catch { /* CORS */ }
   if (!piece) notFound();
 
+  const firstVimeoId = piece.videos?.find((v: SanityVideo) => v.vimeoId)?.vimeoId;
+  const jsonLd = buildContentJsonLd({
+    type: 'VideoObject',
+    title: piece.title,
+    description: piece.description,
+    path: `/videography/${slug}`,
+    publishedAt: piece.publishedAt,
+    tags: piece.tags,
+    imageUrl: contentImageUrl(piece.coverImage),
+    ...(firstVimeoId && { embedUrl: `https://player.vimeo.com/video/${firstVimeoId}` }),
+  });
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef', paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
+      <JsonLd data={jsonLd} />
       {/* Full-bleed cover thumbnail */}
       {piece.coverImage?.asset && (
         <div className="relative h-[60vh] w-full overflow-hidden">
@@ -102,7 +124,10 @@ export default async function VideographyPage({ params }: Props) {
 
       {/* Videos */}
       {piece.videos?.length > 0 && (
-        <section className="mx-auto max-w-[var(--content-wide-width)] px-[var(--content-padding-x)] py-16 space-y-16">
+        <section
+          className="mx-auto max-w-[var(--content-wide-width)] px-[var(--content-padding-x)] py-16 space-y-16"
+          aria-label="Videos"
+        >
           {piece.videos.map((video: SanityVideo) => (
             video.vimeoId ? (
               <div key={video._key}>

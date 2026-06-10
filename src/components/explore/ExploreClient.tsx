@@ -57,7 +57,7 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
     <div style={{ backgroundColor: '#f8f4ef', color: '#1c1814', minHeight: '100vh', paddingTop: '6rem' }}>
       {/* Header */}
       <div style={{ textAlign: 'center', paddingBottom: '2.5rem' }}>
-        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(28,24,20,0.45)', marginBottom: '2rem' }}>
+        <p aria-hidden="true" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(28,24,20,0.45)', marginBottom: '2rem' }}>
           Library
         </p>
 
@@ -122,9 +122,9 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
                     <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(28,24,20,0.45)', marginBottom: '0.5rem' }}>
                       {TYPE_LABEL[item._type]}
                     </p>
-                    <p className="explore-card-title">
+                    <h2 className="explore-card-title">
                       {item.title}
-                    </p>
+                    </h2>
                   </div>
                 </Link>
               </div>

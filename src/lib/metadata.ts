@@ -1,35 +1,60 @@
 import type { Metadata } from 'next';
+import { urlFor } from '@/lib/sanityImage';
+import { SITE_NAME } from '@/lib/siteConfig';
 
-const DEFAULT_OG_IMAGE = '/og-default.jpg';
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com';
+// Re-export constants so callers can import from one place
+export { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SOCIAL_PROFILES } from '@/lib/siteConfig';
 
-type MetaInput = {
+type SanityImageRef = { asset?: object; alt?: string };
+
+type ContentMetaInput = {
   title: string;
   description?: string;
-  ogImage?: string;
-  path?: string;
+  path: string;
+  publishedAt?: string;
+  tags?: string[];
+  coverImage?: SanityImageRef;
+  seo?: { metaTitle?: string; metaDescription?: string; ogImage?: SanityImageRef };
 };
 
-export function buildMetadata({ title, description, ogImage, path }: MetaInput): Metadata {
-  const url = path ? `${SITE_URL}${path}` : SITE_URL;
-  const image = ogImage ?? DEFAULT_OG_IMAGE;
+function ogImageUrl(image: SanityImageRef | undefined): string | undefined {
+  if (!image?.asset) return undefined;
+  try {
+    return urlFor(image).width(1200).height(630).fit('crop').format('jpg').quality(85).url();
+  } catch {
+    return undefined;
+  }
+}
+
+/** Shared metadata builder for the four content detail pages. */
+export function buildContentMetadata(input: ContentMetaInput): Metadata {
+  const title = input.seo?.metaTitle ?? input.title;
+  const description = input.seo?.metaDescription ?? input.description;
+  const image = ogImageUrl(input.seo?.ogImage) ?? ogImageUrl(input.coverImage);
 
   return {
     title,
     description,
+    alternates: { canonical: input.path },
     openGraph: {
       title,
       description,
-      url,
-      images: [{ url: image, width: 1200, height: 630 }],
-      type: 'website',
+      url: input.path,
+      siteName: SITE_NAME,
+      type: 'article',
+      ...(input.publishedAt && { publishedTime: input.publishedAt }),
+      ...(input.tags?.length && { tags: input.tags }),
+      ...(image && { images: [{ url: image, width: 1200, height: 630 }] }),
     },
     twitter: {
-      card: 'summary_large_image',
+      card: image ? 'summary_large_image' : 'summary',
       title,
       description,
-      images: [image],
+      ...(image && { images: [image] }),
     },
-    alternates: { canonical: url },
   };
+}
+
+export function contentImageUrl(image: SanityImageRef | undefined): string | undefined {
+  return ogImageUrl(image);
 }

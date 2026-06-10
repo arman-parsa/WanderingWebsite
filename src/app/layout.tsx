@@ -1,23 +1,38 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { WEBSITE_JSON_LD } from '@/lib/jsonld';
+import { SITE_NAME, SITE_DESCRIPTION } from '@/lib/siteConfig';
 
 export const metadata: Metadata = {
   title: {
-    default: 'Arman Parsa - Dispatches',
-    template: '%s · Arman Parsa - Dispatches',
+    default: SITE_NAME,
+    template: `%s · ${SITE_NAME}`,
   },
-  description: 'A personal archive of written and visual media capturing stories around the earth',
+  description: SITE_DESCRIPTION,
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://armanparsa.earth'),
   openGraph: {
-    title: 'Arman Parsa - Dispatches',
-    description: 'A personal archive of written and visual media capturing stories around the earth',
-    siteName: 'Arman Parsa - Dispatches',
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    siteName: SITE_NAME,
+    type: 'website',
+    locale: 'en_GB',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
+      <head>
+        <link rel="preload" as="font" href="/fonts/Lyon_Regular.ttf" type="font/ttf" crossOrigin="anonymous" />
+        <link rel="preload" as="font" href="/fonts/SuisseIntl_Light.ttf" type="font/ttf" crossOrigin="anonymous" />
+      </head>
       <body className="bg-paper text-ink antialiased">
         {/* Pre-hydration: skip the intro overlay if it has already played this session. */}
         <script
@@ -26,6 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "try{if(sessionStorage.getItem('introSeen'))document.documentElement.classList.add('intro-seen')}catch(e){}",
           }}
         />
+        <JsonLd data={WEBSITE_JSON_LD} />
         {children}
       </body>
     </html>
