@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import { Analytics } from '@vercel/analytics/next';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { WEBSITE_JSON_LD } from '@/lib/jsonld';
 import { SITE_NAME, SITE_DESCRIPTION, OG_IMAGE } from '@/lib/siteConfig';
