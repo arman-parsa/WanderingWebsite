@@ -34,7 +34,7 @@ export function ImagePair({ value }: { value: ImagePairValue }) {
       <div className={rowClass}>
         {items.map((img, i) => {
           const key = img._key;
-          const clickable = !!key && !!lightbox && lightbox.images.some((e) => e.key === key);
+          const clickable = !!key && !!lightbox && lightbox.entries.some((e) => e.key === key);
           const frame = (
             <div className="relative w-full overflow-hidden" style={{ aspectRatio: `${ratios[i]}` }}>
               <Image

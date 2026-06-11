@@ -5,7 +5,7 @@ import { WRITING_QUERY, WRITING_SLUGS_QUERY } from '@/lib/sanity';
 import { EssayHero } from '@/components/content/EssayHero';
 import { PortableTextRenderer } from '@/components/content/PortableTextRenderer';
 import { ArticleMediaProvider } from '@/components/content/MediaLightbox';
-import { collectArticleImages } from '@/lib/articleMedia';
+import { collectArticleMedia } from '@/lib/articleMedia';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { PLACEHOLDER_ITEMS, PLACEHOLDER_WRITING } from '@/lib/placeholders';
 import { buildContentMetadata, contentImageUrl } from '@/lib/metadata';
@@ -71,8 +71,8 @@ export default async function WritingPage({ params }: Props) {
     <main id="main-content" className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef' }}>
       <JsonLd data={jsonLd} />
       <ArticleMediaProvider
-        images={collectArticleImages(piece.body)}
-        label={`Photographs — ${piece.title}`}
+        entries={collectArticleMedia(piece.body)}
+        label={`Visuals — ${piece.title}`}
       >
         <div style={{ paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
           <EssayHero

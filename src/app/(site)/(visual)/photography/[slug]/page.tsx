@@ -5,7 +5,7 @@ import { client } from '@/lib/sanity';
 import { PHOTOGRAPHY_QUERY, PHOTOGRAPHY_SLUGS_QUERY } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
 import { ArticleMediaProvider, LightboxTrigger } from '@/components/content/MediaLightbox';
-import { collectArticleImages } from '@/lib/articleMedia';
+import { collectArticleMedia } from '@/lib/articleMedia';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { formatDate } from '@/lib/utils';
 import { PLACEHOLDER_ITEMS, PLACEHOLDER_PHOTO_SERIES } from '@/lib/placeholders';
@@ -77,7 +77,7 @@ export default async function PhotographyPage({ params }: Props) {
     imageUrl: contentImageUrl(series.coverImage),
   });
 
-  const lightboxImages = collectArticleImages(null, series.images ?? []);
+  const lightboxEntries = collectArticleMedia(null, series.images ?? []);
 
   return (
     <main id="main-content" className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef', paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
@@ -137,7 +137,7 @@ export default async function PhotographyPage({ params }: Props) {
 
       {/* Photo grid */}
       {series.images?.length > 0 && (
-        <ArticleMediaProvider images={lightboxImages} label={`Photographs — ${series.title}`}>
+        <ArticleMediaProvider entries={lightboxEntries} label={`Photographs — ${series.title}`}>
           <section
             className="mx-auto max-w-[var(--content-full-width)] px-[var(--content-padding-x)] py-16"
             aria-label="Photo series"

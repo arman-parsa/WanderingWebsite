@@ -13,10 +13,11 @@ import {
 } from 'react';
 import { urlFor } from '@/lib/sanityImage';
 import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
-import type { LightboxImage } from '@/lib/articleMedia';
+import type { LightboxEntry } from '@/lib/articleMedia';
+import { AmbientVimeo } from './AmbientVimeo';
 
 type LightboxContextValue = {
-  images: LightboxImage[];
+  entries: LightboxEntry[];
   openAt: (target: string | number) => void;
 };
 
@@ -28,16 +29,16 @@ export function useLightbox() {
 
 /**
  * Wraps a piece's content; collects nothing itself — the page passes the
- * ordered list of photographs. Any descendant (inline image, grid cell,
- * "view" button) can open the lightbox at a given image.
+ * ordered list of visuals. Any descendant (inline image or film, grid cell,
+ * "view" button) can open the lightbox at a given entry.
  */
 export function ArticleMediaProvider({
-  images,
+  entries,
   label,
   credit,
   children,
 }: {
-  images: LightboxImage[];
+  entries: LightboxEntry[];
   label: string;
   credit?: string;
   children: ReactNode;
@@ -47,21 +48,21 @@ export function ArticleMediaProvider({
   const openAt = useCallback(
     (target: string | number) => {
       if (typeof target === 'number') {
-        if (target >= 0 && target < images.length) setOpenIndex(target);
+        if (target >= 0 && target < entries.length) setOpenIndex(target);
         return;
       }
-      const idx = images.findIndex((i) => i.key === target);
+      const idx = entries.findIndex((e) => e.key === target);
       if (idx >= 0) setOpenIndex(idx);
     },
-    [images],
+    [entries],
   );
 
   return (
-    <LightboxContext.Provider value={{ images, openAt }}>
+    <LightboxContext.Provider value={{ entries, openAt }}>
       {children}
-      {openIndex !== null && images.length > 0 && (
+      {openIndex !== null && entries.length > 0 && (
         <Lightbox
-          images={images}
+          entries={entries}
           initialIndex={openIndex}
           label={label}
           credit={credit}
@@ -73,8 +74,8 @@ export function ArticleMediaProvider({
 }
 
 /**
- * Wrap any element to make it open the lightbox at a given image — used by
- * the photography grid. Renders a plain wrapper if the image isn't known.
+ * Wrap any element to make it open the lightbox at a given entry — used by
+ * the photography grid. Renders a plain wrapper if the entry isn't known.
  */
 export function LightboxTrigger({
   imageKey,
@@ -88,7 +89,7 @@ export function LightboxTrigger({
   children: ReactNode;
 }) {
   const ctx = useLightbox();
-  const interactive = !!imageKey && !!ctx && ctx.images.some((i) => i.key === imageKey);
+  const interactive = !!imageKey && !!ctx && ctx.entries.some((e) => e.key === imageKey);
 
   if (!interactive) return <div className={className}>{children}</div>;
 
@@ -104,11 +105,19 @@ export function LightboxTrigger({
   );
 }
 
-/** Quiet label-style affordance: "14 photographs — view". */
+/** Quiet label-style affordance: "14 photographs · 2 films — view". */
 export function OpenGalleryButton() {
   const ctx = useLightbox();
-  if (!ctx || ctx.images.length === 0) return null;
-  const n = ctx.images.length;
+  if (!ctx || ctx.entries.length === 0) return null;
+
+  const photos = ctx.entries.filter((e) => e.kind === 'image').length;
+  const films = ctx.entries.length - photos;
+  const parts = [
+    photos > 0 && `${photos} photograph${photos === 1 ? '' : 's'}`,
+    films > 0 && `${films} film${films === 1 ? '' : 's'}`,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
     <button
@@ -116,7 +125,7 @@ export function OpenGalleryButton() {
       onClick={() => ctx.openAt(0)}
       className="font-sans text-[var(--text-xs)] uppercase tracking-wide opacity-55 underline-offset-4 transition-opacity duration-[var(--duration-fast)] hover:opacity-100 hover:underline focus-visible:opacity-100"
     >
-      {n} photograph{n === 1 ? '' : 's'} — view
+      {parts} — view
     </button>
   );
 }
@@ -124,13 +133,13 @@ export function OpenGalleryButton() {
 const pad = (n: number) => String(n).padStart(2, '0');
 
 function Lightbox({
-  images,
+  entries,
   initialIndex,
   label,
   credit,
   onClose,
 }: {
-  images: LightboxImage[];
+  entries: LightboxEntry[];
   initialIndex: number;
   label: string;
   credit?: string;
@@ -141,7 +150,7 @@ function Lightbox({
   const [active, setActive] = useState(initialIndex);
   const reducedMotion = usePrefersReducedMotion();
 
-  // Open the dialog and jump to the clicked image before first paint.
+  // Open the dialog and jump to the clicked entry before first paint.
   useLayoutEffect(() => {
     dialogRef.current?.showModal();
     const track = trackRef.current;
@@ -157,7 +166,7 @@ function Lightbox({
   const goTo = (idx: number) => {
     const track = trackRef.current;
     if (!track) return;
-    const clamped = Math.max(0, Math.min(images.length - 1, idx));
+    const clamped = Math.max(0, Math.min(entries.length - 1, idx));
     track.scrollTo({
       left: clamped * track.clientWidth,
       behavior: reducedMotion ? 'auto' : 'smooth',
@@ -169,7 +178,7 @@ function Lightbox({
     if (!track || track.clientWidth === 0) return;
     const idx = Math.max(
       0,
-      Math.min(images.length - 1, Math.round(track.scrollLeft / track.clientWidth)),
+      Math.min(entries.length - 1, Math.round(track.scrollLeft / track.clientWidth)),
     );
     if (idx !== active) setActive(idx);
   };
@@ -179,7 +188,7 @@ function Lightbox({
     if (e.key === 'ArrowLeft') goTo(active - 1);
   };
 
-  const current = images[active];
+  const current = entries[active];
   const captionText = [current?.caption, credit].filter(Boolean).join(' · ');
 
   return (
@@ -195,24 +204,34 @@ function Lightbox({
         onScroll={handleScroll}
         className="lightbox-track flex h-full w-full snap-x snap-mandatory overflow-x-auto overscroll-contain"
       >
-        {images.map((img, i) => (
+        {entries.map((entry, i) => (
           <div
-            key={img.key}
-            className="relative h-full w-full flex-none snap-center"
+            key={entry.key}
+            className="relative flex h-full w-full flex-none snap-center items-center justify-center"
             style={{ padding: 'clamp(3.5rem, 9vh, 6rem) clamp(1rem, 5vw, 4rem) clamp(4.5rem, 11vh, 7rem)' }}
             onClick={(e) => {
               if (e.target === e.currentTarget) requestClose();
             }}
           >
-            {Math.abs(i - active) <= 1 && (
+            {entry.kind === 'image' && Math.abs(i - active) <= 1 && (
               <div className="relative h-full w-full">
                 <Image
-                  src={urlFor(img.image).width(2048).format('webp').quality(85).url()}
-                  alt={img.alt}
+                  src={urlFor(entry.image).width(2048).format('webp').quality(85).url()}
+                  alt={entry.alt}
                   fill
                   sizes="100vw"
                   className="object-contain"
                 />
+              </div>
+            )}
+            {/* Films mount only while active, so exactly one plays at a time
+                and playback stops the moment the reader flicks away. */}
+            {entry.kind === 'video' && i === active && (
+              <div
+                className="relative w-full overflow-hidden bg-black"
+                style={{ aspectRatio: '16 / 9', maxWidth: 'calc((100dvh - 13rem) * 16 / 9)' }}
+              >
+                <AmbientVimeo videoId={entry.videoId} title={entry.title} />
               </div>
             )}
           </div>
@@ -224,7 +243,7 @@ function Lightbox({
         aria-live="polite"
         className="absolute left-5 top-5 font-sans text-[var(--text-xs)] uppercase tracking-widest opacity-60"
       >
-        {pad(active + 1)} — {pad(images.length)}
+        {pad(active + 1)} — {pad(entries.length)}
       </p>
 
       {/* Close */}
@@ -245,7 +264,7 @@ function Lightbox({
         <button
           type="button"
           onClick={() => goTo(active - 1)}
-          aria-label="Previous photograph"
+          aria-label="Previous"
           className="absolute left-2 top-1/2 hidden h-11 w-11 -translate-y-1/2 items-center justify-center opacity-50 transition-opacity duration-[var(--duration-fast)] hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current pointer-fine:flex"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -253,11 +272,11 @@ function Lightbox({
           </svg>
         </button>
       )}
-      {active < images.length - 1 && (
+      {active < entries.length - 1 && (
         <button
           type="button"
           onClick={() => goTo(active + 1)}
-          aria-label="Next photograph"
+          aria-label="Next"
           className="absolute right-2 top-1/2 hidden h-11 w-11 -translate-y-1/2 items-center justify-center opacity-50 transition-opacity duration-[var(--duration-fast)] hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current pointer-fine:flex"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

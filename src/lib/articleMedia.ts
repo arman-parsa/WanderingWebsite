@@ -33,12 +33,75 @@ export type ImagePairValue = {
   width?: 'wide' | 'full';
 };
 
-export type LightboxImage = {
-  key: string;
-  image: SanityImageObject;
-  alt: string;
-  caption?: string;
-};
+export type LightboxEntry =
+  | { kind: 'image'; key: string; image: SanityImageObject; alt: string; caption?: string }
+  | { kind: 'video'; key: string; videoId: string; title: string; caption?: string };
+
+/**
+ * Accepts a bare numeric Vimeo ID ("123456789") or any pasted Vimeo URL,
+ * including unlisted links with a privacy hash.
+ */
+export function parseVimeo(input?: string): { id: string; hash?: string } | null {
+  const raw = (input ?? '').trim();
+  if (!raw) return null;
+  const fromUrl = raw.match(/vimeo\.com\/(?:video\/)?(\d+)(?:\/([a-zA-Z0-9]+))?/);
+  const id = fromUrl?.[1] ?? (/^\d+$/.test(raw) ? raw : null);
+  if (!id) return null;
+  const hash = fromUrl?.[2] ?? raw.match(/[?&]h=([a-zA-Z0-9]+)/)?.[1];
+  return { id, hash };
+}
+
+type VideoLike = { _key?: string; vimeoId?: string; title?: string; description?: string };
+
+/**
+ * Collects every visual in a piece, in narrative order: portable-text body
+ * blocks first, then the end-gallery arrays (images, then films). Returns
+ * the flat list the lightbox flicks through.
+ */
+export function collectArticleMedia(
+  body: unknown,
+  galleryImages?: unknown[],
+  galleryVideos?: VideoLike[],
+): LightboxEntry[] {
+  const out: LightboxEntry[] = [];
+
+  const pushImage = (image: SanityImageObject, key: string | undefined, fallbackKey: string, alt?: string, caption?: string) => {
+    if (!image.asset?._ref) return;
+    out.push({ kind: 'image', key: key ?? fallbackKey, image, alt: alt ?? '', caption });
+  };
+
+  const pushVideo = (video: VideoLike, fallbackKey: string) => {
+    if (!parseVimeo(video.vimeoId)) return;
+    out.push({
+      kind: 'video',
+      key: video._key ?? fallbackKey,
+      videoId: video.vimeoId!,
+      title: video.title ?? 'Film',
+      caption: video.description,
+    });
+  };
+
+  const blocks = [...(Array.isArray(body) ? body : []), ...(galleryImages ?? [])];
+  blocks.forEach((block, i) => {
+    if (!block || typeof block !== 'object') return;
+    const b = block as { _type?: string; _key?: string } & ImageBlockValue & ImagePairValue & VideoLike;
+    if (b._type === 'imageBlock' && b.asset) {
+      pushImage(b.asset, b._key, `block-${i}`, b.alt, b.caption);
+    }
+    if (b._type === 'imagePair') {
+      (b.images ?? []).forEach((img, j) => {
+        pushImage(img, img._key, `block-${i}-${j}`, img.alt, img.caption);
+      });
+    }
+    if (b._type === 'videoBlock') {
+      pushVideo(b, `block-${i}`);
+    }
+  });
+
+  (galleryVideos ?? []).forEach((video, i) => pushVideo(video, `gallery-video-${i}`));
+
+  return out;
+}
 
 /**
  * Display aspect ratio of a Sanity image. The asset _ref encodes the original
@@ -57,32 +120,3 @@ export function imageRatio(image: SanityImageObject | undefined): number | null 
   return width > 0 && height > 0 ? width / height : null;
 }
 
-/**
- * Collects every photograph in a piece, in narrative order: portable-text
- * body blocks first, then the end-gallery array. Returns the flat list the
- * lightbox flicks through.
- */
-export function collectArticleImages(body: unknown, gallery?: unknown[]): LightboxImage[] {
-  const out: LightboxImage[] = [];
-
-  const pushImage = (image: SanityImageObject, key: string | undefined, fallbackKey: string, alt?: string, caption?: string) => {
-    if (!image.asset?._ref) return;
-    out.push({ key: key ?? fallbackKey, image, alt: alt ?? '', caption });
-  };
-
-  const blocks = [...(Array.isArray(body) ? body : []), ...(gallery ?? [])];
-  blocks.forEach((block, i) => {
-    if (!block || typeof block !== 'object') return;
-    const b = block as { _type?: string; _key?: string } & ImageBlockValue & ImagePairValue;
-    if (b._type === 'imageBlock' && b.asset) {
-      pushImage(b.asset, b._key, `block-${i}`, b.alt, b.caption);
-    }
-    if (b._type === 'imagePair') {
-      (b.images ?? []).forEach((img, j) => {
-        pushImage(img, img._key, `block-${i}-${j}`, img.alt, img.caption);
-      });
-    }
-  });
-
-  return out;
-}

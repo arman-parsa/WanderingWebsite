@@ -8,7 +8,7 @@ import { ImageBlock } from '@/components/content/ImageBlock';
 import { ImagePair } from '@/components/content/ImagePair';
 import { VideoBlock } from '@/components/content/VideoBlock';
 import { ArticleMediaProvider, OpenGalleryButton } from '@/components/content/MediaLightbox';
-import { collectArticleImages, type ImageBlockValue, type ImagePairValue, type MediaWidth } from '@/lib/articleMedia';
+import { collectArticleMedia, type ImageBlockValue, type ImagePairValue, type MediaWidth } from '@/lib/articleMedia';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { PLACEHOLDER_ITEMS, PLACEHOLDER_WRITING } from '@/lib/placeholders';
 import { buildContentMetadata, contentImageUrl } from '@/lib/metadata';
@@ -74,8 +74,8 @@ export default async function MixedMediaPage({ params }: Props) {
     width?: MediaWidth;
   }[];
   const hasGallery = galleryBlocks.length > 0 || galleryVideos.length > 0;
-  // Every photograph in the piece, in narrative order, for the lightbox.
-  const lightboxImages = collectArticleImages(piece.body, galleryBlocks);
+  // Every visual in the piece, in narrative order, for the lightbox.
+  const lightboxEntries = collectArticleMedia(piece.body, galleryBlocks, galleryVideos);
 
   const jsonLd = buildContentJsonLd({
     type: 'Article',
@@ -91,8 +91,8 @@ export default async function MixedMediaPage({ params }: Props) {
     <main id="main-content" className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef' }}>
       <JsonLd data={jsonLd} />
       <ArticleMediaProvider
-        images={lightboxImages}
-        label={`Photographs — ${piece.title}`}
+        entries={lightboxEntries}
+        label={`Visuals — ${piece.title}`}
         credit={piece.photographyCredit ? `Photography — ${piece.photographyCredit}` : undefined}
       >
         <div style={{ paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
@@ -128,6 +128,7 @@ export default async function MixedMediaPage({ params }: Props) {
                     title={video.title}
                     caption={video.description}
                     width={video.width}
+                    lightboxKey={video._key}
                   />
                 ))}
               </section>

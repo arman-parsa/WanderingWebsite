@@ -44,7 +44,7 @@ export function ImageBlock({ value }: { value: ImageBlockValue }) {
     : 'center';
 
   const clickable =
-    !!value._key && !!lightbox && lightbox.images.some((i) => i.key === value._key);
+    !!value._key && !!lightbox && lightbox.entries.some((e) => e.key === value._key);
 
   const frame = (
     <div
