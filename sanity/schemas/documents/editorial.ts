@@ -13,7 +13,7 @@ export const mixedMedia = defineType({
       fields: [defineField({ name: 'alt', title: 'Alt Text', type: 'string', validation: (Rule) => Rule.required() })] }),
     defineField({ name: 'body', title: 'Body', type: 'portableText',
       description: 'The piece itself. To weave photos and films between paragraphs (magazine-style), place the cursor on an empty line, press the + insert button, and choose Image or Video.' }),
-    defineField({ name: 'images', title: 'Images (end gallery)', type: 'array', of: [{ type: 'imageBlock' }],
+    defineField({ name: 'images', title: 'Images (end gallery)', type: 'array', of: [{ type: 'imageBlock' }, { type: 'imagePair' }],
       description: 'Optional. Photos added here appear as a gallery after the body. For photos woven into the text, insert them in the Body instead.' }),
     defineField({ name: 'videos', title: 'Videos (end gallery)', type: 'array', of: [{ type: 'videoBlock' }],
       description: 'Optional. Films added here appear after the body (and after any gallery images). For films woven into the text, insert them in the Body instead.' }),

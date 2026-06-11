@@ -409,3 +409,17 @@ A full pre-launch audit was carried out. Changes since the sections above were w
 - README rewritten (was create-next-app boilerplate).
 
 **Still open (require dashboard access, not code):** Vercel env vars (`NEXT_PUBLIC_SITE_URL`, `SANITY_WEBHOOK_SECRET`) and Sanity webhook — Known Issues 2 & 3; `armanparsa.earth` domain attachment unverified; no real Sanity content yet (Known Issues 1, 4); contact page email is `armanparsa03@gmail.com` — confirm this is the intended address. `npm audit` shows 19 moderate transitive advisories in Sanity/Next tooling; the proposed fixes are breaking downgrades — do not run `npm audit fix --force`.
+
+---
+
+## 14. ARTICLE MEDIA SYSTEM ("plates") — June 2026
+
+Post-launch feature pass: full media UX for pieces. Files: `src/lib/articleMedia.ts` (types + `imageRatio` + `collectArticleImages`), `src/components/content/MediaLightbox.tsx` (provider, lightbox dialog, `LightboxTrigger`, `OpenGalleryButton`), `ImageBlock.tsx`, `ImagePair.tsx`, `VideoBlock.tsx`, `src/lib/usePrefersReducedMotion.ts`.
+
+- **Lightbox**: native `<dialog>` + CSS scroll-snap (no deps). Solid `#14110e` room, counter `03 — 14`, caption + credit bar, edge chevrons (`pointer-fine:` only), swipe on touch, ←/→/Esc, backdrop-click close. Only active±1 slides mount images (2048px webp). Pages collect every body + end-gallery photograph in narrative order via `collectArticleImages` and wrap content in `ArticleMediaProvider`; inline images and photography-grid cells open it via context (`_key` match). Wired on: writing, mixed-media, photography detail pages.
+- **Width registers**: `width` field on `imageBlock`/`videoBlock` — `column` (default, 740px) / `wide` (1100px) / `full` (100vw). Breakout via `.media-wide`/`.media-full` in globals.css (`left:50% translateX(-50%)`; requires viewport-centred column — true everywhere). Column portraits stay width-capped/centred; wide/full render as given.
+- **`imagePair` object** (registered in portableText + mixedMedia.images): 2–3 plain images (alt/caption fields), justified-row layout — each cell `flex: ratio 1 0%` → equal heights, no cropping. All-portrait pairs stay side-by-side on mobile; otherwise stacks (`sm:` breakpoint). Width: wide (default) or full.
+- **"N photographs — view"** (`OpenGalleryButton`): renders in EssayHero meta row and at mixed-media article end; null when no images/provider — safe everywhere.
+- **Ambient video**: VideoBlock = Vimeo `background=1` (chromeless autoplay muted loop) + corner sound toggle via postMessage; accepts pasted URLs incl. unlisted hashes. Reduced-motion users get the standard player, no autoplay. NOTE: if Vimeo plan gating ever re-surfaces chrome, fall back to per-video embed settings in Vimeo.
+- Reduced motion respected throughout (`usePrefersReducedMotion`, instant lightbox cuts, no fade).
+- Existing content needs no migration: missing `width` = column; all images become clickable automatically.

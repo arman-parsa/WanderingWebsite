@@ -1,17 +1,16 @@
 'use client';
 
-import { useRef, useState, useSyncExternalStore } from 'react';
+import { useRef, useState } from 'react';
+import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
+import type { MediaWidth } from '@/lib/articleMedia';
 
-type Props = { videoId?: string; title: string; caption?: string };
+type Props = { videoId?: string; title: string; caption?: string; width?: MediaWidth };
 
-const REDUCED_MQ = '(prefers-reduced-motion: reduce)';
-const subscribeReduced = (cb: () => void) => {
-  const mq = window.matchMedia(REDUCED_MQ);
-  mq.addEventListener('change', cb);
-  return () => mq.removeEventListener('change', cb);
+const FIGURE_CLASS: Record<MediaWidth, string> = {
+  column: 'my-12 -mx-[var(--content-padding-x)]',
+  wide: 'my-12 media-wide',
+  full: 'my-14 media-full',
 };
-const getReduced = () => window.matchMedia(REDUCED_MQ).matches;
-const getServerReduced = () => false;
 
 // Accepts a bare numeric ID ("123456789") or any pasted Vimeo URL,
 // including unlisted links with a privacy hash.
@@ -25,10 +24,10 @@ function parseVimeo(input?: string): { id: string; hash?: string } | null {
   return { id, hash };
 }
 
-export function VideoBlock({ videoId, title, caption }: Props) {
+export function VideoBlock({ videoId, title, caption, width = 'column' }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(true);
-  const reducedMotion = useSyncExternalStore(subscribeReduced, getReduced, getServerReduced);
+  const reducedMotion = usePrefersReducedMotion();
 
   const video = parseVimeo(videoId);
   if (!video) return null;
@@ -56,7 +55,7 @@ export function VideoBlock({ videoId, title, caption }: Props) {
   };
 
   return (
-    <figure className="my-12 -mx-[var(--content-padding-x)]">
+    <figure className={FIGURE_CLASS[width]}>
       <div className="relative aspect-video w-full overflow-hidden bg-black">
         <iframe
           ref={iframeRef}

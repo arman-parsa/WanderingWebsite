@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { urlFor } from '@/lib/sanityImage';
 import { formatDate } from '@/lib/utils';
+import { OpenGalleryButton } from './MediaLightbox';
 
 type Props = {
   title: string;
@@ -51,6 +52,7 @@ export function EssayHero({ title, description, publishedAt, location, tags, cov
           {tags?.map((tag) => (
             <span key={tag} className="font-sans text-[var(--text-xs)] uppercase tracking-wide opacity-55">#{tag}</span>
           ))}
+          <OpenGalleryButton />
         </div>
 
         <h1 className="text-display font-light tracking-tight">

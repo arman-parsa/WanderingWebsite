@@ -33,6 +33,7 @@ export const portableText = defineType({
       },
     }),
     defineArrayMember({ type: 'imageBlock' }),
+    defineArrayMember({ type: 'imagePair' }),
     defineArrayMember({ type: 'pullQuote' }),
     defineArrayMember({ type: 'videoBlock' }),
   ],

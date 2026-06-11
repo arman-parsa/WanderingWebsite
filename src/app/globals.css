@@ -226,6 +226,40 @@ a, button {
 .aspect-wide    { aspect-ratio: 21 / 9; }
 .aspect-film    { aspect-ratio: 2.39 / 1; }
 
+/* ── Article media: breakout widths ──────────────────────── */
+/* Escape the 740px text column from inside it; centred on the viewport
+   (the column itself is viewport-centred, so 50% here aligns). */
+.media-wide,
+.media-full {
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.media-wide { width: min(var(--content-wide-width), 100vw); }
+.media-full { width: 100vw; }
+
+/* ── Lightbox ("plates") ─────────────────────────────────── */
+dialog.lightbox {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: #14110e;
+  color: #f8f4ef;
+}
+dialog.lightbox::backdrop { background: #14110e; }
+dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) both; }
+@media (prefers-reduced-motion: reduce) {
+  dialog.lightbox[open] { animation: none; }
+}
+.lightbox-track { scrollbar-width: none; }
+.lightbox-track::-webkit-scrollbar { display: none; }
+
 /* ── Typography utilities ────────────────────────────────── */
 .text-body {
   font-family: var(--font-serif);

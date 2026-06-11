@@ -5,6 +5,7 @@ import { videography } from './documents/videography';
 import { author } from './documents/author';
 import { portableText } from './objects/portableText';
 import { imageBlock } from './objects/imageBlock';
+import { imagePair } from './objects/imagePair';
 import { videoBlock } from './objects/videoBlock';
 import { pullQuote } from './objects/pullQuote';
 import { seoFields } from './objects/seoFields';
@@ -21,6 +22,7 @@ export const schemaTypes = [
   // Objects
   portableText,
   imageBlock,
+  imagePair,
   videoBlock,
   pullQuote,
   seoFields,

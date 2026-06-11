@@ -1,64 +1,83 @@
+'use client';
+
 import Image from 'next/image';
 import { urlFor } from '@/lib/sanityImage';
+import { imageRatio, type ImageBlockValue, type MediaWidth } from '@/lib/articleMedia';
+import { useLightbox } from './MediaLightbox';
 
-type SanityImageObject = {
-  asset?: { _ref?: string };
-  hotspot?: { x: number; y: number };
-  crop?: { top: number; bottom: number; left: number; right: number };
+export type { ImageBlockValue };
+
+const FIGURE_CLASS: Record<MediaWidth, string> = {
+  column: 'my-12 -mx-[var(--content-padding-x)]',
+  wide: 'my-12 media-wide',
+  full: 'my-14 media-full',
 };
 
-export type ImageBlockValue = {
-  asset?: SanityImageObject;
-  alt?: string;
-  caption?: string;
+const SIZES: Record<MediaWidth, string> = {
+  column: '(max-width: 880px) 100vw, 840px',
+  wide: '(max-width: 1140px) 100vw, 1100px',
+  full: '100vw',
 };
 
-// The asset _ref encodes the original pixel size: image-{id}-{width}x{height}-{format}
-function croppedDimensions(image: SanityImageObject): { width: number; height: number } | null {
-  const match = image.asset?._ref?.match(/-(\d+)x(\d+)-/);
-  if (!match) return null;
-  let width = Number(match[1]);
-  let height = Number(match[2]);
-  if (image.crop) {
-    width *= 1 - image.crop.left - image.crop.right;
-    height *= 1 - image.crop.top - image.crop.bottom;
-  }
-  return width > 0 && height > 0 ? { width, height } : null;
-}
+const FETCH_WIDTH: Record<MediaWidth, number> = {
+  column: 1600,
+  wide: 2048,
+  full: 2560,
+};
 
 export function ImageBlock({ value }: { value: ImageBlockValue }) {
+  const lightbox = useLightbox();
   const image = value?.asset;
   if (!image?.asset) return null;
 
-  const dims = croppedDimensions(image);
-  const ratio = dims ? dims.width / dims.height : 3 / 2;
-  // Portraits render narrower and centred so they don't tower over the column
-  const isPortrait = ratio < 0.9;
+  const ratio = imageRatio(image) ?? 3 / 2;
+  const width: MediaWidth = value.width ?? 'column';
+  // In the text column, portraits render narrower and centred so they don't
+  // tower over the prose. Wide/full registers use the image as given.
+  const isPortrait = width === 'column' && ratio < 0.9;
+  const constrain = isPortrait ? { maxWidth: '32rem', marginInline: 'auto' } : undefined;
 
-  const src = urlFor(image).width(1600).format('webp').quality(85).url();
+  const src = urlFor(image).width(FETCH_WIDTH[width]).format('webp').quality(85).url();
   const blurSrc = urlFor(image).width(20).format('webp').quality(30).url();
   const objectPosition = image.hotspot
     ? `${image.hotspot.x * 100}% ${image.hotspot.y * 100}%`
     : 'center';
-  const constrain = isPortrait ? { maxWidth: '32rem', marginInline: 'auto' } : undefined;
+
+  const clickable =
+    !!value._key && !!lightbox && lightbox.images.some((i) => i.key === value._key);
+
+  const frame = (
+    <div
+      className="relative w-full overflow-hidden"
+      style={{ aspectRatio: `${ratio}`, ...constrain }}
+    >
+      <Image
+        src={src}
+        alt={value.alt || value.caption || ''}
+        fill
+        placeholder="blur"
+        blurDataURL={blurSrc}
+        sizes={isPortrait ? '(max-width: 640px) 100vw, 512px' : SIZES[width]}
+        className="object-cover"
+        style={{ objectPosition }}
+      />
+    </div>
+  );
 
   return (
-    <figure className={isPortrait ? 'my-12' : 'my-12 -mx-[var(--content-padding-x)]'}>
-      <div
-        className="relative w-full overflow-hidden"
-        style={{ aspectRatio: `${ratio}`, ...constrain }}
-      >
-        <Image
-          src={src}
-          alt={value.alt || value.caption || ''}
-          fill
-          placeholder="blur"
-          blurDataURL={blurSrc}
-          sizes={isPortrait ? '(max-width: 640px) 100vw, 512px' : '(max-width: 880px) 100vw, 840px'}
-          className="object-cover"
-          style={{ objectPosition }}
-        />
-      </div>
+    <figure className={isPortrait ? 'my-12' : FIGURE_CLASS[width]}>
+      {clickable ? (
+        <button
+          type="button"
+          onClick={() => lightbox.openAt(value._key!)}
+          aria-label={`Enlarge photograph${value.alt ? `: ${value.alt}` : ''}`}
+          className="block w-full cursor-zoom-in focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+        >
+          {frame}
+        </button>
+      ) : (
+        frame
+      )}
       {value.caption && (
         <figcaption
           className={isPortrait ? 'mt-3 text-caption' : 'mt-3 px-[var(--content-padding-x)] text-caption'}

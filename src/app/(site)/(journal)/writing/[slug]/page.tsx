@@ -4,6 +4,8 @@ import { client } from '@/lib/sanity';
 import { WRITING_QUERY, WRITING_SLUGS_QUERY } from '@/lib/sanity';
 import { EssayHero } from '@/components/content/EssayHero';
 import { PortableTextRenderer } from '@/components/content/PortableTextRenderer';
+import { ArticleMediaProvider } from '@/components/content/MediaLightbox';
+import { collectArticleImages } from '@/lib/articleMedia';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { PLACEHOLDER_ITEMS, PLACEHOLDER_WRITING } from '@/lib/placeholders';
 import { buildContentMetadata, contentImageUrl } from '@/lib/metadata';
@@ -68,21 +70,26 @@ export default async function WritingPage({ params }: Props) {
   return (
     <main id="main-content" className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef' }}>
       <JsonLd data={jsonLd} />
-      <div style={{ paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
-        <EssayHero
-          title={piece.title}
-          description={piece.description}
-          publishedAt={piece.publishedAt}
-          location={piece.location}
-          tags={piece.tags}
-          coverImage={piece.coverImage}
-        />
-        <div className="mx-auto max-w-[var(--content-max-width)] px-[var(--content-padding-x)] pb-24">
-          <article className="article-body" style={{ color: '#f8f4ef' }}>
-            {piece.body && <PortableTextRenderer value={piece.body} />}
-          </article>
+      <ArticleMediaProvider
+        images={collectArticleImages(piece.body)}
+        label={`Photographs — ${piece.title}`}
+      >
+        <div style={{ paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
+          <EssayHero
+            title={piece.title}
+            description={piece.description}
+            publishedAt={piece.publishedAt}
+            location={piece.location}
+            tags={piece.tags}
+            coverImage={piece.coverImage}
+          />
+          <div className="mx-auto max-w-[var(--content-max-width)] px-[var(--content-padding-x)] pb-24">
+            <article className="article-body" style={{ color: '#f8f4ef' }}>
+              {piece.body && <PortableTextRenderer value={piece.body} />}
+            </article>
+          </div>
         </div>
-      </div>
+      </ArticleMediaProvider>
     </main>
   );
 }

@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { client } from '@/lib/sanity';
 import { PHOTOGRAPHY_QUERY, PHOTOGRAPHY_SLUGS_QUERY } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
+import { ArticleMediaProvider, LightboxTrigger } from '@/components/content/MediaLightbox';
+import { collectArticleImages } from '@/lib/articleMedia';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { formatDate } from '@/lib/utils';
 import { PLACEHOLDER_ITEMS, PLACEHOLDER_PHOTO_SERIES } from '@/lib/placeholders';
@@ -75,6 +77,8 @@ export default async function PhotographyPage({ params }: Props) {
     imageUrl: contentImageUrl(series.coverImage),
   });
 
+  const lightboxImages = collectArticleImages(null, series.images ?? []);
+
   return (
     <main id="main-content" className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef', paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
       <JsonLd data={jsonLd} />
@@ -133,38 +137,42 @@ export default async function PhotographyPage({ params }: Props) {
 
       {/* Photo grid */}
       {series.images?.length > 0 && (
-        <section
-          className="mx-auto max-w-[var(--content-full-width)] px-[var(--content-padding-x)] py-16"
-          aria-label="Photo series"
-        >
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {series.images.map((image: SanityImage, i: number) => {
-              if (!image.asset?.asset) return null;
-              const altText = image.alt || image.caption || image.description || series.title;
-              return (
-                <figure key={image._key} className="group overflow-hidden">
-                  <div className="relative aspect-[4/3] overflow-hidden bg-surface">
-                    <Image
-                      src={urlFor(image.asset).width(900).height(675).fit('crop').format('webp').quality(85).url()}
-                      alt={altText}
-                      fill
-                      priority={i < 3}
-                      placeholder="blur"
-                      blurDataURL={urlFor(image.asset).width(20).height(15).fit('crop').format('webp').quality(30).url()}
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover transition-transform duration-[var(--duration-slow)] group-hover:scale-[1.03]"
-                    />
-                  </div>
-                  {(image.caption || image.description) && (
-                    <figcaption className="mt-2 font-sans text-xs leading-relaxed" style={{ color: '#a09890' }}>
-                      {image.caption ?? image.description}
-                    </figcaption>
-                  )}
-                </figure>
-              );
-            })}
-          </div>
-        </section>
+        <ArticleMediaProvider images={lightboxImages} label={`Photographs — ${series.title}`}>
+          <section
+            className="mx-auto max-w-[var(--content-full-width)] px-[var(--content-padding-x)] py-16"
+            aria-label="Photo series"
+          >
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {series.images.map((image: SanityImage, i: number) => {
+                if (!image.asset?.asset) return null;
+                const altText = image.alt || image.caption || image.description || series.title;
+                return (
+                  <figure key={image._key} className="group overflow-hidden">
+                    <LightboxTrigger imageKey={image._key} label={`Enlarge photograph: ${altText}`}>
+                      <div className="relative aspect-[4/3] overflow-hidden bg-surface">
+                        <Image
+                          src={urlFor(image.asset).width(900).height(675).fit('crop').format('webp').quality(85).url()}
+                          alt={altText}
+                          fill
+                          priority={i < 3}
+                          placeholder="blur"
+                          blurDataURL={urlFor(image.asset).width(20).height(15).fit('crop').format('webp').quality(30).url()}
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="object-cover transition-transform duration-[var(--duration-slow)] group-hover:scale-[1.03]"
+                        />
+                      </div>
+                    </LightboxTrigger>
+                    {(image.caption || image.description) && (
+                      <figcaption className="mt-2 font-sans text-xs leading-relaxed" style={{ color: '#a09890' }}>
+                        {image.caption ?? image.description}
+                      </figcaption>
+                    )}
+                  </figure>
+                );
+              })}
+            </div>
+          </section>
+        </ArticleMediaProvider>
       )}
     </main>
   );

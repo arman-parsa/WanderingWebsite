@@ -2,14 +2,16 @@
 
 import { PortableText, type PortableTextComponents } from 'next-sanity';
 import { ImageBlock } from './ImageBlock';
+import { ImagePair } from './ImagePair';
 import { PullQuote } from './PullQuote';
 import { VideoBlock } from './VideoBlock';
 
 const components: PortableTextComponents = {
   types: {
     imageBlock: ({ value }) => <ImageBlock value={value} />,
+    imagePair:  ({ value }) => <ImagePair value={value} />,
     pullQuote:  ({ value }) => <PullQuote quote={value.quote} attribution={value.attribution} />,
-    videoBlock: ({ value }) => <VideoBlock videoId={value.vimeoId} title={value.title} caption={value.description} />,
+    videoBlock: ({ value }) => <VideoBlock videoId={value.vimeoId} title={value.title} caption={value.description} width={value.width} />,
   },
   block: {
     h2: ({ children }) => (
