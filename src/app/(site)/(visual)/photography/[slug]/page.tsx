@@ -48,11 +48,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 type SanityImage = {
   _key: string;
-  asset?: object;
+  // imageBlock: the picture itself lives in the nested `asset` image field
+  asset?: { asset?: object };
   alt?: string;
   caption?: string;
   description?: string;
-  hotspot?: { x: number; y: number };
 };
 
 export default async function PhotographyPage({ params }: Props) {
@@ -139,18 +139,18 @@ export default async function PhotographyPage({ params }: Props) {
         >
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {series.images.map((image: SanityImage, i: number) => {
-              if (!image.asset) return null;
+              if (!image.asset?.asset) return null;
               const altText = image.alt || image.caption || image.description || series.title;
               return (
                 <figure key={image._key} className="group overflow-hidden">
                   <div className="relative aspect-[4/3] overflow-hidden bg-surface">
                     <Image
-                      src={urlFor(image).width(900).format('webp').quality(85).url()}
+                      src={urlFor(image.asset).width(900).height(675).fit('crop').format('webp').quality(85).url()}
                       alt={altText}
                       fill
                       priority={i < 3}
                       placeholder="blur"
-                      blurDataURL={urlFor(image).width(20).format('webp').quality(30).url()}
+                      blurDataURL={urlFor(image.asset).width(20).height(15).fit('crop').format('webp').quality(30).url()}
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className="object-cover transition-transform duration-[var(--duration-slow)] group-hover:scale-[1.03]"
                     />

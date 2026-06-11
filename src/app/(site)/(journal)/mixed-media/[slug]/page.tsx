@@ -4,6 +4,8 @@ import { client } from '@/lib/sanity';
 import { MIXED_MEDIA_QUERY, MIXED_MEDIA_SLUGS_QUERY } from '@/lib/sanity';
 import { EssayHero } from '@/components/content/EssayHero';
 import { PortableTextRenderer } from '@/components/content/PortableTextRenderer';
+import { ImageBlock, type ImageBlockValue } from '@/components/content/ImageBlock';
+import { VideoBlock } from '@/components/content/VideoBlock';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { PLACEHOLDER_ITEMS, PLACEHOLDER_WRITING } from '@/lib/placeholders';
 import { buildContentMetadata, contentImageUrl } from '@/lib/metadata';
@@ -55,6 +57,17 @@ export default async function MixedMediaPage({ params }: Props) {
   }
   if (!piece) notFound();
 
+  // Media in the dedicated Images/Videos fields renders as a gallery after
+  // the body. Media inserted inline in the Body interleaves with the text.
+  const galleryImages = (piece.images ?? []) as (ImageBlockValue & { _key: string })[];
+  const galleryVideos = (piece.videos ?? []) as {
+    _key: string;
+    vimeoId?: string;
+    title: string;
+    description?: string;
+  }[];
+  const hasGallery = galleryImages.length > 0 || galleryVideos.length > 0;
+
   const jsonLd = buildContentJsonLd({
     type: 'Article',
     title: piece.title,
@@ -81,6 +94,31 @@ export default async function MixedMediaPage({ params }: Props) {
           <article className="article-body" style={{ color: '#f8f4ef' }}>
             {piece.body && <PortableTextRenderer value={piece.body} />}
           </article>
+
+          {hasGallery && (
+            <section aria-label="Photographs and films">
+              {piece.body && (
+                <div className="mt-16 h-px w-16 bg-current opacity-20" aria-hidden="true" />
+              )}
+              {galleryImages.map((image) => (
+                <ImageBlock key={image._key} value={image} />
+              ))}
+              {galleryVideos.map((video) => (
+                <VideoBlock
+                  key={video._key}
+                  videoId={video.vimeoId}
+                  title={video.title}
+                  caption={video.description}
+                />
+              ))}
+            </section>
+          )}
+
+          {piece.photographyCredit && (
+            <p className="mt-16 font-sans text-xs uppercase tracking-widest opacity-50">
+              Photography — {piece.photographyCredit}
+            </p>
+          )}
         </div>
       </div>
     </main>

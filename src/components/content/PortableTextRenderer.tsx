@@ -9,7 +9,7 @@ const components: PortableTextComponents = {
   types: {
     imageBlock: ({ value }) => <ImageBlock value={value} />,
     pullQuote:  ({ value }) => <PullQuote quote={value.quote} attribution={value.attribution} />,
-    videoBlock: ({ value }) => <VideoBlock videoId={value.vimeoId} title={value.title} />,
+    videoBlock: ({ value }) => <VideoBlock videoId={value.vimeoId} title={value.title} caption={value.description} />,
   },
   block: {
     h2: ({ children }) => (
