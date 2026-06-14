@@ -5,6 +5,7 @@ import { client } from '@/lib/sanity';
 import { PHOTOGRAPHY_QUERY, PHOTOGRAPHY_SLUGS_QUERY } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
 import { ArticleHero } from '@/components/content/ArticleHero';
+import { ArticleEndNav } from '@/components/content/ArticleEndNav';
 import { ArticleMediaProvider, LightboxTrigger } from '@/components/content/MediaLightbox';
 import { collectArticleMedia } from '@/lib/articleMedia';
 import { JsonLd } from '@/components/seo/JsonLd';
@@ -130,6 +131,7 @@ export default async function PhotographyPage({ params }: Props) {
           </section>
         )}
       </ArticleMediaProvider>
+      <ArticleEndNav />
     </main>
   );
 }

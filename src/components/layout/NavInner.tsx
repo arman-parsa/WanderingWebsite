@@ -33,6 +33,7 @@ export function NavInner() {
   const [menuOpen, setMenuOpen]         = useState(false);
   const [scrollY, setScrollY]           = useState(0);
   const [isMobile, setIsMobile]         = useState(false);
+  const [viewportH, setViewportH]       = useState(0);
   const logoRef = useRef<HTMLAnchorElement>(null);
 
   // Detect article-hover body class (set by HomepageClient)
@@ -86,17 +87,24 @@ export function NavInner() {
     };
   }, [isHomepage]);
 
-  // Detect mobile breakpoint
+  // Detect mobile breakpoint + track viewport height for the hero threshold
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 640);
+    const check = () => {
+      setIsMobile(window.innerWidth < 640);
+      setViewportH(window.innerHeight);
+    };
     check();
     window.addEventListener('resize', check, { passive: true });
     return () => window.removeEventListener('resize', check);
   }, []);
 
   const isMapPage = pathname === '/map';
-  const scrolled  = scrollY > 60;
-  const onHero    = (isHomepage || isHeroPagePath(pathname)) && !scrolled;
+  const heroPage  = isHomepage || isHeroPagePath(pathname);
+  // On hero pages the nav floats transparent over the full-height hero and only
+  // solidifies once the hero has scrolled past the bar (not after a token 60px).
+  const heroThreshold = viewportH > 0 ? viewportH - 72 : Number.POSITIVE_INFINITY;
+  const scrolled  = scrollY > (heroPage ? heroThreshold : 60);
+  const onHero    = heroPage && !scrolled;
   const isLight   = isDarkPage || bodyBgActive || onHero;
   const textColour = isLight ? '#f8f4ef' : '#1c1814';
 

@@ -432,3 +432,12 @@ Post-launch feature pass: full media UX for pieces. Files: `src/lib/articleMedia
 - Pages no longer wrap content in the `paddingTop: clamp(5rem,10vh,8rem)` div; the hero is flush to the top and the nav floats over it. Body sections use `py-20`.
 - Photography page now wraps hero + grid in one `ArticleMediaProvider` (hero gains the "N photographs — view" button); videography hero standardised (was a cropped `h-[60vh]`).
 - **Nav transparency** (`NavInner.tsx`): new `HERO_PAGE_PREFIXES` → `onHero` now true for article detail pages too, so the nav is transparent over the hero and solidifies (dark blur) after 60px scroll, exactly like the homepage. `isDarkPage` still governs text colour.
+
+---
+
+## 16. HERO REFINEMENTS + END NAV + HOMEPAGE NAV — June 2026
+
+- **ArticleHero**: description is no longer italic (was reading as a third typeface — now sans meta + one serif voice for title & description). Title enlarged to `clamp(2.75rem,1.9rem+4.2vw,5.25rem)` for a grounded, introductory feel; both image and no-image branches share `TITLE_CLASS`. Meta row collapses location + date into one `LOCATION — DATE` span (removes the awkward gap before the em dash). `eyebrow` prop removed.
+- **`ArticleEndNav`** added to the foot of all four article types: a centred "Explore more" with serif links **Library** (`/articles`) and **Earth** (`/map`) — labels match the destinations' own page names.
+- **Nav transparency over heroes** (`NavInner.tsx`): hero pages (homepage + article details) now stay transparent until the hero scrolls past the bar — threshold is `viewportH - 72` (tracked via a resize listener) instead of a flat 60px, which was flipping the nav to a solid band over the still-visible full-height hero. Fixes the homepage "band on landing" report and keeps article heroes clean.
+- Homepage CTA "All work" (→ /articles) left as-is — it's a descriptive CTA, not a page-name label; flag if it should read "Library".

@@ -9,8 +9,6 @@ type Props = {
   publishedAt?: string;
   location?: string;
   tags?: string[];
-  /** Small label above the meta line, e.g. the content type ("Videography"). */
-  eyebrow?: string;
   coverImage?: {
     asset?: object;
     alt?: string;
@@ -18,8 +16,32 @@ type Props = {
   };
 };
 
-const META_CLASS =
-  'font-sans text-[var(--text-xs)] uppercase tracking-wider';
+// Larger, grounded introductory title — one serif voice shared by every type.
+const TITLE_CLASS =
+  'font-serif font-light tracking-tight leading-[1.04] text-[clamp(2.75rem,1.9rem+4.2vw,5.25rem)]';
+const META_CLASS = 'font-sans text-[var(--text-xs)] uppercase tracking-wider';
+const DESC_CLASS = 'mt-6 max-w-2xl font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]';
+
+function MetaRow({
+  location,
+  publishedAt,
+  tags,
+}: {
+  location?: string;
+  publishedAt?: string;
+  tags?: string[];
+}) {
+  const stamp = [location, publishedAt && formatDate(publishedAt)].filter(Boolean).join(' — ');
+  return (
+    <div className={`mb-6 flex flex-wrap items-center gap-x-4 gap-y-2 ${META_CLASS}`}>
+      {stamp && <span>{stamp}</span>}
+      {tags?.map((tag) => (
+        <span key={tag} className="opacity-75">#{tag}</span>
+      ))}
+      <OpenGalleryButton />
+    </div>
+  );
+}
 
 /**
  * Standardised hero for every article type: a full-bleed cover image with the
@@ -27,7 +49,7 @@ const META_CLASS =
  * The fixed site nav floats transparently over the top of it. Falls back to a
  * centred text header when a piece has no cover image.
  */
-export function ArticleHero({ title, description, publishedAt, location, tags, eyebrow, coverImage }: Props) {
+export function ArticleHero({ title, description, publishedAt, location, tags, coverImage }: Props) {
   const hasImage = !!coverImage?.asset;
   const src = hasImage ? urlFor(coverImage!).width(2560).format('webp').quality(85).url() : null;
   const blurSrc = hasImage ? urlFor(coverImage!).width(20).format('webp').quality(30).url() : undefined;
@@ -35,31 +57,15 @@ export function ArticleHero({ title, description, publishedAt, location, tags, e
     ? `${coverImage.hotspot.x * 100}% ${coverImage.hotspot.y * 100}%`
     : 'center';
 
-  const metaBits = (
-    <>
-      {eyebrow && <span>{eyebrow}</span>}
-      {location && <span>{location}</span>}
-      {publishedAt && <span>{eyebrow || location ? `— ${formatDate(publishedAt)}` : formatDate(publishedAt)}</span>}
-      {tags?.map((tag) => (
-        <span key={tag}>#{tag}</span>
-      ))}
-    </>
-  );
-
-  // No cover image — quiet centred text header (still sits clear of the nav).
+  // No cover image — quiet text header (still sits clear of the nav).
   if (!hasImage) {
     return (
       <header className="mx-auto max-w-[var(--content-wide-width)] px-[var(--content-padding-x)] pb-4 pt-[clamp(7rem,20vh,12rem)]">
-        <div className={`mb-5 flex flex-wrap items-center gap-x-4 gap-y-2 opacity-60 ${META_CLASS}`}>
-          {metaBits}
-          <OpenGalleryButton />
+        <div className="opacity-60">
+          <MetaRow location={location} publishedAt={publishedAt} tags={tags} />
         </div>
-        <h1 className="text-display font-light tracking-tight">{title}</h1>
-        {description && (
-          <p className="mt-6 max-w-2xl font-serif text-[var(--text-xl)] italic leading-[var(--leading-relaxed)] opacity-70">
-            {description}
-          </p>
-        )}
+        <h1 className={TITLE_CLASS}>{title}</h1>
+        {description && <p className={`${DESC_CLASS} opacity-70`}>{description}</p>}
       </header>
     );
   }
@@ -83,23 +89,16 @@ export function ArticleHero({ title, description, publishedAt, location, tags, e
         aria-hidden="true"
         style={{
           background:
-            'linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.18) 38%, rgba(0,0,0,0) 60%), linear-gradient(to bottom, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0) 16%)',
+            'linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.18) 40%, rgba(0,0,0,0) 62%), linear-gradient(to bottom, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0) 16%)',
         }}
       />
       <div className="absolute inset-x-0 bottom-0 text-[#f8f4ef]">
         <div className="mx-auto max-w-[var(--content-wide-width)] px-[var(--content-padding-x)] pb-[clamp(2.5rem,7vh,5rem)]">
-          <div className={`mb-5 flex flex-wrap items-center gap-x-4 gap-y-2 opacity-80 ${META_CLASS}`}>
-            {metaBits}
-            <OpenGalleryButton />
+          <div className="opacity-85">
+            <MetaRow location={location} publishedAt={publishedAt} tags={tags} />
           </div>
-          <h1 className="font-serif text-[var(--text-4xl)] font-light leading-[var(--leading-tight)] tracking-tight">
-            {title}
-          </h1>
-          {description && (
-            <p className="mt-5 max-w-2xl font-serif text-[var(--text-lg)] italic leading-[var(--leading-relaxed)] text-[#f8f4ef]/85">
-              {description}
-            </p>
-          )}
+          <h1 className={TITLE_CLASS}>{title}</h1>
+          {description && <p className={`${DESC_CLASS} opacity-90`}>{description}</p>}
         </div>
       </div>
     </header>

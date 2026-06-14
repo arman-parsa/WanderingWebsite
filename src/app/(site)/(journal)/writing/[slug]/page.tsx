@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { client } from '@/lib/sanity';
 import { WRITING_QUERY, WRITING_SLUGS_QUERY } from '@/lib/sanity';
 import { ArticleHero } from '@/components/content/ArticleHero';
+import { ArticleEndNav } from '@/components/content/ArticleEndNav';
 import { PortableTextRenderer } from '@/components/content/PortableTextRenderer';
 import { ArticleMediaProvider } from '@/components/content/MediaLightbox';
 import { collectArticleMedia } from '@/lib/articleMedia';
@@ -88,6 +89,7 @@ export default async function WritingPage({ params }: Props) {
           </article>
         </div>
       </ArticleMediaProvider>
+      <ArticleEndNav />
     </main>
   );
 }

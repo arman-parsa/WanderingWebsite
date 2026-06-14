@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { client } from '@/lib/sanity';
 import { VIDEOGRAPHY_QUERY, VIDEOGRAPHY_SLUGS_QUERY } from '@/lib/sanity';
 import { ArticleHero } from '@/components/content/ArticleHero';
+import { ArticleEndNav } from '@/components/content/ArticleEndNav';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { VideoBlock } from '@/components/content/VideoBlock';
 import { buildContentMetadata, contentImageUrl } from '@/lib/metadata';
@@ -98,6 +99,7 @@ export default async function VideographyPage({ params }: Props) {
           ))}
         </section>
       )}
+      <ArticleEndNav />
     </main>
   );
 }

@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { client } from '@/lib/sanity';
 import { MIXED_MEDIA_QUERY, MIXED_MEDIA_SLUGS_QUERY } from '@/lib/sanity';
 import { ArticleHero } from '@/components/content/ArticleHero';
+import { ArticleEndNav } from '@/components/content/ArticleEndNav';
 import { PortableTextRenderer } from '@/components/content/PortableTextRenderer';
 import { ImageBlock } from '@/components/content/ImageBlock';
 import { ImagePair } from '@/components/content/ImagePair';
@@ -143,6 +144,7 @@ export default async function MixedMediaPage({ params }: Props) {
             </div>
           </div>
       </ArticleMediaProvider>
+      <ArticleEndNav />
     </main>
   );
 }
