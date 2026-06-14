@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { client } from '@/lib/sanity';
 import { WRITING_QUERY, WRITING_SLUGS_QUERY } from '@/lib/sanity';
-import { EssayHero } from '@/components/content/EssayHero';
+import { ArticleHero } from '@/components/content/ArticleHero';
 import { PortableTextRenderer } from '@/components/content/PortableTextRenderer';
 import { ArticleMediaProvider } from '@/components/content/MediaLightbox';
 import { collectArticleMedia } from '@/lib/articleMedia';
@@ -74,20 +74,18 @@ export default async function WritingPage({ params }: Props) {
         entries={collectArticleMedia(piece.body)}
         label={`Visuals — ${piece.title}`}
       >
-        <div style={{ paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
-          <EssayHero
-            title={piece.title}
-            description={piece.description}
-            publishedAt={piece.publishedAt}
-            location={piece.location}
-            tags={piece.tags}
-            coverImage={piece.coverImage}
-          />
-          <div className="mx-auto max-w-[var(--content-max-width)] px-[var(--content-padding-x)] pb-24">
-            <article className="article-body" style={{ color: '#f8f4ef' }}>
-              {piece.body && <PortableTextRenderer value={piece.body} />}
-            </article>
-          </div>
+        <ArticleHero
+          title={piece.title}
+          description={piece.description}
+          publishedAt={piece.publishedAt}
+          location={piece.location}
+          tags={piece.tags}
+          coverImage={piece.coverImage}
+        />
+        <div className="mx-auto max-w-[var(--content-max-width)] px-[var(--content-padding-x)] py-20">
+          <article className="article-body" style={{ color: '#f8f4ef' }}>
+            {piece.body && <PortableTextRenderer value={piece.body} />}
+          </article>
         </div>
       </ArticleMediaProvider>
     </main>

@@ -7,10 +7,18 @@ import { NavLink } from '@/components/layout/NavLink';
 
 const DARK_PAGE_PREFIXES = ['/writing', '/photography', '/mixed-media', '/videography', '/map'];
 
+// Article detail pages open with a full-bleed hero; the nav floats
+// transparently over it (like the homepage) until the reader scrolls.
+const HERO_PAGE_PREFIXES = ['/writing', '/photography', '/mixed-media', '/videography'];
+
 function isDarkPagePath(path: string): boolean {
   return DARK_PAGE_PREFIXES.some(
     (prefix) => path === prefix || path.startsWith(`${prefix}/`)
   );
+}
+
+function isHeroPagePath(path: string): boolean {
+  return HERO_PAGE_PREFIXES.some((prefix) => path.startsWith(`${prefix}/`));
 }
 
 const SYMBOL_SCALE_MAX = 2.0;
@@ -88,7 +96,7 @@ export function NavInner() {
 
   const isMapPage = pathname === '/map';
   const scrolled  = scrollY > 60;
-  const onHero    = isHomepage && !scrolled;
+  const onHero    = (isHomepage || isHeroPagePath(pathname)) && !scrolled;
   const isLight   = isDarkPage || bodyBgActive || onHero;
   const textColour = isLight ? '#f8f4ef' : '#1c1814';
 

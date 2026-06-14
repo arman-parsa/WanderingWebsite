@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { client } from '@/lib/sanity';
 import { MIXED_MEDIA_QUERY, MIXED_MEDIA_SLUGS_QUERY } from '@/lib/sanity';
-import { EssayHero } from '@/components/content/EssayHero';
+import { ArticleHero } from '@/components/content/ArticleHero';
 import { PortableTextRenderer } from '@/components/content/PortableTextRenderer';
 import { ImageBlock } from '@/components/content/ImageBlock';
 import { ImagePair } from '@/components/content/ImagePair';
@@ -95,16 +95,15 @@ export default async function MixedMediaPage({ params }: Props) {
         label={`Visuals — ${piece.title}`}
         credit={piece.photographyCredit ? `Photography — ${piece.photographyCredit}` : undefined}
       >
-        <div style={{ paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
-          <EssayHero
-            title={piece.title}
-            description={piece.description}
-            publishedAt={piece.publishedAt}
-            location={piece.location}
-            tags={piece.tags}
-            coverImage={piece.coverImage}
-          />
-          <div className="mx-auto max-w-[var(--content-max-width)] px-[var(--content-padding-x)] pb-24">
+        <ArticleHero
+          title={piece.title}
+          description={piece.description}
+          publishedAt={piece.publishedAt}
+          location={piece.location}
+          tags={piece.tags}
+          coverImage={piece.coverImage}
+        />
+        <div className="mx-auto max-w-[var(--content-max-width)] px-[var(--content-padding-x)] py-20">
             <article className="article-body" style={{ color: '#f8f4ef' }}>
               {piece.body && <PortableTextRenderer value={piece.body} />}
             </article>
@@ -143,7 +142,6 @@ export default async function MixedMediaPage({ params }: Props) {
               )}
             </div>
           </div>
-        </div>
       </ArticleMediaProvider>
     </main>
   );

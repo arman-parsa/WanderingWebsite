@@ -4,10 +4,10 @@ import Image from 'next/image';
 import { client } from '@/lib/sanity';
 import { PHOTOGRAPHY_QUERY, PHOTOGRAPHY_SLUGS_QUERY } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
+import { ArticleHero } from '@/components/content/ArticleHero';
 import { ArticleMediaProvider, LightboxTrigger } from '@/components/content/MediaLightbox';
 import { collectArticleMedia } from '@/lib/articleMedia';
 import { JsonLd } from '@/components/seo/JsonLd';
-import { formatDate } from '@/lib/utils';
 import { PLACEHOLDER_ITEMS, PLACEHOLDER_PHOTO_SERIES } from '@/lib/placeholders';
 import { buildContentMetadata, contentImageUrl } from '@/lib/metadata';
 import { buildContentJsonLd } from '@/lib/jsonld';
@@ -80,66 +80,22 @@ export default async function PhotographyPage({ params }: Props) {
   const lightboxEntries = collectArticleMedia(null, series.images ?? []);
 
   return (
-    <main id="main-content" className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef', paddingTop: 'clamp(5rem, 10vh, 8rem)' }}>
+    <main id="main-content" className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef' }}>
       <JsonLd data={jsonLd} />
-      {/* Full-bleed hero */}
-      {series.coverImage?.asset && (
-        <div className="relative h-screen w-full overflow-hidden">
-          <Image
-            src={urlFor(series.coverImage).width(2400).format('webp').quality(85).url()}
-            alt={series.coverImage.alt ?? series.title}
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-[var(--content-padding-x)] pb-16">
-            <div className="mx-auto max-w-[var(--content-full-width)]">
-              {series.location && (
-                <p className="mb-2 font-sans text-xs uppercase tracking-widest text-white/70">
-                  {series.location}
-                  {series.publishedAt && ` — ${formatDate(series.publishedAt)}`}
-                </p>
-              )}
-              <h1 className="font-serif text-[var(--text-4xl)] font-light tracking-tight text-white">
-                {series.title}
-              </h1>
-              {series.description && (
-                <p className="mt-3 max-w-md font-sans text-sm leading-relaxed text-white/80">
-                  {series.description}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <ArticleMediaProvider entries={lightboxEntries} label={`Photographs — ${series.title}`}>
+        <ArticleHero
+          title={series.title}
+          description={series.description}
+          publishedAt={series.publishedAt}
+          location={series.location}
+          tags={series.tags}
+          coverImage={series.coverImage}
+        />
 
-      {/* Text-only header when no cover image */}
-      {!series.coverImage?.asset && (
-        <div className="mx-auto max-w-[var(--content-full-width)] px-[var(--content-padding-x)] py-16">
-          {series.location && (
-            <p className="mb-2 font-sans text-xs uppercase tracking-widest" style={{ color: '#a09890' }}>
-              {series.location}
-              {series.publishedAt && ` — ${formatDate(series.publishedAt)}`}
-            </p>
-          )}
-          <h1 className="font-serif text-[var(--text-4xl)] font-light tracking-tight" style={{ color: '#f8f4ef' }}>
-            {series.title}
-          </h1>
-          {series.description && (
-            <p className="mt-3 max-w-md font-sans text-sm leading-relaxed" style={{ color: '#a09890' }}>
-              {series.description}
-            </p>
-          )}
-        </div>
-      )}
-
-      {/* Photo grid */}
-      {series.images?.length > 0 && (
-        <ArticleMediaProvider entries={lightboxEntries} label={`Photographs — ${series.title}`}>
+        {/* Photo grid */}
+        {series.images?.length > 0 && (
           <section
-            className="mx-auto max-w-[var(--content-full-width)] px-[var(--content-padding-x)] py-16"
+            className="mx-auto max-w-[var(--content-full-width)] px-[var(--content-padding-x)] py-20"
             aria-label="Photo series"
           >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -172,8 +128,8 @@ export default async function PhotographyPage({ params }: Props) {
               })}
             </div>
           </section>
-        </ArticleMediaProvider>
-      )}
+        )}
+      </ArticleMediaProvider>
     </main>
   );
 }

@@ -423,3 +423,12 @@ Post-launch feature pass: full media UX for pieces. Files: `src/lib/articleMedia
 - **Ambient video**: VideoBlock = Vimeo `background=1` (chromeless autoplay muted loop) + corner sound toggle via postMessage; accepts pasted URLs incl. unlisted hashes. Reduced-motion users get the standard player, no autoplay. NOTE: if Vimeo plan gating ever re-surfaces chrome, fall back to per-video embed settings in Vimeo.
 - Reduced motion respected throughout (`usePrefersReducedMotion`, instant lightbox cuts, no fade).
 - Existing content needs no migration: missing `width` = column; all images become clickable automatically.
+
+---
+
+## 15. STANDARDISED ARTICLE HERO + TRANSPARENT NAV — June 2026
+
+- **`src/components/content/ArticleHero.tsx`** replaces `EssayHero` (deleted) across all four detail types (writing, mixed-media, photography, videography). Full-bleed cover image at `height:100svh`, gradient scrim (strong foot for the title, faint crown for nav legibility), title (`text-4xl` serif light) + serif-italic description (Lyon — fixes the photography hero's old `font-sans` description bug) + meta row (location — date, #tags) + `OpenGalleryButton` overlaid at the foot. No-cover fallback = centred text header with top padding to clear the nav. Optional `eyebrow` prop exists (content-type label) but is unused — heroes intentionally match the photography layout the client preferred (no type word). Flip by passing `eyebrow`.
+- Pages no longer wrap content in the `paddingTop: clamp(5rem,10vh,8rem)` div; the hero is flush to the top and the nav floats over it. Body sections use `py-20`.
+- Photography page now wraps hero + grid in one `ArticleMediaProvider` (hero gains the "N photographs — view" button); videography hero standardised (was a cropped `h-[60vh]`).
+- **Nav transparency** (`NavInner.tsx`): new `HERO_PAGE_PREFIXES` → `onHero` now true for article detail pages too, so the nav is transparent over the hero and solidifies (dark blur) after 60px scroll, exactly like the homepage. `isDarkPage` still governs text colour.
