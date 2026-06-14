@@ -9,7 +9,11 @@ export const client = createClient({
   projectId,
   dataset,
   apiVersion: '2024-01-01',
-  useCdn: true,
+  // ISR (revalidate + the /api/revalidate webhook) is our caching layer, so
+  // read live from the API. With useCdn:true the CDN serves stale query
+  // results after publishing — new docs appear on their own (uncached) detail
+  // page but stay missing from cached list queries until the CDN TTL lapses.
+  useCdn: false,
 });
 
 export const previewClient = createClient({
