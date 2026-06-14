@@ -90,6 +90,7 @@ export default async function PhotographyPage({ params }: Props) {
           publishedAt={series.publishedAt}
           location={series.location}
           tags={series.tags}
+          category="Photography"
           coverImage={series.coverImage}
         />
 

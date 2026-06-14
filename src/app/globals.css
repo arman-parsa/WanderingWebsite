@@ -620,6 +620,10 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
 .home-read-more:hover         { color: var(--color-accent); }
 .home-read-more:hover::after  { width: 44px; }
 
+/* Inverted for dark backgrounds (article end nav) */
+.home-read-more--invert        { color: rgba(248, 244, 239, 0.65); }
+.home-read-more--invert:hover  { color: #f8f4ef; }
+
 /* ── Homepage articles footer ────────────────────────────────── */
 .home-articles-footer {
   padding-top: 52px;

@@ -102,6 +102,7 @@ export default async function MixedMediaPage({ params }: Props) {
           publishedAt={piece.publishedAt}
           location={piece.location}
           tags={piece.tags}
+          category="Mixed Media"
           coverImage={piece.coverImage}
         />
         <div className="mx-auto max-w-[var(--content-max-width)] px-[var(--content-padding-x)] py-20">

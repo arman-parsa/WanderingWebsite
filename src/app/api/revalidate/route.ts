@@ -44,7 +44,8 @@ export async function POST(request: NextRequest) {
   }
 
   // Always revalidate index pages
-  revalidatePath('/articles');
+  revalidatePath('/library');
+  revalidatePath('/earth');
   revalidatePath('/');
 
   return Response.json({

@@ -11,11 +11,11 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: 'Earth',
   description: 'An interactive globe showing the geographic locations of all published work — stories collected across the world by Arman Parsa.',
-  alternates: { canonical: `${SITE_URL}/map` },
+  alternates: { canonical: `${SITE_URL}/earth` },
   openGraph: {
     title: 'Earth · Arman Parsa',
     description: 'An interactive globe showing the geographic locations of all published work — stories collected across the world by Arman Parsa.',
-    url: `${SITE_URL}/map`,
+    url: `${SITE_URL}/earth`,
     images: [OG_IMAGE],
   },
 };

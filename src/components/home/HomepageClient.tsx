@@ -165,7 +165,7 @@ export function HomepageClient({
             style={{ paddingLeft: px, paddingRight: px, paddingTop: '4rem' }}
           >
             {items.map(item => {
-              const href     = `${TYPE_HREF[item._type] ?? '/articles'}/${item.slug}`;
+              const href     = `${TYPE_HREF[item._type] ?? '/library'}/${item.slug}`;
               const isHov    = hovered?.slug === item.slug;
               const showMeta = isMobile || isHov;
 
@@ -227,7 +227,7 @@ export function HomepageClient({
 
           {/* ── All articles link ─────────────────────────────── */}
           <div className="home-articles-footer" style={{ paddingLeft: px, paddingRight: px }}>
-            <Link href="/articles" className="home-read-more">
+            <Link href="/library" className="home-read-more">
               All work
             </Link>
           </div>

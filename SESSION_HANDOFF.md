@@ -441,3 +441,11 @@ Post-launch feature pass: full media UX for pieces. Files: `src/lib/articleMedia
 - **`ArticleEndNav`** added to the foot of all four article types: a centred "Explore more" with serif links **Library** (`/articles`) and **Earth** (`/map`) — labels match the destinations' own page names.
 - **Nav transparency over heroes** (`NavInner.tsx`): hero pages (homepage + article details) now stay transparent until the hero scrolls past the bar — threshold is `viewportH - 72` (tracked via a resize listener) instead of a flat 60px, which was flipping the nav to a solid band over the still-visible full-height hero. Fixes the homepage "band on landing" report and keeps article heroes clean.
 - Homepage CTA "All work" (→ /articles) left as-is — it's a descriptive CTA, not a page-name label; flag if it should read "Library".
+
+---
+
+## 17. ROUTE RENAMES + EYEBROW + MINIMAL EXPLORE BUTTON — June 2026
+
+- **Routes renamed to match page names**: `/articles` → `/library`, `/map` → `/earth` (folders `src/app/(site)/library`, `src/app/(site)/earth`). Component folder `src/components/map/` is unchanged — that's the globe code, not a route. Permanent (308) redirects added in `next.config.ts` for the old paths so indexed links/bookmarks keep working. Updated: nav links (EARTH→/earth, LIBRARY→/library), `NavInner` `DARK_PAGE_PREFIXES`/`isMapPage` (now `/earth`), homepage "All work" + `TYPE_HREF` fallback (→/library), `sitemap.ts`, `/api/revalidate` (revalidates `/library` + `/earth` + `/`), and both pages' canonical/OG URLs. Earlier historical sections of this doc still say `/articles` and `/map` — the live routes are now `/library` and `/earth`.
+- **Category eyebrow** re-added to `ArticleHero` via `category` prop (Writing / Mixed Media / Photography / Videography), rendered as a kicker above the title. Hero order is now: eyebrow → title → description → meta (location—date · #tags · gallery "view").
+- **`ArticleEndNav`** is now a single minimal "Explore More" link to `/library`, styled with `home-read-more` + new `home-read-more--invert` (light variant for the dark article background) to match the homepage's "All work" button.

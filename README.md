@@ -8,7 +8,7 @@ Live at **https://wandering-website-blush.vercel.app** (production domain: `arma
 - **Next.js 16.2.7** (App Router, Turbopack) — note: `params` is a `Promise` and must be awaited; read `node_modules/next/dist/docs/` before writing framework code (see `AGENTS.md`)
 - **Sanity v5** CMS (project `8p5lsu79`, dataset `production`), embedded studio at `/studio`
 - **Tailwind CSS v4** — configured via `@theme inline {}` in `src/app/globals.css`; there is no `tailwind.config.ts`
-- **Three.js** WebGL globe on `/map`
+- **Three.js** WebGL globe on `/earth`
 - **Vercel** hosting — auto-deploys `main`
 
 ## Getting started

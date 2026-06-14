@@ -10,11 +10,11 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: 'Library',
   description: 'Browse all writing, photography, mixed media, and videography by Arman Parsa — a personal archive of stories from around the world.',
-  alternates: { canonical: `${SITE_URL}/articles` },
+  alternates: { canonical: `${SITE_URL}/library` },
   openGraph: {
     title: 'Library · Arman Parsa',
     description: 'Browse all writing, photography, mixed media, and videography by Arman Parsa — a personal archive of stories from around the world.',
-    url: `${SITE_URL}/articles`,
+    url: `${SITE_URL}/library`,
     images: [OG_IMAGE],
   },
 };

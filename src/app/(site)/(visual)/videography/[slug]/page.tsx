@@ -76,6 +76,7 @@ export default async function VideographyPage({ params }: Props) {
         publishedAt={piece.publishedAt}
         location={piece.location}
         tags={piece.tags}
+        category="Videography"
         coverImage={piece.coverImage}
       />
 

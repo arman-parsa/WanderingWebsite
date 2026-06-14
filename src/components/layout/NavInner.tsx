@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { NavLink } from '@/components/layout/NavLink';
 
-const DARK_PAGE_PREFIXES = ['/writing', '/photography', '/mixed-media', '/videography', '/map'];
+const DARK_PAGE_PREFIXES = ['/writing', '/photography', '/mixed-media', '/videography', '/earth'];
 
 // Article detail pages open with a full-bleed hero; the nav floats
 // transparently over it (like the homepage) until the reader scrolls.
@@ -98,7 +98,7 @@ export function NavInner() {
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  const isMapPage = pathname === '/map';
+  const isMapPage = pathname === '/earth';
   const heroPage  = isHomepage || isHeroPagePath(pathname);
   // On hero pages the nav floats transparent over the full-height hero and only
   // solidifies once the hero has scrolled past the bar (not after a token 60px).
@@ -132,7 +132,7 @@ export function NavInner() {
       >
         {/* Left — EARTH */}
         <div className="nav-grid-left">
-          <NavLink href="/map">EARTH</NavLink>
+          <NavLink href="/earth">EARTH</NavLink>
         </div>
 
         {/* Center — alchemical symbol, scale driven via ref for smooth animation */}
@@ -167,7 +167,7 @@ export function NavInner() {
         <div className="nav-grid-right">
           {menuOpen && !isMobile && (
             <div className="nav-menu-expanded">
-              <NavLink href="/articles">LIBRARY</NavLink>
+              <NavLink href="/library">LIBRARY</NavLink>
               <NavLink href="/about">ABOUT</NavLink>
               <NavLink href="/contact">CONTACT</NavLink>
             </div>
@@ -199,7 +199,7 @@ export function NavInner() {
             ['--nav-text' as string]: isLight ? '#f8f4ef' : '#1c1814',
           } as React.CSSProperties}
         >
-          <NavLink href="/articles">LIBRARY</NavLink>
+          <NavLink href="/library">LIBRARY</NavLink>
           <NavLink href="/about">ABOUT</NavLink>
           <NavLink href="/contact">CONTACT</NavLink>
         </div>

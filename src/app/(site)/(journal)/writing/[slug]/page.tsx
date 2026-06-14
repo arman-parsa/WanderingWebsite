@@ -81,6 +81,7 @@ export default async function WritingPage({ params }: Props) {
           publishedAt={piece.publishedAt}
           location={piece.location}
           tags={piece.tags}
+          category="Writing"
           coverImage={piece.coverImage}
         />
         <div className="mx-auto max-w-[var(--content-max-width)] px-[var(--content-padding-x)] py-20">

@@ -29,6 +29,15 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+
+  // Routes renamed to match their page names; keep old URLs (and any indexed
+  // links / bookmarks) working with permanent redirects.
+  async redirects() {
+    return [
+      { source: '/articles', destination: '/library', permanent: true },
+      { source: '/map', destination: '/earth', permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;
