@@ -75,7 +75,7 @@ export function ArticleHero({ title, description, publishedAt, location, tags, c
   }
 
   return (
-    <header className="relative w-full overflow-hidden" style={{ height: '100svh' }}>
+    <header className="relative w-full overflow-hidden" data-hero style={{ height: '100svh' }}>
       <Image
         src={src!}
         alt={coverImage?.alt ?? title}

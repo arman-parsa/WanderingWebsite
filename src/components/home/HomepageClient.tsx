@@ -122,6 +122,7 @@ export function HomepageClient({
         <section
           className="hero-section"
           aria-label="Site introduction"
+          data-hero
           style={{ background: '#070b12', position: 'relative', zIndex: 1 }}
         >
           {heroImages.map((url, i) => (

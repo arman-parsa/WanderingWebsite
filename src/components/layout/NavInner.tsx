@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { NavLink } from '@/components/layout/NavLink';
@@ -10,6 +10,10 @@ const DARK_PAGE_PREFIXES = ['/writing', '/photography', '/mixed-media', '/videog
 // Article detail pages open with a full-bleed hero; the nav floats
 // transparently over it (like the homepage) until the reader scrolls.
 const HERO_PAGE_PREFIXES = ['/writing', '/photography', '/mixed-media', '/videography'];
+
+// Matches the fixed header height (h-16 = 4rem = 64px); the nav solidifies the
+// instant the hero's bottom edge crosses below the bar.
+const NAV_HEIGHT_PX = 64;
 
 function isDarkPagePath(path: string): boolean {
   return DARK_PAGE_PREFIXES.some(
@@ -31,10 +35,12 @@ export function NavInner() {
 
   const [bodyBgActive, setBodyBgActive] = useState(false);
   const [menuOpen, setMenuOpen]         = useState(false);
-  const [scrollY, setScrollY]           = useState(0);
+  const [pastHero, setPastHero]         = useState(false);
   const [isMobile, setIsMobile]         = useState(false);
-  const [viewportH, setViewportH]       = useState(0);
   const logoRef = useRef<HTMLAnchorElement>(null);
+
+  const isMapPage = pathname === '/earth';
+  const heroPage  = isHomepage || isHeroPagePath(pathname);
 
   // Detect article-hover body class (set by HomepageClient)
   useEffect(() => {
@@ -45,24 +51,34 @@ export function NavInner() {
     return () => observer.disconnect();
   }, []);
 
-  // Track scroll — useLayoutEffect fires before paint, eliminating flash on load/navigation
-  useLayoutEffect(() => {
-    const onScroll = () => setScrollY(window.scrollY);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  // Re-sync scrollY and close the menu on route change — done during render
-  // (React's "adjusting state when props change" pattern) so the nav can never
-  // paint a stale previous-page background. When navigating TO the homepage
-  // Next.js scrolls to top, so assume 0 immediately.
+  // Reset transparency to its default and close the menu on route change.
+  // Done during render (React's "adjust state when props change" pattern) so the
+  // nav can't paint a stale opaque background from the previous page for a frame.
   const [prevPathname, setPrevPathname] = useState(pathname);
   if (prevPathname !== pathname) {
     setPrevPathname(pathname);
-    setScrollY(pathname === '/' || typeof window === 'undefined' ? 0 : window.scrollY);
-    if (menuOpen) setMenuOpen(false);
+    setPastHero(false);
+    setMenuOpen(false);
   }
+
+  // Whether the hero has scrolled up past the nav bar. Driven by an
+  // IntersectionObserver on the hero element itself rather than a scroll/
+  // viewport-height threshold: the browser reports the geometry directly, so
+  // the nav can't get stuck opaque from a stale scrollY on load, scroll
+  // restoration, or mobile svh/lvh drift. Defaults transparent (pastHero=false)
+  // so SSR and the first client paint match — the observer only ever flips it
+  // to opaque once the hero is genuinely gone.
+  useEffect(() => {
+    if (!heroPage) return;
+    const hero = document.querySelector('[data-hero]');
+    if (!hero) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setPastHero(!entry.isIntersecting),
+      { rootMargin: `-${NAV_HEIGHT_PX}px 0px 0px 0px`, threshold: 0 }
+    );
+    io.observe(hero);
+    return () => io.disconnect();
+  }, [pathname, heroPage]);
 
   // Smooth symbol scale via direct DOM update — bypasses React batching for 60fps
   useEffect(() => {
@@ -87,24 +103,15 @@ export function NavInner() {
     };
   }, [isHomepage]);
 
-  // Detect mobile breakpoint + track viewport height for the hero threshold
+  // Detect mobile breakpoint for the dropdown layout
   useEffect(() => {
-    const check = () => {
-      setIsMobile(window.innerWidth < 640);
-      setViewportH(window.innerHeight);
-    };
+    const check = () => setIsMobile(window.innerWidth < 640);
     check();
     window.addEventListener('resize', check, { passive: true });
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  const isMapPage = pathname === '/earth';
-  const heroPage  = isHomepage || isHeroPagePath(pathname);
-  // On hero pages the nav floats transparent over the full-height hero and only
-  // solidifies once the hero has scrolled past the bar (not after a token 60px).
-  const heroThreshold = viewportH > 0 ? viewportH - 72 : Number.POSITIVE_INFINITY;
-  const scrolled  = scrollY > (heroPage ? heroThreshold : 60);
-  const onHero    = heroPage && !scrolled;
+  const onHero    = heroPage && !pastHero;
   const isLight   = isDarkPage || bodyBgActive || onHero;
   const textColour = isLight ? '#f8f4ef' : '#1c1814';
 
