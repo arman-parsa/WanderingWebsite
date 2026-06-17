@@ -30,7 +30,7 @@ export function IntroLoader() {
       sessionStorage.setItem('introSeen', '1');
       document.documentElement.classList.remove('intro-active');
       setVisible(false);
-    }, skip ? 0 : 4200);
+    }, skip ? 0 : 4400);
 
     return () => {
       clearTimeout(timer);
@@ -42,35 +42,34 @@ export function IntroLoader() {
 
   return (
     <div className="intro-loader" aria-hidden="true">
-      <div className="intro-loader__inner">
-        <svg
-          className="intro-loader__symbol"
-          width="64"
-          height="64"
-          viewBox="0 0 28 28"
+      {/* 56px = the nav symbol's 28px glyph at its 2× homepage rest scale. */}
+      <svg
+        className="intro-loader__symbol"
+        width="56"
+        height="56"
+        viewBox="0 0 28 28"
+        fill="none"
+        aria-hidden="true"
+      >
+        <polygon
+          points="14,4 26,25 2,25"
           fill="none"
-          aria-hidden="true"
-        >
-          <polygon
-            points="14,4 26,25 2,25"
-            fill="none"
-            stroke="var(--color-ink)"
-            strokeWidth="1.1"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-          />
-          <line
-            x1="2"
-            y1="11"
-            x2="26"
-            y2="11"
-            stroke="var(--color-ink)"
-            strokeWidth="1.1"
-            strokeLinecap="round"
-          />
-        </svg>
-        <p className="intro-loader__tagline">Stories collected around the world</p>
-      </div>
+          stroke="var(--color-ink)"
+          strokeWidth="1.2"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+        <line
+          x1="2"
+          y1="11"
+          x2="26"
+          y2="11"
+          stroke="var(--color-ink)"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+        />
+      </svg>
+      <p className="intro-loader__tagline">Stories collected around the world.</p>
     </div>
   );
 }
