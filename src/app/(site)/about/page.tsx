@@ -21,7 +21,7 @@ export default function AboutPage() {
     >
       <div className="mx-auto w-full max-w-[var(--content-max-width)] px-[var(--content-padding-x)] text-center">
         <h1 className="sr-only">About Arman Parsa</h1>
-        <p className="font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
+        <p className="font-serif font-bold text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
           Amir Arman Ghanbari Parsa is a London-born, 23 year-old, Oxford-educated
           Iranian journalist and photographer/videographer.
         </p>
