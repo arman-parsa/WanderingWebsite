@@ -5,25 +5,44 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { NavLink } from '@/components/layout/NavLink';
 
-const DARK_PAGE_PREFIXES = ['/writing', '/photography', '/mixed-media', '/videography', '/earth'];
+/* ───────────────────────────────────────────────────────────────────────────
+   Nav transparency model
+   ----------------------
+   The bar is transparent on every page by default — above all the homepage,
+   where it must read transparent over the hero from the very first paint. A
+   translucent bar fades in on exactly two surfaces, and only once the reader
+   has scrolled:
 
-// Article detail pages open with a full-bleed hero; the nav floats
-// transparently over it (like the homepage) until the reader scrolls.
-const HERO_PAGE_PREFIXES = ['/writing', '/photography', '/mixed-media', '/videography'];
+     • the library list   → translucent paper  (white)
+     • an opened article  → translucent ink     (dark), once past its cover hero
 
-// Matches the fixed header height (h-16 = 4rem = 64px); the nav solidifies the
-// instant the hero's bottom edge crosses below the bar.
+   Nothing reads window.scrollY to decide the homepage background — it is simply
+   always transparent — so a stale scroll position, browser scroll restoration,
+   or mobile svh/lvh drift can never latch it opaque. "Past the hero" is read
+   from an IntersectionObserver on the hero element itself (the browser reports
+   the geometry directly); the library's "on scroll" is a plain top-or-not flag
+   that is false whenever the page sits at the top.
+
+   The nav contents (symbol, EARTH, hamburger) switch between light and dark to
+   stay legible against whatever shows through the transparent bar.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+const ARTICLE_PREFIXES = ['/writing', '/photography', '/mixed-media', '/videography'];
+const isArticlePath = (path: string) =>
+  ARTICLE_PREFIXES.some((p) => path.startsWith(`${p}/`));
+
+// Palette (kept in step with globals.css).
+const INK = '#1c1814';
+const PAPER = '#f8f4ef';
+const BAR_PAPER = 'rgba(248, 244, 239, 0.82)'; // translucent white — library on scroll
+const BAR_INK = 'rgba(28, 24, 20, 0.82)';      // translucent dark  — article past hero
+
+// Header height (h-16 = 64px): the article bar appears the instant the hero's
+// bottom edge passes below the bar.
 const NAV_HEIGHT_PX = 64;
-
-function isDarkPagePath(path: string): boolean {
-  return DARK_PAGE_PREFIXES.some(
-    (prefix) => path === prefix || path.startsWith(`${prefix}/`)
-  );
-}
-
-function isHeroPagePath(path: string): boolean {
-  return HERO_PAGE_PREFIXES.some((prefix) => path.startsWith(`${prefix}/`));
-}
+// A little travel before the library bar fades in, so it reads as a deliberate
+// "on scroll" rather than flickering at the very top.
+const SCROLL_THRESHOLD_PX = 24;
 
 const SYMBOL_SCALE_MAX = 2.0;
 const SYMBOL_SCALE_END = 220;
@@ -31,18 +50,29 @@ const SYMBOL_SCALE_END = 220;
 export function NavInner() {
   const pathname   = usePathname();
   const isHomepage = pathname === '/';
-  const isDarkPage = isDarkPagePath(pathname);
+  const isLibrary  = pathname === '/library';
+  const isEarth    = pathname === '/earth';
+  const isArticle  = isArticlePath(pathname);
 
   const [bodyBgActive, setBodyBgActive] = useState(false);
   const [menuOpen, setMenuOpen]         = useState(false);
   const [pastHero, setPastHero]         = useState(false);
+  const [scrolled, setScrolled]         = useState(false);
   const [isMobile, setIsMobile]         = useState(false);
   const logoRef = useRef<HTMLAnchorElement>(null);
 
-  const isMapPage = pathname === '/earth';
-  const heroPage  = isHomepage || isHeroPagePath(pathname);
+  // Reset scroll-derived state and close the menu on route change — during
+  // render (React's "adjust state when props change" pattern) so the bar can
+  // never paint a previous page's background for a frame.
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    setPastHero(false);
+    setScrolled(false);
+    setMenuOpen(false);
+  }
 
-  // Detect article-hover body class (set by HomepageClient)
+  // Homepage article-hover overlay (set on <body> by HomepageClient).
   useEffect(() => {
     const observer = new MutationObserver(() => {
       setBodyBgActive(document.body.classList.contains('bg-active'));
@@ -51,25 +81,10 @@ export function NavInner() {
     return () => observer.disconnect();
   }, []);
 
-  // Reset transparency to its default and close the menu on route change.
-  // Done during render (React's "adjust state when props change" pattern) so the
-  // nav can't paint a stale opaque background from the previous page for a frame.
-  const [prevPathname, setPrevPathname] = useState(pathname);
-  if (prevPathname !== pathname) {
-    setPrevPathname(pathname);
-    setPastHero(false);
-    setMenuOpen(false);
-  }
-
-  // Whether the hero has scrolled up past the nav bar. Driven by an
-  // IntersectionObserver on the hero element itself rather than a scroll/
-  // viewport-height threshold: the browser reports the geometry directly, so
-  // the nav can't get stuck opaque from a stale scrollY on load, scroll
-  // restoration, or mobile svh/lvh drift. Defaults transparent (pastHero=false)
-  // so SSR and the first client paint match — the observer only ever flips it
-  // to opaque once the hero is genuinely gone.
+  // "Past the hero" — observe the hero element directly. Pages without a hero
+  // (library, about, contact, earth) leave pastHero false, and the default
+  // (transparent) holds.
   useEffect(() => {
-    if (!heroPage) return;
     const hero = document.querySelector('[data-hero]');
     if (!hero) return;
     const io = new IntersectionObserver(
@@ -78,9 +93,18 @@ export function NavInner() {
     );
     io.observe(hero);
     return () => io.disconnect();
-  }, [pathname, heroPage]);
+  }, [pathname]);
 
-  // Smooth symbol scale via direct DOM update — bypasses React batching for 60fps
+  // "On scroll" for the library bar — a plain top-or-not flag, mirrored from the
+  // resize listener pattern below.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > SCROLL_THRESHOLD_PX);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Smooth symbol scale via direct DOM update — bypasses React batching for 60fps.
   useEffect(() => {
     const logo = logoRef.current;
     if (!logo) return;
@@ -92,8 +116,7 @@ export function NavInner() {
 
     const updateScale = () => {
       const t = Math.min(1, window.scrollY / SYMBOL_SCALE_END);
-      const scale = SYMBOL_SCALE_MAX - t * (SYMBOL_SCALE_MAX - 1);
-      logo.style.transform = `scale(${scale})`;
+      logo.style.transform = `scale(${SYMBOL_SCALE_MAX - t * (SYMBOL_SCALE_MAX - 1)})`;
     };
     updateScale();
     window.addEventListener('scroll', updateScale, { passive: true });
@@ -103,7 +126,7 @@ export function NavInner() {
     };
   }, [isHomepage]);
 
-  // Detect mobile breakpoint for the dropdown layout
+  // Mobile breakpoint for the dropdown layout.
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 640);
     check();
@@ -111,25 +134,28 @@ export function NavInner() {
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  const onHero    = heroPage && !pastHero;
-  const isLight   = isDarkPage || bodyBgActive || onHero;
-  const textColour = isLight ? '#f8f4ef' : '#1c1814';
+  // Nav contents are light when the surface behind the transparent bar is dark:
+  // the globe, any article, the homepage hover overlay, or the home hero before
+  // it gives way to the cream list below it.
+  const darkSurface = isEarth || isArticle || bodyBgActive || (isHomepage && !pastHero);
+  const textColour  = darkSurface ? PAPER : INK;
 
-  const bgValue = bodyBgActive || onHero || isMapPage
-    ? 'transparent'
-    : isDarkPage
-    ? 'rgba(28, 24, 20, 0.92)'
-    : 'rgba(248, 244, 239, 0.92)';
-
-  const showBlur = !bodyBgActive && !onHero && !isMapPage;
+  // The translucent bar — white on the library list, dark on an opened article.
+  // The homepage hover overlay keeps the bar fully transparent.
+  let barBackground = 'transparent';
+  if (!bodyBgActive) {
+    if (isLibrary && scrolled)      barBackground = BAR_PAPER;
+    else if (isArticle && pastHero) barBackground = BAR_INK;
+  }
+  const showBar = barBackground !== 'transparent';
 
   return (
     <div className="nav-shell" style={{ overflow: 'visible' }}>
       <div
         aria-hidden="true"
-        className={`nav-bg${showBlur ? ' nav-bg--blur' : ''}`}
+        className={`nav-bg${showBar ? ' nav-bg--blur' : ''}`}
         style={{
-          background: bgValue,
+          background: barBackground,
           transition: 'background 250ms ease, backdrop-filter 250ms ease, -webkit-backdrop-filter 250ms ease',
         }}
       />
@@ -202,8 +228,8 @@ export function NavInner() {
         <div
           className="nav-menu-mobile"
           style={{
-            background: isLight ? 'rgba(18, 14, 10, 0.97)' : 'rgba(248, 244, 239, 0.97)',
-            ['--nav-text' as string]: isLight ? '#f8f4ef' : '#1c1814',
+            background: darkSurface ? 'rgba(18, 14, 10, 0.97)' : 'rgba(248, 244, 239, 0.97)',
+            ['--nav-text' as string]: darkSurface ? PAPER : INK,
           } as React.CSSProperties}
         >
           <NavLink href="/library">LIBRARY</NavLink>
