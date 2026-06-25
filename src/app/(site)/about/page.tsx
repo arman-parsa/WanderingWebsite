@@ -26,7 +26,6 @@ export default function AboutPage() {
           Iranian journalist and photographer/videographer.
         </p>
         <p className="mt-6 font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
-          Stories long to be caught on pen and paper, or through the lens of a camera.
           This project catalogues a portfolio of visual and written media that I&apos;ve
           collected around the world. Through my work, I want to open an unhurried,
           grounded and intimate window into the places I&apos;ve been, and do justice to
