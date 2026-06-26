@@ -35,7 +35,7 @@ const isArticlePath = (path: string) =>
 const INK = '#1c1814';
 const PAPER = '#f8f4ef';
 const BAR_PAPER = 'rgba(248, 244, 239, 0.82)'; // translucent white — library on scroll
-const BAR_INK = 'rgba(28, 24, 20, 0.82)';      // translucent dark  — article past hero
+const BAR_INK = 'rgba(13, 13, 13, 0.82)';      // translucent dark  — article past hero
 
 // Header height (h-16 = 64px): the article bar appears the instant the hero's
 // bottom edge passes below the bar.
@@ -228,7 +228,7 @@ export function NavInner() {
         <div
           className="nav-menu-mobile"
           style={{
-            background: darkSurface ? 'rgba(18, 14, 10, 0.97)' : 'rgba(248, 244, 239, 0.97)',
+            background: darkSurface ? 'rgba(13, 13, 13, 0.97)' : 'rgba(248, 244, 239, 0.97)',
             ['--nav-text' as string]: darkSurface ? PAPER : INK,
           } as React.CSSProperties}
         >
