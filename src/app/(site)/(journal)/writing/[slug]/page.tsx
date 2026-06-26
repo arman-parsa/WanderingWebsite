@@ -69,7 +69,7 @@ export default async function WritingPage({ params }: Props) {
   });
 
   return (
-    <main id="main-content" className="min-h-screen" style={{ backgroundColor: '#1c1814', color: '#f8f4ef' }}>
+    <main id="main-content" className="min-h-screen" style={{ backgroundColor: '#0D0D0D', color: '#f8f4ef' }}>
       <JsonLd data={jsonLd} />
       <ArticleMediaProvider
         entries={collectArticleMedia(piece.body)}
