@@ -425,13 +425,14 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
 }
 .hero-name {
   font-family: var(--font-serif);
-  font-size: clamp(3rem, 14vw, 16rem);
+  font-size: clamp(2rem, 12vw, 14rem);
   font-weight: 700;
   font-style: normal;
   color: #ffffff;
   letter-spacing: -0.02em;
   line-height: 0.88;
   text-transform: uppercase;
+  white-space: nowrap;
   margin: 0;
 }
 .hero-descriptor {

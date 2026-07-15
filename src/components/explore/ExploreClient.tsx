@@ -61,7 +61,7 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
           Library
         </p>
         <p aria-hidden="true" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', letterSpacing: '0.12em', color: 'rgba(28,24,20,0.35)', marginBottom: '2rem' }}>
-          {items.length}
+          {items.length} {items.length === 1 ? 'Piece' : 'Pieces'}
         </p>
 
         {/* Filter pills */}
