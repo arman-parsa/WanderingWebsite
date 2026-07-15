@@ -425,7 +425,12 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
 }
 .hero-name {
   font-family: var(--font-serif);
-  font-size: clamp(2rem, 12vw, 14rem);
+  /* Size the glyphs so the rendered ink exactly fills the content width
+     (viewport minus the shared horizontal padding). The divisor is the
+     measured ink aspect ratio of "ARMAN PARSA" at this weight/tracking, so
+     the left edge aligns with the descriptors above and the right gutter
+     always equals the left — symmetric at every width, no cap to break it. */
+  font-size: max(2rem, calc((100vw - 2 * clamp(1.5rem, 4vw, 3.75rem)) / 6.576));
   font-weight: 700;
   font-style: normal;
   color: #ffffff;
@@ -437,12 +442,12 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
 }
 .hero-descriptor {
   font-family: var(--font-serif);
-  font-size: clamp(0.8rem, 1.1vw, 0.95rem);
+  font-size: clamp(0.95rem, 1.25vw, 1.2rem);
   font-style: normal;
   font-weight: 300;
   color: rgba(248, 244, 239, 0.85);
   letter-spacing: 0.01em;
-  line-height: 1.5;
+  line-height: 1.55;
   margin: 0;
 }
 
