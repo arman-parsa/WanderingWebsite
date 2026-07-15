@@ -149,12 +149,21 @@ export function HomepageClient({
           ))}
           {/* Overlay */}
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(28,24,20,0.48)', zIndex: 1 }} />
-          {/* Tagline — h1 is visually styled as a tagline but semantically the page title */}
-          <div style={{
-            position: 'absolute', inset: 0, zIndex: 2,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <h1 className="hero-tagline">Stories collected around the world.</h1>
+          {/* Bottom text block */}
+          <div
+            style={{
+              position: 'absolute', inset: 0, zIndex: 2,
+              display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+              padding: `0 ${px} clamp(1.25rem, 3vw, 2.5rem)`,
+            }}
+          >
+            <div style={{ marginBottom: 'clamp(0.4rem, 1vw, 0.75rem)' }}>
+              <p className="hero-descriptor">Stories collected around the world.</p>
+              <p className="hero-descriptor">A Portfolio of Travel and Nature writing, photography and videography.</p>
+            </div>
+            <Link href="/about" className="hero-name-link">
+              <h1 className="hero-name">ARMAN PARSA</h1>
+            </Link>
           </div>
         </section>
 
@@ -165,6 +174,7 @@ export function HomepageClient({
             aria-label="Recent work"
             style={{ paddingLeft: px, paddingRight: px, paddingTop: '4rem' }}
           >
+            <p className="home-section-label" aria-hidden="true">Explore</p>
             {items.map(item => {
               const href     = `${TYPE_HREF[item._type] ?? '/library'}/${item.slug}`;
               const isHov    = hovered?.slug === item.slug;

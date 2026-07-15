@@ -419,16 +419,30 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
   overflow: hidden;
 }
 
-.hero-tagline {
+.hero-name-link {
+  text-decoration: none;
+  display: block;
+}
+.hero-name {
   font-family: var(--font-serif);
-  font-size: clamp(1.15rem, 2.2vw, 1.65rem);
-  font-style: italic;
+  font-size: clamp(3rem, 14vw, 16rem);
+  font-weight: 700;
+  font-style: normal;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  line-height: 0.88;
+  text-transform: uppercase;
+  margin: 0;
+}
+.hero-descriptor {
+  font-family: var(--font-serif);
+  font-size: clamp(0.8rem, 1.1vw, 0.95rem);
+  font-style: normal;
   font-weight: 300;
-  color: rgba(248, 244, 239, 0.88);
-  letter-spacing: 0.02em;
+  color: rgba(248, 244, 239, 0.85);
+  letter-spacing: 0.01em;
   line-height: 1.5;
-  text-align: center;
-  padding: 0 clamp(1.5rem, 4vw, 3rem);
+  margin: 0;
 }
 
 /* ── Nav 3-column grid ───────────────────────────────────────── */
@@ -568,6 +582,14 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
   font-size: clamp(60px, 5.6vw, 80px);
   letter-spacing: -0.03em;
   line-height: 1.04;
+}
+.home-section-label {
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(28, 24, 20, 0.4);
+  margin: 0 0 2.5rem;
 }
 .home-article-item {
   display: block;

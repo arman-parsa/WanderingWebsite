@@ -57,8 +57,11 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
     <div style={{ backgroundColor: '#f8f4ef', color: '#1c1814', minHeight: '100vh', paddingTop: '6rem' }}>
       {/* Header */}
       <div style={{ textAlign: 'center', paddingBottom: '2.5rem' }}>
-        <p aria-hidden="true" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(28,24,20,0.6)', marginBottom: '2rem' }}>
+        <p aria-hidden="true" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(28,24,20,0.6)', marginBottom: '0.5rem' }}>
           Library
+        </p>
+        <p aria-hidden="true" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', letterSpacing: '0.12em', color: 'rgba(28,24,20,0.35)', marginBottom: '2rem' }}>
+          {items.length}
         </p>
 
         {/* Filter pills */}

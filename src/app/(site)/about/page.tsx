@@ -26,12 +26,7 @@ export default function AboutPage() {
           Iranian journalist and photographer/videographer.
         </p>
         <p className="mt-6 font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
-          This project catalogues a portfolio of visual and written media that I&apos;ve
-          collected around the world. Through my work, I want to open an unhurried,
-          grounded and intimate window into the places I&apos;ve been, and do justice to
-          the impact each of these places has had on myself. I hope that, however little,
-          my work serves to inspire a sense of wonder about the earth and its people, and
-          kindle the drive to explore.
+          Arman&apos;s work opens an unhurried, grounded and intimate window onto the places he travels — and tries to do justice to what those places have made of him. Across writing, photography and film, he is drawn to culture, spirit and our place in the natural world. His work aims to kindle wonder about the earth and its people, and to inspire the drive to go and see the world for oneself.
         </p>
       </div>
     </main>
