@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { HeroNameSVG } from '@/components/home/HeroNameSVG';
 
 const TYPE_HREF: Record<string, string> = {
   writing:     '/writing',
@@ -162,7 +163,8 @@ export function HomepageClient({
               <p className="hero-descriptor">A Portfolio of Travel and Nature writing, photography and videography.</p>
             </div>
             <Link href="/about" className="hero-name-link">
-              <h1 className="hero-name">ARMAN PARSA</h1>
+              <h1 className="sr-only">Arman Parsa</h1>
+              <HeroNameSVG className="hero-name-svg" />
             </Link>
           </div>
         </section>

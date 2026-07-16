@@ -422,23 +422,17 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
 .hero-name-link {
   text-decoration: none;
   display: block;
-}
-.hero-name {
-  font-family: var(--font-serif);
-  /* Size the glyphs so the rendered ink exactly fills the content width
-     (viewport minus the shared horizontal padding). The divisor is the
-     measured ink aspect ratio of "ARMAN PARSA" at this weight/tracking, so
-     the left edge aligns with the descriptors above and the right gutter
-     always equals the left — symmetric at every width, no cap to break it. */
-  font-size: max(2rem, calc((100vw - 2 * clamp(1.5rem, 4vw, 3.75rem)) / 6.576));
-  font-weight: 700;
-  font-style: normal;
   color: #ffffff;
-  letter-spacing: -0.02em;
-  line-height: 0.88;
-  text-transform: uppercase;
-  white-space: nowrap;
-  margin: 0;
+}
+/* The name is a baked vector outline (see HeroNameSVG.tsx): the SVG spans the
+   container's content box and the viewBox scales the glyphs to fill it exactly,
+   so the ink edges align with the padding on BOTH sides at every viewport width,
+   in every browser. No font metrics, no font loading, nothing to drift. */
+.hero-name-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 6620 / 736; /* mirrors the viewBox — guards height:auto everywhere */
 }
 .hero-descriptor {
   font-family: var(--font-serif);
@@ -449,6 +443,38 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
   letter-spacing: 0.01em;
   line-height: 1.55;
   margin: 0;
+}
+
+/* ── About page — portrait + text, side by side ──────────────── */
+.about-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(3rem, 8vw, 7.5rem);
+  width: 100%;
+  max-width: 76rem;
+  margin-inline: auto;
+  padding-inline: var(--content-padding-x, clamp(1.5rem, 4vw, 3.75rem));
+}
+.about-portrait {
+  position: relative;
+  flex: 0 0 auto;
+  width: clamp(240px, 26vw, 330px);
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+}
+.about-text {
+  max-width: 40rem;
+  text-align: center;
+}
+@media (max-width: 767px) {
+  .about-layout {
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+  .about-portrait {
+    width: min(78vw, 330px);
+  }
 }
 
 /* ── Nav 3-column grid ───────────────────────────────────────── */

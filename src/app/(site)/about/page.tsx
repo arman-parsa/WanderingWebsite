@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { SITE_URL, OG_IMAGE } from '@/lib/metadata';
 
 export const metadata: Metadata = {
@@ -19,15 +20,28 @@ export default function AboutPage() {
       id="main-content"
       className="flex flex-1 flex-col justify-center py-24"
     >
-      <div className="mx-auto w-full max-w-[var(--content-max-width)] px-[var(--content-padding-x)] text-center">
-        <h1 className="sr-only">About Arman Parsa</h1>
-        <p className="font-serif font-bold text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
-          Amir Arman Ghanbari Parsa is a London-born, 23 year-old, Oxford-educated
-          Iranian journalist and photographer/videographer.
-        </p>
-        <p className="mt-6 font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
-          Arman&apos;s work opens an unhurried, grounded and intimate window onto the places he travels — and tries to do justice to what those places have made of him. Across writing, photography and film, he is drawn to culture, spirit and our place in the natural world. His work aims to kindle wonder about the earth and its people, and to inspire the drive to go and see the world for oneself.
-        </p>
+      <h1 className="sr-only">About Arman Parsa</h1>
+      <div className="about-layout">
+        <div className="about-portrait">
+          <Image
+            src="/images/about-portrait.jpg"
+            alt="Arman Parsa hiking in the Dolomites, carrying a camera pack and tripod"
+            fill
+            priority
+            sizes="(max-width: 767px) 78vw, 26vw"
+            className="object-cover"
+            style={{ objectPosition: '45% center' }}
+          />
+        </div>
+        <div className="about-text">
+          <p className="font-serif font-bold text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
+            Amir Arman Ghanbari Parsa is a London-born, 23 year-old, Oxford-educated
+            Iranian journalist and photographer/videographer.
+          </p>
+          <p className="mt-6 font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
+            Arman&apos;s work opens an unhurried, grounded and intimate window onto the places he travels — and tries to do justice to what those places have made of him. Across writing, photography and film, he is drawn to culture, spirit and our place in the natural world. His work aims to kindle wonder about the earth and its people, and to inspire the drive to go and see the world for oneself.
+          </p>
+        </div>
       </div>
     </main>
   );
