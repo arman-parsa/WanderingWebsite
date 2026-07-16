@@ -151,10 +151,19 @@ export const ALL_CONTENT_QUERY = defineQuery(`
 `);
 
 // ─── Gallery (a visual mix of photos drawn from all pieces) ───────────────
-// Mirrors collectArticleMedia(): a piece's photographs live in its images[]
-// end-gallery plus the imageBlock / imagePair blocks of its portable-text
-// body. The cover is fetched only as a fallback for pieces with no inner
-// photos (e.g. videography).
+// The photographs shown IN each piece — NOT the cover. Every type stores
+// them as imageBlock / imagePair objects, but in different fields:
+//
+//   • photography → images[]            (imageBlock only)
+//   • mixedMedia  → body[] + images[]   (imageBlock + imagePair)
+//   • writing     → body[]              (imageBlock + imagePair)
+//   • videography → (no still photos)
+//
+// An imageBlock keeps its picture at `.asset`; an imagePair keeps two or
+// three pictures at `.images[]`. We unwrap both into a uniform { img, alt }
+// so the page can flatten them without knowing the container. Missing
+// fields (e.g. photography has no `body`) simply project to null and are
+// skipped downstream.
 
 export const GALLERY_CONTENT_QUERY = defineQuery(`
   *[_type in ["writing", "mixedMedia", "photography", "videography"] && !(_id in path("drafts.**"))] | order(publishedAt desc) {
@@ -162,10 +171,10 @@ export const GALLERY_CONTENT_QUERY = defineQuery(`
     title,
     "slug": slug.current,
     location,
-    coverImage { ..., "alt": coalesce(alt, ""), hotspot },
-    "galleryImages": images[] { ..., "alt": coalesce(alt, ""), hotspot },
-    "bodyImages": body[_type == "imageBlock"] { "image": asset, "alt": coalesce(alt, "") },
-    "pairImages": body[_type == "imagePair"].images[] { ..., "alt": coalesce(alt, "") }
+    "bodyBlocks":    body[_type == "imageBlock"]   { "img": asset, "alt": coalesce(alt, "") },
+    "bodyPairs":     body[_type == "imagePair"]     { "imgs": images[] { "img": @, "alt": coalesce(alt, "") } },
+    "galleryBlocks": images[_type == "imageBlock"]  { "img": asset, "alt": coalesce(alt, "") },
+    "galleryPairs":  images[_type == "imagePair"]   { "imgs": images[] { "img": @, "alt": coalesce(alt, "") } }
   }
 `);
 
