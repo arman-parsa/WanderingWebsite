@@ -202,11 +202,18 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
     <>
       {/* ── Floating collage ── */}
       <div className="g-stage" aria-label="Photo collage">
-        {/* Every photo gets a slot; if photos are fewer than the base
-            composition, they repeat so the wall always reads full. */}
-        {Array.from({ length: Math.max(items.length, SLOTS.length) }, (_, i) => {
+        {/* Every photo gets a slot, each photo shown once. With more photos
+            than base slots, extra slots are derived; with slightly fewer,
+            the prints spread across the composition so gaps distribute
+            evenly. Only a genuinely sparse set (< 16) repeats photos to
+            keep the wall from looking empty. */}
+        {Array.from(
+          { length: items.length >= 16 ? items.length : SLOTS.length },
+          (_, i) => {
           const item = items[i % items.length];
-          const s = slotFor(i);
+          const s = items.length >= SLOTS.length || items.length < 16
+            ? slotFor(i)
+            : SLOTS[Math.floor((i * SLOTS.length) / items.length)];
           const isSource = lightbox?.index === i;
           return (
             <button

@@ -35,8 +35,24 @@ type GalleryPiece = {
   slug: string;
   location?: string;
   coverImage?: SanityImage;
-  extraImages?: SanityImage[];
+  galleryImages?: SanityImage[];
+  bodyImages?: { image?: SanityImage; alt?: string }[];
+  pairImages?: SanityImage[];
 };
+
+/**
+ * The photographs shown IN a piece, in narrative order — mirrors
+ * collectArticleMedia(): body imageBlocks carry their image in the block's
+ * `asset` field, imagePairs contribute both members, and the images[]
+ * end-gallery rounds it out.
+ */
+function innerImages(p: GalleryPiece): SanityImage[] {
+  return [
+    ...(p.bodyImages ?? []).flatMap(b => (b.image ? [{ ...b.image, alt: b.alt }] : [])),
+    ...(p.pairImages ?? []),
+    ...(p.galleryImages ?? []),
+  ];
+}
 
 function imageUrl(img: SanityImage): string | null {
   try {
@@ -47,10 +63,10 @@ function imageUrl(img: SanityImage): string | null {
 }
 
 /**
- * Flatten pieces into gallery entries: every cover first (newest pieces up
- * front), then ALL inner series images round-robin so no single piece
- * dominates the collage. Dedupes repeated assets (covers are often also
- * images[0]) — the client re-cycles photos if the wall has spare slots.
+ * Flatten pieces into gallery entries: the photographs shown IN each piece,
+ * interleaved round-robin across pieces so no single piece dominates the
+ * collage. A piece's cover is used only when it has no inner photos at all
+ * (e.g. videography). Every asset appears at most once.
  */
 function buildItems(pieces: GalleryPiece[]): GalleryItem[] {
   const items: GalleryItem[] = [];
@@ -71,10 +87,13 @@ function buildItems(pieces: GalleryPiece[]): GalleryItem[] {
     });
   };
 
-  pieces.forEach(p => push(p, p.coverImage));
-  const maxExtra = Math.max(0, ...pieces.map(p => p.extraImages?.length ?? 0));
-  for (let round = 0; round < maxExtra && items.length < MAX_ITEMS; round++) {
-    pieces.forEach(p => push(p, p.extraImages?.[round]));
+  const pools = pieces.map(piece => {
+    const inner = innerImages(piece);
+    return { piece, imgs: inner.length ? inner : piece.coverImage ? [piece.coverImage] : [] };
+  });
+  const deepest = Math.max(0, ...pools.map(pool => pool.imgs.length));
+  for (let round = 0; round < deepest && items.length < MAX_ITEMS; round++) {
+    pools.forEach(({ piece, imgs }) => push(piece, imgs[round]));
   }
   return items;
 }

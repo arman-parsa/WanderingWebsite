@@ -151,6 +151,10 @@ export const ALL_CONTENT_QUERY = defineQuery(`
 `);
 
 // ─── Gallery (a visual mix of photos drawn from all pieces) ───────────────
+// Mirrors collectArticleMedia(): a piece's photographs live in its images[]
+// end-gallery plus the imageBlock / imagePair blocks of its portable-text
+// body. The cover is fetched only as a fallback for pieces with no inner
+// photos (e.g. videography).
 
 export const GALLERY_CONTENT_QUERY = defineQuery(`
   *[_type in ["writing", "mixedMedia", "photography", "videography"] && !(_id in path("drafts.**"))] | order(publishedAt desc) {
@@ -159,9 +163,9 @@ export const GALLERY_CONTENT_QUERY = defineQuery(`
     "slug": slug.current,
     location,
     coverImage { ..., "alt": coalesce(alt, ""), hotspot },
-    _type in ["photography", "mixedMedia"] => {
-      "extraImages": images[] { ..., "alt": coalesce(alt, ""), hotspot }
-    }
+    "galleryImages": images[] { ..., "alt": coalesce(alt, ""), hotspot },
+    "bodyImages": body[_type == "imageBlock"] { "image": asset, "alt": coalesce(alt, "") },
+    "pairImages": body[_type == "imagePair"].images[] { ..., "alt": coalesce(alt, "") }
   }
 `);
 
