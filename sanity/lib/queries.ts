@@ -160,7 +160,7 @@ export const GALLERY_CONTENT_QUERY = defineQuery(`
     location,
     coverImage { ..., "alt": coalesce(alt, ""), hotspot },
     _type in ["photography", "mixedMedia"] => {
-      "extraImages": images[0...3] { ..., "alt": coalesce(alt, ""), hotspot }
+      "extraImages": images[] { ..., "alt": coalesce(alt, ""), hotspot }
     }
   }
 `);

@@ -28,7 +28,7 @@ export type GalleryItem = {
 type Slot = {
   l: number;        // left, % of stage
   t: number;        // top, % of stage
-  w: string;        // CSS width
+  w: number;        // width, vw (clamped in render)
   ar: string;       // aspect-ratio
   z: number;
   drift: 1 | 2 | 3;
@@ -37,21 +37,60 @@ type Slot = {
 };
 
 const SLOTS: Slot[] = [
-  { l: 4,    t: 13, w: 'clamp(150px, 16vw, 300px)',   ar: '3 / 4', z: 3, drift: 1, dur: 13,   delay: -2 },
-  { l: 27,   t: 8,  w: 'clamp(110px, 11.5vw, 210px)', ar: '4 / 5', z: 2, drift: 2, dur: 16,   delay: -7 },
-  { l: 36.5, t: 15, w: 'clamp(210px, 23vw, 430px)',   ar: '3 / 2', z: 4, drift: 3, dur: 18,   delay: -4 },
-  { l: 69.5, t: 9,  w: 'clamp(120px, 13vw, 240px)',   ar: '3 / 4', z: 3, drift: 2, dur: 14,   delay: -10 },
-  { l: 87.5, t: 24, w: 'clamp(90px, 9.5vw, 180px)',   ar: '4 / 5', z: 2, drift: 1, dur: 15.5, delay: -1 },
-  { l: 7.5,  t: 56, w: 'clamp(120px, 12.5vw, 230px)', ar: '4 / 5', z: 2, drift: 3, dur: 13.5, delay: -8 },
-  { l: 22.5, t: 64, w: 'clamp(150px, 16.5vw, 310px)', ar: '3 / 2', z: 3, drift: 2, dur: 17,   delay: -3 },
-  { l: 55,   t: 58, w: 'clamp(110px, 11.5vw, 215px)', ar: '3 / 4', z: 4, drift: 1, dur: 14.5, delay: -11 },
-  { l: 64.5, t: 50, w: 'clamp(170px, 18.5vw, 350px)', ar: '4 / 3', z: 3, drift: 3, dur: 16.5, delay: -6 },
-  { l: 86,   t: 60, w: 'clamp(100px, 10.5vw, 195px)', ar: '3 / 4', z: 2, drift: 2, dur: 13,   delay: -9 },
-  { l: 17.5, t: 33, w: 'clamp(85px, 9vw, 170px)',     ar: '1 / 1', z: 5, drift: 1, dur: 19,   delay: -5 },
-  { l: 59.5, t: 31, w: 'clamp(90px, 9.5vw, 180px)',   ar: '4 / 5', z: 5, drift: 2, dur: 20,   delay: -12 },
-  { l: 78.5, t: 38, w: 'clamp(105px, 11vw, 205px)',   ar: '3 / 2', z: 4, drift: 3, dur: 15,   delay: -2.5 },
-  { l: 3,    t: 79, w: 'clamp(105px, 11vw, 205px)',   ar: '3 / 2', z: 2, drift: 1, dur: 16,   delay: -7.5 },
+  { l: 4,    t: 13, w: 16,   ar: '3 / 4', z: 3, drift: 1, dur: 13,   delay: -2 },
+  { l: 27,   t: 8,  w: 11.5, ar: '4 / 5', z: 2, drift: 2, dur: 16,   delay: -7 },
+  { l: 36.5, t: 15, w: 23,   ar: '3 / 2', z: 4, drift: 3, dur: 18,   delay: -4 },
+  { l: 69.5, t: 9,  w: 13,   ar: '3 / 4', z: 3, drift: 2, dur: 14,   delay: -10 },
+  { l: 87.5, t: 24, w: 9.5,  ar: '4 / 5', z: 2, drift: 1, dur: 15.5, delay: -1 },
+  { l: 7.5,  t: 56, w: 12.5, ar: '4 / 5', z: 2, drift: 3, dur: 13.5, delay: -8 },
+  { l: 22.5, t: 64, w: 16.5, ar: '3 / 2', z: 3, drift: 2, dur: 17,   delay: -3 },
+  { l: 55,   t: 58, w: 11.5, ar: '3 / 4', z: 4, drift: 1, dur: 14.5, delay: -11 },
+  { l: 64.5, t: 50, w: 18.5, ar: '4 / 3', z: 3, drift: 3, dur: 16.5, delay: -6 },
+  { l: 86,   t: 60, w: 10.5, ar: '3 / 4', z: 2, drift: 2, dur: 13,   delay: -9 },
+  { l: 17.5, t: 33, w: 9,    ar: '1 / 1', z: 5, drift: 1, dur: 19,   delay: -5 },
+  { l: 59.5, t: 31, w: 9.5,  ar: '4 / 5', z: 5, drift: 2, dur: 20,   delay: -12 },
+  { l: 78.5, t: 38, w: 11,   ar: '3 / 2', z: 4, drift: 3, dur: 15,   delay: -2.5 },
+  { l: 3,    t: 79, w: 11,   ar: '3 / 2', z: 2, drift: 1, dur: 16,   delay: -7.5 },
+  { l: 14,   t: 3,  w: 8.5,  ar: '3 / 2', z: 1, drift: 3, dur: 17.5, delay: -6.5 },
+  { l: 52,   t: 5,  w: 9,    ar: '4 / 5', z: 2, drift: 1, dur: 18.5, delay: -3.5 },
+  { l: 62,   t: 18, w: 10,   ar: '1 / 1', z: 2, drift: 2, dur: 15.5, delay: -8.5 },
+  { l: 80,   t: 7,  w: 8,    ar: '4 / 5', z: 1, drift: 3, dur: 16.5, delay: -0.5 },
+  { l: 91.5, t: 10, w: 7,    ar: '3 / 4', z: 3, drift: 1, dur: 14,   delay: -5.5 },
+  { l: 1.5,  t: 36, w: 8,    ar: '4 / 3', z: 1, drift: 2, dur: 17,   delay: -9.5 },
+  { l: 10,   t: 42, w: 10.5, ar: '3 / 2', z: 4, drift: 3, dur: 14.5, delay: -1.5 },
+  { l: 30,   t: 38, w: 12,   ar: '4 / 3', z: 2, drift: 1, dur: 16,   delay: -10.5 },
+  { l: 47,   t: 34, w: 8.5,  ar: '3 / 4', z: 3, drift: 2, dur: 19.5, delay: -4.5 },
+  { l: 72,   t: 30, w: 8,    ar: '3 / 4', z: 6, drift: 1, dur: 21,   delay: -2 },
+  { l: 40,   t: 54, w: 10,   ar: '4 / 5', z: 2, drift: 3, dur: 15,   delay: -7 },
+  { l: 33,   t: 76, w: 9.5,  ar: '1 / 1', z: 4, drift: 1, dur: 13.5, delay: -12.5 },
+  { l: 49,   t: 78, w: 12,   ar: '3 / 2', z: 3, drift: 2, dur: 18,   delay: -5 },
+  { l: 70,   t: 72, w: 13,   ar: '4 / 3', z: 2, drift: 3, dur: 16,   delay: -8 },
 ];
+
+/** Wrap a percentage into [min, max] so derived slots stay on stage. */
+function wrap(v: number, min: number, max: number): number {
+  const span = max - min;
+  return min + ((((v - min) % span) + span) % span);
+}
+
+/**
+ * Slot for index i. The first 28 are hand-placed; beyond them, geometry is
+ * derived by shifting and shrinking the base composition so any number of
+ * photos finds a home without the scatter collapsing into a grid.
+ */
+function slotFor(i: number): Slot {
+  const base = SLOTS[i % SLOTS.length];
+  const sheet = Math.floor(i / SLOTS.length);
+  if (sheet === 0) return base;
+  return {
+    ...base,
+    l: wrap(base.l + 7.5 * sheet, 1, 86),
+    t: wrap(base.t + 11 * sheet, 3, 80),
+    w: Math.max(6.5, base.w * Math.pow(0.88, sheet)),
+    z: base.z === 6 ? 1 : base.z + 1,
+    delay: base.delay - 1.7 * sheet,
+  };
+}
 
 type Rect = { left: number; top: number; width: number; height: number };
 
@@ -157,25 +196,30 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
   const shown = phase === 'active';
   const figureRect = lightbox ? (shown ? lightbox.target : lightbox.from) : null;
 
+  if (items.length === 0) return null;
+
   return (
     <>
       {/* ── Floating collage ── */}
       <div className="g-stage" aria-label="Photo collage">
-        {items.slice(0, SLOTS.length).map((item, i) => {
-          const s = SLOTS[i];
+        {/* Every photo gets a slot; if photos are fewer than the base
+            composition, they repeat so the wall always reads full. */}
+        {Array.from({ length: Math.max(items.length, SLOTS.length) }, (_, i) => {
+          const item = items[i % items.length];
+          const s = slotFor(i);
           const isSource = lightbox?.index === i;
           return (
             <button
-              key={item.key}
+              key={`${item.key}-slot${i}`}
               type="button"
               className={`g-item${isSource ? ' g-item--hidden' : ''}`}
               style={{
                 left: `${s.l}%`,
                 top: `${s.t}%`,
-                width: s.w,
+                width: `clamp(${Math.round(s.w * 9.5)}px, ${s.w}vw, ${Math.round(s.w * 19)}px)`,
                 aspectRatio: s.ar,
                 ['--g-z' as string]: s.z,
-                ['--g-enter-delay' as string]: `${150 + i * 90}ms`,
+                ['--g-enter-delay' as string]: `${120 + Math.min(i * 70, 2400)}ms`,
                 ['--g-drift-dur' as string]: `${s.dur}s`,
                 ['--g-drift-delay' as string]: `${s.delay}s`,
               } as React.CSSProperties}

@@ -25,7 +25,8 @@ const TYPE_HREF: Record<string, string> = {
   videography: '/videography',
 };
 
-const MAX_ITEMS = 14;
+// Safety ceiling only — the gallery shows every photo it can get.
+const MAX_ITEMS = 60;
 
 type SanityImage = { asset?: { _ref?: string }; alt?: string };
 type GalleryPiece = {
@@ -39,7 +40,7 @@ type GalleryPiece = {
 
 function imageUrl(img: SanityImage): string | null {
   try {
-    return urlFor(img).width(1400).fit('max').format('webp').quality(78).url();
+    return urlFor(img).width(1200).fit('max').format('webp').quality(75).url();
   } catch {
     return null;
   }
@@ -47,8 +48,9 @@ function imageUrl(img: SanityImage): string | null {
 
 /**
  * Flatten pieces into gallery entries: every cover first (newest pieces up
- * front), then inner series images round-robin so no single piece dominates
- * the collage. Dedupes repeated assets (covers are often also images[0]).
+ * front), then ALL inner series images round-robin so no single piece
+ * dominates the collage. Dedupes repeated assets (covers are often also
+ * images[0]) — the client re-cycles photos if the wall has spare slots.
  */
 function buildItems(pieces: GalleryPiece[]): GalleryItem[] {
   const items: GalleryItem[] = [];
@@ -70,7 +72,8 @@ function buildItems(pieces: GalleryPiece[]): GalleryItem[] {
   };
 
   pieces.forEach(p => push(p, p.coverImage));
-  for (let round = 0; round < 3 && items.length < MAX_ITEMS; round++) {
+  const maxExtra = Math.max(0, ...pieces.map(p => p.extraImages?.length ?? 0));
+  for (let round = 0; round < maxExtra && items.length < MAX_ITEMS; round++) {
     pieces.forEach(p => push(p, p.extraImages?.[round]));
   }
   return items;

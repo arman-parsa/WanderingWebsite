@@ -702,15 +702,17 @@ body.gallery-open footer { display: none; }
 
 /* Gallery on small screens: fewer, larger prints */
 @media (max-width: 639px) {
-  .g-item:nth-child(n + 9) { display: none; }
-  .g-item:nth-child(1) { left: 6% !important;  top: 10% !important; width: 40vw !important; }
-  .g-item:nth-child(2) { left: 58% !important; top: 6% !important;  width: 34vw !important; }
-  .g-item:nth-child(3) { left: 14% !important; top: 30% !important; width: 55vw !important; }
-  .g-item:nth-child(4) { left: 64% !important; top: 24% !important; width: 30vw !important; }
-  .g-item:nth-child(5) { left: 8% !important;  top: 52% !important; width: 34vw !important; }
-  .g-item:nth-child(6) { left: 54% !important; top: 46% !important; width: 38vw !important; }
-  .g-item:nth-child(7) { left: 12% !important; top: 72% !important; width: 40vw !important; }
-  .g-item:nth-child(8) { left: 60% !important; top: 68% !important; width: 32vw !important; }
+  .g-item:nth-child(n + 11) { display: none; }
+  .g-item:nth-child(1)  { left: 6% !important;  top: 10% !important; width: 40vw !important; }
+  .g-item:nth-child(2)  { left: 58% !important; top: 6% !important;  width: 34vw !important; }
+  .g-item:nth-child(3)  { left: 14% !important; top: 30% !important; width: 55vw !important; }
+  .g-item:nth-child(4)  { left: 64% !important; top: 24% !important; width: 30vw !important; }
+  .g-item:nth-child(5)  { left: 8% !important;  top: 52% !important; width: 34vw !important; }
+  .g-item:nth-child(6)  { left: 54% !important; top: 46% !important; width: 38vw !important; }
+  .g-item:nth-child(7)  { left: 12% !important; top: 72% !important; width: 40vw !important; }
+  .g-item:nth-child(8)  { left: 60% !important; top: 68% !important; width: 32vw !important; }
+  .g-item:nth-child(9)  { left: 10% !important; top: 88% !important; width: 26vw !important; }
+  .g-item:nth-child(10) { left: 66% !important; top: 86% !important; width: 24vw !important; }
   .g-close { top: 72px; }
 }
 
