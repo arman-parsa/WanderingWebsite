@@ -150,6 +150,21 @@ export const ALL_CONTENT_QUERY = defineQuery(`
   }
 `);
 
+// ─── Gallery (a visual mix of photos drawn from all pieces) ───────────────
+
+export const GALLERY_CONTENT_QUERY = defineQuery(`
+  *[_type in ["writing", "mixedMedia", "photography", "videography"] && !(_id in path("drafts.**"))] | order(publishedAt desc) {
+    _type,
+    title,
+    "slug": slug.current,
+    location,
+    coverImage { ..., "alt": coalesce(alt, ""), hotspot },
+    _type in ["photography", "mixedMedia"] => {
+      "extraImages": images[0...3] { ..., "alt": coalesce(alt, ""), hotspot }
+    }
+  }
+`);
+
 // ─── Map view (content with coordinates) ──────────────────────────────────
 
 export const MAP_CONTENT_QUERY = defineQuery(`

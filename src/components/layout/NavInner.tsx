@@ -201,6 +201,7 @@ export function NavInner() {
           {menuOpen && !isMobile && (
             <div className="nav-menu-expanded">
               <NavLink href="/library">LIBRARY</NavLink>
+              <NavLink href="/gallery">GALLERY</NavLink>
               <NavLink href="/about">ABOUT</NavLink>
               <NavLink href="/contact">CONTACT</NavLink>
             </div>
@@ -233,6 +234,7 @@ export function NavInner() {
           } as React.CSSProperties}
         >
           <NavLink href="/library">LIBRARY</NavLink>
+          <NavLink href="/gallery">GALLERY</NavLink>
           <NavLink href="/about">ABOUT</NavLink>
           <NavLink href="/contact">CONTACT</NavLink>
         </div>

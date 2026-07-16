@@ -160,7 +160,7 @@ export function HomepageClient({
           >
             <div style={{ marginBottom: 'clamp(0.4rem, 1vw, 0.75rem)' }}>
               <p className="hero-descriptor">Stories collected around the world.</p>
-              <p className="hero-descriptor">A Portfolio of Travel and Nature writing, photography and videography.</p>
+              <p className="hero-descriptor">A portfolio of writing, photography and videography on nature, culture and spirit.</p>
             </div>
             <Link href="/about" className="hero-name-link">
               <h1 className="sr-only">Arman Parsa</h1>

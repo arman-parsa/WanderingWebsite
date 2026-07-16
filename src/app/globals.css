@@ -477,6 +477,255 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
   }
 }
 
+/* ── Gallery — floating collage ──────────────────────────────── */
+.gallery-stage {
+  position: relative;
+  height: 100svh;
+  overflow: clip;
+  background: var(--color-paper);
+}
+/* Fixed-viewport scene: no page scroll, no footer below the fold. */
+body.gallery-open { overflow: hidden; }
+body.gallery-open footer { display: none; }
+
+.g-stage {
+  position: absolute;
+  inset: 0;
+}
+
+.g-item {
+  position: absolute;
+  z-index: var(--g-z, 1);
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  opacity: 0;
+  animation: g-enter 1100ms var(--ease-out) var(--g-enter-delay, 0ms) both;
+}
+.g-item:hover,
+.g-item:focus-visible { z-index: 30; }
+.g-item:focus-visible {
+  outline: 1px solid var(--color-ink-muted);
+  outline-offset: 6px;
+}
+
+.g-drift {
+  display: block;
+  width: 100%;
+  height: 100%;
+  animation-duration: var(--g-drift-dur, 15s);
+  animation-delay: var(--g-drift-delay, 0s);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+.g-drift--1 { animation-name: g-drift-1; }
+.g-drift--2 { animation-name: g-drift-2; }
+.g-drift--3 { animation-name: g-drift-3; }
+/* Hovering "catches" the print mid-float. */
+.g-item:hover .g-drift { animation-play-state: paused; }
+
+.g-item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 2px;
+  box-shadow: 0 16px 38px -16px rgba(28, 24, 20, 0.35);
+  transition: transform 450ms var(--ease-out), box-shadow 450ms var(--ease-out);
+}
+.g-item:hover img,
+.g-item:focus-visible img {
+  transform: scale(1.045);
+  box-shadow: 0 26px 54px -20px rgba(28, 24, 20, 0.45);
+}
+
+/* Clicked thumbnail hides while its enlarged clone is on stage; pausing the
+   drift keeps its rect stable for the return animation. */
+.g-item--hidden { visibility: hidden; pointer-events: none; }
+.g-item--hidden .g-drift { animation-play-state: paused; }
+
+@keyframes g-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 30px, 0) scale(0.94);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+@keyframes g-drift-1 {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  33%      { transform: translate3d(13px, -10px, 0) rotate(0.4deg); }
+  66%      { transform: translate3d(-9px, 8px, 0) rotate(-0.35deg); }
+}
+@keyframes g-drift-2 {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  25%      { transform: translate3d(-11px, 8px, 0) rotate(-0.3deg); }
+  60%      { transform: translate3d(9px, -13px, 0) rotate(0.4deg); }
+}
+@keyframes g-drift-3 {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  40%      { transform: translate3d(10px, 11px, 0) rotate(0.3deg); }
+  75%      { transform: translate3d(-12px, -7px, 0) rotate(-0.4deg); }
+}
+
+/* Frosted hint, bottom centre */
+.g-hint {
+  position: fixed;
+  left: 50%;
+  bottom: max(22px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 32;
+  margin: 0;
+  padding: 11px 22px;
+  border-radius: 999px;
+  border: 0.5px solid rgba(28, 24, 20, 0.12);
+  background: rgba(248, 244, 239, 0.55);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  backdrop-filter: blur(14px) saturate(1.2);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  white-space: nowrap;
+  opacity: 0;
+  animation: g-hint-in 900ms var(--ease-out) 1500ms both;
+}
+@keyframes g-hint-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(14px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ── Gallery — enlarged view ── */
+.g-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 40; /* below the fixed nav (z-50), above the collage */
+}
+.g-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(248, 244, 239, 0.78);
+  -webkit-backdrop-filter: blur(10px) saturate(1.05);
+  backdrop-filter: blur(10px) saturate(1.05);
+  opacity: 0;
+  transition: opacity 500ms var(--ease-out);
+}
+.g-lightbox--shown .g-backdrop { opacity: 1; }
+
+.g-figure {
+  position: absolute;
+  margin: 0;
+  transition:
+    left 620ms cubic-bezier(0.22, 0.61, 0.21, 1),
+    top 620ms cubic-bezier(0.22, 0.61, 0.21, 1),
+    width 620ms cubic-bezier(0.22, 0.61, 0.21, 1),
+    height 620ms cubic-bezier(0.22, 0.61, 0.21, 1);
+  will-change: left, top, width, height;
+}
+.g-figure img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 2px;
+  box-shadow: 0 34px 80px -28px rgba(28, 24, 20, 0.5);
+}
+
+.g-close {
+  position: absolute;
+  top: 78px;
+  right: clamp(1.5rem, 4vw, 3.75rem);
+  z-index: 2;
+  padding: 10px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 17px;
+  line-height: 1;
+  color: var(--color-ink);
+  opacity: 0;
+  transition: opacity 400ms var(--ease-out) 220ms;
+}
+.g-lightbox--shown .g-close { opacity: 0.65; }
+.g-lightbox--shown .g-close:hover { opacity: 1; }
+
+.g-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 0 clamp(1.5rem, 4vw, 3.75rem);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 500ms var(--ease-out) 300ms, transform 500ms var(--ease-out) 300ms;
+}
+.g-lightbox--shown .g-caption {
+  opacity: 1;
+  transform: translateY(0);
+}
+.g-caption-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.15rem, 1.8vw, 1.5rem);
+  color: var(--color-ink);
+  line-height: 1.3;
+}
+.g-caption-loc {
+  margin: 7px 0 0;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+.g-caption-link {
+  display: inline-block;
+  margin-top: 15px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  text-decoration-thickness: 0.5px;
+  transition: color var(--duration-fast, 150ms) ease;
+}
+.g-caption-link:hover { color: var(--color-accent); }
+
+/* Gallery on small screens: fewer, larger prints */
+@media (max-width: 639px) {
+  .g-item:nth-child(n + 9) { display: none; }
+  .g-item:nth-child(1) { left: 6% !important;  top: 10% !important; width: 40vw !important; }
+  .g-item:nth-child(2) { left: 58% !important; top: 6% !important;  width: 34vw !important; }
+  .g-item:nth-child(3) { left: 14% !important; top: 30% !important; width: 55vw !important; }
+  .g-item:nth-child(4) { left: 64% !important; top: 24% !important; width: 30vw !important; }
+  .g-item:nth-child(5) { left: 8% !important;  top: 52% !important; width: 34vw !important; }
+  .g-item:nth-child(6) { left: 54% !important; top: 46% !important; width: 38vw !important; }
+  .g-item:nth-child(7) { left: 12% !important; top: 72% !important; width: 40vw !important; }
+  .g-item:nth-child(8) { left: 60% !important; top: 68% !important; width: 32vw !important; }
+  .g-close { top: 72px; }
+}
+
+/* Reduced motion: no drift, no rise — a quiet fade. */
+@media (prefers-reduced-motion: reduce) {
+  .g-item { animation: g-enter-fade 600ms ease var(--g-enter-delay, 0ms) both; }
+  .g-drift { animation: none; }
+  .g-hint { animation: g-enter-fade 600ms ease 800ms both; }
+  .g-figure { transition: none; }
+  @keyframes g-enter-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+}
+
 /* ── Nav 3-column grid ───────────────────────────────────────── */
 .nav-grid {
   display: grid !important;
