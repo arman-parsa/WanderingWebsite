@@ -106,7 +106,6 @@ const PLACEHOLDER_GALLERY: GalleryItem[] = [
   { key: 'ph-4',  title: 'On Travelling Without a Camera',            location: 'Lisbon, Portugal',    href: '/mixed-media/_placeholder-nocamera', src: '/images/DSC06207.JPG', alt: 'A temple gate with paper lanterns' },
   { key: 'ph-5',  title: 'The Slow Train from Tangier',               location: 'Fès, Morocco',        href: '/writing/_placeholder-train',        src: '/images/DSC06705.JPG', alt: 'A waterfall behind a shrine rope' },
   { key: 'ph-6',  title: 'Field Notes on the Medina',                 location: 'Meknès, Morocco',     href: '/mixed-media/_placeholder-medina',   src: '/images/DSC09132.JPG', alt: 'Hikers descending a foggy ridge' },
-  { key: 'ph-7',  title: 'Light and Distance in the Atlas Mountains', location: 'Marrakech, Morocco',  href: '/writing/_placeholder-atlas',        src: '/images/DSC06969.JPG', alt: 'Mountain scenery' },
   { key: 'ph-8',  title: 'Harbour Town at the End of Season',         location: 'Essaouira, Morocco',  href: '/photography/_placeholder-harbour',  src: '/images/DSC07607.JPG', alt: 'Coastal town scenery' },
   { key: 'ph-9',  title: 'Interiors: Riad Architecture',              location: 'Fès el-Bali, Morocco', href: '/photography/_placeholder-riads',   src: '/images/DSC07876.JPG', alt: 'Architectural detail' },
   { key: 'ph-10', title: 'Field Notes on the Medina',                 location: 'Meknès, Morocco',     href: '/mixed-media/_placeholder-medina',   src: '/images/DSC08034.JPG', alt: 'Street scenery' },
