@@ -69,7 +69,6 @@ export function IntroLoader() {
           strokeLinecap="round"
         />
       </svg>
-      <p className="intro-loader__tagline">Stories collected around the world.</p>
     </div>
   );
 }
