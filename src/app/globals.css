@@ -434,31 +434,10 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
   height: auto;
   aspect-ratio: 6620 / 736; /* mirrors the viewBox — guards height:auto everywhere */
 }
-/* Info band above the hero name: serif lead on the left, small-caps meta on
-   the right, sharing a baseline. The pairing frames the name-as-masthead the
-   way editorial portfolio sites set their standfirsts. */
-.hero-intro-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: clamp(1.5rem, 6vw, 5rem);
-  margin-bottom: clamp(0.9rem, 2vw, 1.6rem);
-}
-/* Lead and meta share one voice — small-caps sans, mirrored left/right. */
-.hero-lead {
-  margin: 0;
-  font-family: var(--font-sans);
-  font-weight: 300;
-  font-size: clamp(0.68rem, 0.85vw, 0.8rem);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  line-height: 1.8;
-  color: rgba(248, 244, 239, 0.72);
-}
+/* Single standfirst line above the hero name, left-aligned to match the
+   name's left edge — one small-caps sans voice, one line, no wrap. */
 .hero-meta {
   margin: 0;
-  max-width: 40ch;
-  text-align: right;
   font-family: var(--font-sans);
   font-weight: 300;
   font-size: clamp(0.68rem, 0.85vw, 0.8rem);
@@ -467,16 +446,12 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
   line-height: 1.8;
   color: rgba(248, 244, 239, 0.72);
 }
+.hero-meta--solo {
+  white-space: nowrap;
+  margin-bottom: clamp(0.9rem, 2vw, 1.6rem);
+}
 @media (max-width: 767px) {
-  .hero-intro-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.65rem;
-  }
-  .hero-meta {
-    text-align: left;
-    max-width: 34ch;
-  }
+  .hero-meta--solo { white-space: normal; }
 }
 
 /* ── About page — portrait + text, side by side ──────────────── */

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 import { SITE_URL, OG_IMAGE } from '@/lib/metadata';
 
 export const metadata: Metadata = {
@@ -40,6 +41,13 @@ export default function AboutPage() {
           </p>
           <p className="mt-6 font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
             Arman&apos;s work opens an unhurried, grounded and intimate window onto the places he travels — and tries to do justice to what those places have made of him. Across writing, photography and film, he is drawn to culture, spirit and our place in the natural world. His work aims to kindle wonder about the earth and its people, and to inspire the drive to go and see the world for oneself.
+          </p>
+          <p className="mt-6 font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
+            For projects and collaborations, please reach out via the{' '}
+            <Link href="/contact" className="underline underline-offset-4 opacity-80 transition-opacity duration-[var(--duration-fast)] hover:opacity-100">
+              contact
+            </Link>{' '}
+            page.
           </p>
         </div>
       </div>

@@ -158,15 +158,9 @@ export function HomepageClient({
               padding: `0 ${px} clamp(1.25rem, 3vw, 2.5rem)`,
             }}
           >
-            {/* Info band above the name: serif lead left, small-caps meta right —
-                the two lines frame the name instead of stacking over it. */}
-            <div className="hero-intro-row">
-              <p className="hero-lead">Stories collected around the world.</p>
-              <p className="hero-meta">
-                A portfolio of writing, photography and videography
-                on nature, culture and spirit.
-              </p>
-            </div>
+            <p className="hero-meta hero-meta--solo">
+              A portfolio of writing, photography and videography on nature, culture and spirit.
+            </p>
             <Link href="/about" className="hero-name-link">
               <h1 className="sr-only">Arman Parsa</h1>
               <HeroNameSVG className="hero-name-svg" />
