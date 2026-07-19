@@ -9,6 +9,7 @@ type ContentItem = {
   _type: 'writing' | 'mixedMedia' | 'photography' | 'videography';
   title: string;
   slug: string;
+  location?: string;
   description?: string;
   coverImage?: { asset?: object; alt?: string; hotspot?: { x: number; y: number } };
 };
@@ -124,6 +125,7 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
                   <div style={{ paddingTop: '1rem' }}>
                     <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(28,24,20,0.45)', marginBottom: '0.5rem' }}>
                       {TYPE_LABEL[item._type]}
+                      {item.location ? ` · ${item.location}` : ''}
                     </p>
                     <h2 className="explore-card-title">
                       {item.title}
