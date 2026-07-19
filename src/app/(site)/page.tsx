@@ -53,12 +53,13 @@ export default async function HomePage() {
       : undefined,
   }));
 
-  // Static hero images from public/images/ — all image files discovered at build time
+  // Static hero images from public/images/ — all image files discovered at
+  // build time, except portraits that belong to other pages (about-*).
   const IMAGE_EXTS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif']);
   const imagesDir = path.join(process.cwd(), 'public', 'images');
   const heroImages = fs.existsSync(imagesDir)
     ? fs.readdirSync(imagesDir)
-        .filter(f => IMAGE_EXTS.has(path.extname(f).toLowerCase()))
+        .filter(f => IMAGE_EXTS.has(path.extname(f).toLowerCase()) && !f.startsWith('about-'))
         .sort()
         .map(f => `/images/${f}`)
     : [];

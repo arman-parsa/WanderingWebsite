@@ -88,7 +88,11 @@ export function NavInner() {
     const hero = document.querySelector('[data-hero]');
     if (!hero) return;
     const io = new IntersectionObserver(
-      ([entry]) => setPastHero(!entry.isIntersecting),
+      // The scrollY guard makes the initial tick harmless: Safari can fire the
+      // first callback before layout settles and wrongly report the hero as
+      // off-screen, which would paint the bar's contents dark over the hero.
+      // At the top of the page the hero is by definition not "past".
+      ([entry]) => setPastHero(!entry.isIntersecting && window.scrollY > 0),
       { rootMargin: `-${NAV_HEIGHT_PX}px 0px 0px 0px`, threshold: 0 }
     );
     io.observe(hero);
@@ -173,7 +177,7 @@ export function NavInner() {
           <Link
             href="/"
             ref={logoRef}
-            aria-label="Arman Parsa - Dispatches — home"
+            aria-label="Arman Parsa - Portfolio — home"
             className="logo-link"
             style={{ transformOrigin: 'center center' }}
           >

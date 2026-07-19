@@ -27,6 +27,17 @@ type Props = {
 export default function ArticlePanel({ cluster, onClose, isMobile }: Props) {
   const open = cluster !== null;
 
+  // While closed the panel is also visibility:hidden (flipped only after the
+  // slide-out finishes). Without this, the desktop→mobile style swap on
+  // hydration animates between the two off-screen transforms and a white
+  // sheet visibly sweeps across the globe on phones.
+  const motion: React.CSSProperties = {
+    transition: open
+      ? 'transform 400ms cubic-bezier(0, 0, 0.2, 1), visibility 0s'
+      : 'transform 300ms cubic-bezier(0.4, 0, 1, 1), visibility 0s 300ms',
+    visibility: open ? 'visible' : 'hidden',
+  };
+
   const panelStyle: React.CSSProperties = isMobile
     ? {
         position: 'absolute',
@@ -38,9 +49,7 @@ export default function ArticlePanel({ cluster, onClose, isMobile }: Props) {
         borderTop: '0.5px solid #ddd9d2',
         zIndex: 30,
         overflowY: 'auto',
-        transition: open
-          ? 'transform 400ms cubic-bezier(0, 0, 0.2, 1)'
-          : 'transform 300ms cubic-bezier(0.4, 0, 1, 1)',
+        ...motion,
         transform: open ? 'translateY(0)' : 'translateY(100%)',
       }
     : {
@@ -53,9 +62,7 @@ export default function ArticlePanel({ cluster, onClose, isMobile }: Props) {
         borderLeft: '0.5px solid #ddd9d2',
         zIndex: 30,
         overflowY: 'auto',
-        transition: open
-          ? 'transform 400ms cubic-bezier(0, 0, 0.2, 1)'
-          : 'transform 300ms cubic-bezier(0.4, 0, 1, 1)',
+        ...motion,
         transform: open ? 'translateX(0)' : 'translateX(100%)',
       };
 

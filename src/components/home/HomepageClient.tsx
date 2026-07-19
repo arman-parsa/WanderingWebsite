@@ -158,9 +158,14 @@ export function HomepageClient({
               padding: `0 ${px} clamp(1.25rem, 3vw, 2.5rem)`,
             }}
           >
-            <div style={{ marginBottom: 'clamp(0.4rem, 1vw, 0.75rem)' }}>
-              <p className="hero-descriptor">Stories collected around the world.</p>
-              <p className="hero-descriptor">A portfolio of writing, photography and videography on nature, culture and spirit.</p>
+            {/* Info band above the name: serif lead left, small-caps meta right —
+                the two lines frame the name instead of stacking over it. */}
+            <div className="hero-intro-row">
+              <p className="hero-lead">Stories collected around the world.</p>
+              <p className="hero-meta">
+                A portfolio of writing, photography and videography
+                on nature, culture and spirit.
+              </p>
             </div>
             <Link href="/about" className="hero-name-link">
               <h1 className="sr-only">Arman Parsa</h1>
@@ -191,40 +196,39 @@ export function HomepageClient({
                 >
                   <Link href={href} style={{ display: 'block', textDecoration: 'none' }}>
                     <div className="home-article-row">
-                      <h2
-                        className="home-article-title"
-                        style={{
-                          color: isHov ? '#f8f4ef' : 'var(--color-ink)',
-                          transition: 'color 100ms ease',
-                        }}
-                      >
-                        {item.title}
-                      </h2>
+                      <div className="home-article-titleblock">
+                        {/* Category + place anchor the title. */}
+                        <p
+                          className="home-article-tag"
+                          style={{
+                            color: isHov && !isMobile ? 'rgba(248,244,239,0.78)' : 'var(--color-ink-muted)',
+                            transition: 'color 100ms ease',
+                          }}
+                        >
+                          {TYPE_LABEL[item._type] ?? ''}
+                          {item.location ? ` · ${item.location}` : ''}
+                        </p>
+                        <h2
+                          className="home-article-title"
+                          style={{
+                            color: isHov ? '#f8f4ef' : 'var(--color-ink)',
+                            transition: 'color 100ms ease',
+                          }}
+                        >
+                          {item.title}
+                        </h2>
+                      </div>
+                      {/* On hover only the description joins the cover image —
+                          category and place already live on the title. */}
                       <div
                         className="home-article-meta"
                         aria-hidden={!showMeta}
                         style={{ opacity: showMeta ? 1 : 0, transition: 'opacity 100ms ease' }}
                       >
-                        {item.location && (
-                          <span style={{
-                            fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 400,
-                            letterSpacing: '0.08em', textTransform: 'uppercase',
-                            color: isMobile ? 'var(--color-ink-muted)' : '#f8f4ef',
-                          }}>
-                            {item.location}
-                          </span>
-                        )}
-                        <span style={{
-                          fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 300,
-                          letterSpacing: '0.04em', marginTop: '1px',
-                          color: isMobile ? 'rgba(122,112,103,0.7)' : 'rgba(248,244,239,0.60)',
-                        }}>
-                          {TYPE_LABEL[item._type] ?? ''}
-                        </span>
                         {item.description && (
                           <p style={{
                             fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 300,
-                            fontStyle: 'italic', lineHeight: 1.7, marginTop: '9px',
+                            fontStyle: 'italic', lineHeight: 1.7, margin: 0,
                             color: isMobile ? 'rgba(122,112,103,0.80)' : 'rgba(248,244,239,0.70)',
                           }}>
                             {item.description}

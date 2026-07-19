@@ -198,6 +198,13 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
 
   if (items.length === 0) return null;
 
+  const count = items.length >= 16 ? items.length : SLOTS.length;
+  // Entrance stagger scaled to the whole set: the reveal always spans ~2.1s
+  // with even spacing (plus a touch of deterministic jitter), so the last
+  // prints never pop in as one clump however many photos the wall holds.
+  const enterDelay = (i: number) =>
+    150 + Math.round((i / Math.max(count - 1, 1)) * 2100 + (((i * 37) % 97) / 97) * 220);
+
   return (
     <>
       {/* ── Floating collage ── */}
@@ -208,7 +215,7 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
             evenly. Only a genuinely sparse set (< 16) repeats photos to
             keep the wall from looking empty. */}
         {Array.from(
-          { length: items.length >= 16 ? items.length : SLOTS.length },
+          { length: count },
           (_, i) => {
           const item = items[i % items.length];
           const s = items.length >= SLOTS.length || items.length < 16
@@ -226,7 +233,7 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
                 width: `clamp(${Math.round(s.w * 9.5)}px, ${s.w}vw, ${Math.round(s.w * 19)}px)`,
                 aspectRatio: s.ar,
                 ['--g-z' as string]: s.z,
-                ['--g-enter-delay' as string]: `${120 + Math.min(i * 70, 2400)}ms`,
+                ['--g-enter-delay' as string]: `${enterDelay(i)}ms`,
                 ['--g-drift-dur' as string]: `${s.dur}s`,
                 ['--g-drift-delay' as string]: `${s.delay}s`,
               } as React.CSSProperties}

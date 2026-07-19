@@ -25,12 +25,12 @@ export function IntroLoader() {
     // Lock scroll only while the animation actually plays.
     if (!skip) document.documentElement.classList.add('intro-active');
 
-    // Delay = symbol in + tagline in + hold + overlay fade out (see globals.css).
+    // Delay = symbol in + hold + rise to the nav + overlay fade (globals.css).
     const timer = setTimeout(() => {
       sessionStorage.setItem('introSeen', '1');
       document.documentElement.classList.remove('intro-active');
       setVisible(false);
-    }, skip ? 0 : 4400);
+    }, skip ? 0 : 3800);
 
     return () => {
       clearTimeout(timer);

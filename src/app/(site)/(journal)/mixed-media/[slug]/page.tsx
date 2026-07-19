@@ -8,7 +8,7 @@ import { PortableTextRenderer } from '@/components/content/PortableTextRenderer'
 import { ImageBlock } from '@/components/content/ImageBlock';
 import { ImagePair } from '@/components/content/ImagePair';
 import { VideoBlock } from '@/components/content/VideoBlock';
-import { ArticleMediaProvider, OpenGalleryButton } from '@/components/content/MediaLightbox';
+import { ArticleMediaProvider } from '@/components/content/MediaLightbox';
 import { collectArticleMedia, type ImageBlockValue, type ImagePairValue, type MediaWidth } from '@/lib/articleMedia';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { PLACEHOLDER_ITEMS, PLACEHOLDER_WRITING } from '@/lib/placeholders';
@@ -135,14 +135,13 @@ export default async function MixedMediaPage({ params }: Props) {
               </section>
             )}
 
-            <div className="mt-16 flex flex-wrap items-center gap-4">
-              <OpenGalleryButton />
-              {piece.photographyCredit && (
+            {piece.photographyCredit && (
+              <div className="mt-16">
                 <p className="font-sans text-xs uppercase tracking-widest opacity-50">
                   Photography — {piece.photographyCredit}
                 </p>
-              )}
-            </div>
+              </div>
+            )}
           </div>
       </ArticleMediaProvider>
       <ArticleEndNav />
