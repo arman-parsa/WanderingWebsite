@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { SITE_URL, OG_IMAGE } from '@/lib/metadata';
+import { SITE_URL } from '@/lib/metadata';
 
 export const metadata: Metadata = {
   title: 'Contact',
@@ -9,7 +9,6 @@ export const metadata: Metadata = {
     title: 'Contact · Arman Parsa',
     description: 'Get in touch with Arman Parsa for partnerships, editorial enquiries, or to say hello.',
     url: `${SITE_URL}/contact`,
-    images: [OG_IMAGE],
   },
 };
 

@@ -3,7 +3,7 @@ import { client } from '@/lib/sanity';
 import { ALL_CONTENT_QUERY } from '@/lib/sanity';
 import { PLACEHOLDER_ITEMS } from '@/lib/placeholders';
 import { ExploreClient } from '@/components/explore/ExploreClient';
-import { SITE_URL, OG_IMAGE } from '@/lib/metadata';
+import { SITE_URL } from '@/lib/metadata';
 
 export const revalidate = 60;
 
@@ -15,7 +15,6 @@ export const metadata: Metadata = {
     title: 'Library · Arman Parsa',
     description: 'Browse all writing, photography, mixed media, and videography by Arman Parsa — a personal archive of stories from around the world.',
     url: `${SITE_URL}/library`,
-    images: [OG_IMAGE],
   },
 };
 

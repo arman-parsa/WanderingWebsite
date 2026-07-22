@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { client, GALLERY_CONTENT_QUERY } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
 import { GalleryClient, type GalleryItem } from '@/components/gallery/GalleryClient';
-import { SITE_URL, OG_IMAGE } from '@/lib/metadata';
+import { SITE_URL } from '@/lib/metadata';
 
 export const revalidate = 60;
 
@@ -14,7 +14,6 @@ export const metadata: Metadata = {
     title: 'Gallery · Arman Parsa',
     description: 'A floating collage of photographs drawn from the pieces on armanparsa.earth — click any work to explore the story it belongs to.',
     url: `${SITE_URL}/gallery`,
-    images: [OG_IMAGE],
   },
 };
 

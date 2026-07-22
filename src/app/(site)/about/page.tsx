@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { SITE_URL, OG_IMAGE } from '@/lib/metadata';
+import { SITE_URL } from '@/lib/metadata';
 
 export const metadata: Metadata = {
   title: 'About',
@@ -11,7 +11,6 @@ export const metadata: Metadata = {
     title: 'About · Arman Parsa',
     description: 'Arman Parsa is a London-born, Oxford-educated Iranian journalist, photographer and videographer — collecting intimate stories from around the world.',
     url: `${SITE_URL}/about`,
-    images: [OG_IMAGE],
   },
 };
 

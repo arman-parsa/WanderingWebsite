@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { urlFor } from '@/lib/sanityImage';
-import { SITE_NAME, OG_IMAGE } from '@/lib/siteConfig';
+import { SITE_NAME } from '@/lib/siteConfig';
 
 // Re-export constants so callers can import from one place
 export { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SOCIAL_PROFILES, OG_IMAGE } from '@/lib/siteConfig';
@@ -30,8 +30,9 @@ function ogImageUrl(image: SanityImageRef | undefined): string | undefined {
 export function buildContentMetadata(input: ContentMetaInput): Metadata {
   const title = input.seo?.metaTitle ?? input.title;
   const description = input.seo?.metaDescription ?? input.description;
-  const image = ogImageUrl(input.seo?.ogImage) ?? ogImageUrl(input.coverImage);
 
+  // og:image / twitter:image come from the per-article `opengraph-image` route
+  // (the photo-led card), so they are intentionally not set here.
   return {
     title,
     description,
@@ -44,13 +45,11 @@ export function buildContentMetadata(input: ContentMetaInput): Metadata {
       type: 'article',
       ...(input.publishedAt && { publishedTime: input.publishedAt }),
       ...(input.tags?.length && { tags: input.tags }),
-      images: image ? [{ url: image, width: 1200, height: 630 }] : [OG_IMAGE],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: [image ?? OG_IMAGE.url],
     },
   };
 }

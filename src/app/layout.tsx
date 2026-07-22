@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { WEBSITE_JSON_LD } from '@/lib/jsonld';
-import { SITE_NAME, SITE_DESCRIPTION, OG_IMAGE } from '@/lib/siteConfig';
+import { SITE_NAME, SITE_DESCRIPTION } from '@/lib/siteConfig';
 
 export const metadata: Metadata = {
   title: {
@@ -17,13 +17,11 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     type: 'website',
     locale: 'en_GB',
-    images: [OG_IMAGE],
   },
   twitter: {
     card: 'summary_large_image',
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
-    images: [OG_IMAGE.url],
   },
   robots: { index: true, follow: true },
 };
