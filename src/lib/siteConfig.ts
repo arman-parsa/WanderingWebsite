@@ -9,10 +9,9 @@ export const SOCIAL_PROFILES = [
   'https://www.linkedin.com/in/armanparsa-/',
 ];
 /**
- * Picfair print store. /store redirects here (see next.config.ts), so this is
- * the one place to change if the store moves. Switch to
- * 'https://store.armanparsa.earth' once the custom domain is live in Picfair.
+ * Picfair print store (custom domain). /store redirects here (see
+ * next.config.ts), so this is the one place to change if the store moves.
  */
-export const STORE_URL = 'https://armanwanders.picfair.com';
+export const STORE_URL = 'https://store.armanparsa.earth';
 /** Site-wide social share image (resolved against metadataBase). */
 export const OG_IMAGE = { url: '/og.jpg', width: 1200, height: 630 };
