@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { STORE_URL } from './src/lib/siteConfig';
 
 const securityHeaders = [
   { key: 'X-DNS-Prefetch-Control',  value: 'on' },
@@ -36,6 +37,9 @@ const nextConfig: NextConfig = {
     return [
       { source: '/articles', destination: '/library', permanent: true },
       { source: '/map', destination: '/earth', permanent: true },
+      // Temporary, so the store can later become a page on this site
+      // without browsers having cached the redirect.
+      { source: '/store', destination: STORE_URL, permanent: false },
     ];
   },
 };

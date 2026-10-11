@@ -132,7 +132,7 @@ export default async function PhotographyPage({ params }: Props) {
           </section>
         )}
       </ArticleMediaProvider>
-      <ArticleEndNav />
+      <ArticleEndNav printsUrl={series.printsUrl ?? undefined} />
     </main>
   );
 }

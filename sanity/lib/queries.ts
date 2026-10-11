@@ -95,6 +95,7 @@ export const PHOTOGRAPHY_QUERY = defineQuery(`
     images[] { ..., "alt": coalesce(alt, ""), hotspot, description, "metadata": asset->metadata },
     tags,
     displayMode,
+    printsUrl,
     seo
   }
 `);

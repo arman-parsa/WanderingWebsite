@@ -22,6 +22,13 @@ export const photography = defineType({
       options: { list: ['grid', 'slideshow', 'vertical-scroll'], layout: 'radio' },
       initialValue: 'grid',
     }),
+    defineField({
+      name: 'printsUrl',
+      title: 'Prints Link (Picfair)',
+      type: 'url',
+      description: 'Optional. Paste the Picfair link for this series or photo — a "Buy a Print" button appears at the end of the story. Leave blank for no button.',
+      validation: (Rule) => Rule.uri({ scheme: ['https'] }),
+    }),
     defineField({ name: 'seo', title: 'SEO', type: 'seoFields' }),
   ],
   preview: {
