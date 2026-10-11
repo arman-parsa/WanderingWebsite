@@ -206,6 +206,7 @@ export function NavInner() {
             <div className="nav-menu-expanded">
               <NavLink href="/library">LIBRARY</NavLink>
               <NavLink href="/gallery">GALLERY</NavLink>
+              <NavLink href="/store" prefetch={false}>STORE</NavLink>
               <NavLink href="/about">ABOUT</NavLink>
               <NavLink href="/contact">CONTACT</NavLink>
             </div>
@@ -239,6 +240,7 @@ export function NavInner() {
         >
           <NavLink href="/library">LIBRARY</NavLink>
           <NavLink href="/gallery">GALLERY</NavLink>
+          <NavLink href="/store" prefetch={false}>STORE</NavLink>
           <NavLink href="/about">ABOUT</NavLink>
           <NavLink href="/contact">CONTACT</NavLink>
         </div>
