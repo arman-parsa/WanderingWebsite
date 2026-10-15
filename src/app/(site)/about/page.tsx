@@ -28,7 +28,10 @@ export default function AboutPage() {
             alt="Arman Parsa hiking in the Dolomites, carrying a camera pack and tripod"
             fill
             priority
-            sizes="(max-width: 767px) 78vw, 26vw"
+            quality={90}
+            // The photo is landscape (≈1.5:1) cropped into a 3:4 frame of at
+            // most 330px wide, so it renders ~2× the frame's width: 660px.
+            sizes="660px"
             className="object-cover"
             style={{ objectPosition: '45% center' }}
           />

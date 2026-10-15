@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import { SanityImage } from '@/components/content/SanityImage';
 import { urlFor } from '@/lib/sanityImage';
 import { imageRatio, type ImageBlockValue, type MediaWidth } from '@/lib/articleMedia';
 import { useLightbox } from './MediaLightbox';
@@ -51,7 +51,7 @@ export function ImageBlock({ value }: { value: ImageBlockValue }) {
       className="relative w-full overflow-hidden"
       style={{ aspectRatio: `${ratio}`, ...constrain }}
     >
-      <Image
+      <SanityImage
         src={src}
         alt={value.alt || value.caption || ''}
         fill

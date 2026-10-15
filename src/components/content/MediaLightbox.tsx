@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import { SanityImage } from '@/components/content/SanityImage';
 import {
   createContext,
   useCallback,
@@ -215,7 +215,7 @@ function Lightbox({
           >
             {entry.kind === 'image' && Math.abs(i - active) <= 1 && (
               <div className="relative h-full w-full">
-                <Image
+                <SanityImage
                   src={urlFor(entry.image).width(2048).format('webp').quality(85).url()}
                   alt={entry.alt}
                   fill

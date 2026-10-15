@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import { SanityImage } from '@/components/content/SanityImage';
 import Link from 'next/link';
 import { useState } from 'react';
 import { urlFor } from '@/lib/sanityImage';
@@ -104,7 +104,7 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
                   {/* Image */}
                   <div className="explore-card-frame">
                     {item.coverImage?.asset && (
-                      <Image
+                      <SanityImage
                         className="explore-card-img"
                         src={urlFor(item.coverImage).width(900).height(600).fit('crop').format('webp').quality(80).url()}
                         alt={(item.coverImage as { alt?: string }).alt ?? item.title}

@@ -9,6 +9,8 @@ export type GalleryItem = {
   location?: string;
   href: string;
   src: string;
+  /** Larger version for the enlarged view; fades in over `src` once loaded. */
+  fullSrc?: string;
   alt: string;
 };
 
@@ -289,6 +291,18 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
           >
             {/* eslint-disable-next-line @next/next/no-img-element -- same URL as the thumbnail, already decoded */}
             <img src={lightbox.item.src} alt={lightbox.item.alt} />
+            {lightbox.item.fullSrc && (
+              // eslint-disable-next-line @next/next/no-img-element -- layered over the thumbnail, fades in on load
+              <img
+                key={lightbox.item.fullSrc}
+                src={lightbox.item.fullSrc}
+                alt=""
+                aria-hidden="true"
+                decoding="async"
+                className="g-figure-full"
+                onLoad={e => e.currentTarget.classList.add('is-loaded')}
+              />
+            )}
           </figure>
           <div
             className="g-caption"
