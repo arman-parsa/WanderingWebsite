@@ -41,11 +41,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preload" as="font" href="/fonts/SuisseIntl_Light.woff2" type="font/woff2" crossOrigin="anonymous" />
       </head>
       <body className="bg-paper text-ink antialiased">
-        {/* Pre-hydration: skip the intro overlay if it has already played this session. */}
+        {/* Pre-hydration: skip the intro overlay if it has already played this
+            session, or if the visit starts anywhere but the homepage. */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{if(sessionStorage.getItem('introSeen'))document.documentElement.classList.add('intro-seen')}catch(e){}",
+              "try{if(location.pathname!=='/'||sessionStorage.getItem('introSeen'))document.documentElement.classList.add('intro-seen')}catch(e){}",
           }}
         />
         <JsonLd data={WEBSITE_JSON_LD} />

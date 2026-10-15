@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from 'react';
 
 /**
- * First-visit intro animation.
+ * First-visit intro animation — homepage only. A visit that starts on any
+ * other page (e.g. a shared story link) opens straight onto that page, and
+ * counts as "seen" so the intro doesn't play later in the same session.
  *
  * Sequence: the alchemical symbol fades in slowly, then the tagline, a short
  * pause, then the overlay dissolves to reveal the site. Plays once per tab
@@ -21,9 +23,10 @@ export function IntroLoader() {
     let seen: string | null = null;
     try { seen = sessionStorage.getItem('introSeen'); } catch { /* ignore */ }
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    // Returning visitors / reduced-motion users skip: the overlay is already
-    // hidden by the pre-hydration script + CSS, so we just unmount it promptly.
-    const skip = seen || reduced;
+    const notHome = window.location.pathname !== '/';
+    // Returning visitors / reduced-motion users / deep links skip: the overlay
+    // is already hidden by the pre-hydration script + CSS, so we just unmount.
+    const skip = seen || reduced || notHome;
 
     // Lock scroll only while the animation actually plays, and keep keyboard
     // focus off the page hidden behind the overlay (its siblings) until then.

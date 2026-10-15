@@ -5,6 +5,8 @@ import { sanityFetch, hasRealContent } from '@/lib/sanityFetch';
 import { WRITING_QUERY, WRITING_SLUGS_QUERY } from '@/lib/sanity';
 import { ArticleHero } from '@/components/content/ArticleHero';
 import { ArticleEndNav } from '@/components/content/ArticleEndNav';
+import { getAdjacentPieces } from '@/lib/adjacentPieces';
+import { ReadingProgress } from '@/components/content/ReadingProgress';
 import { PortableTextRenderer } from '@/components/content/PortableTextRenderer';
 import { ArticleMediaProvider } from '@/components/content/MediaLightbox';
 import { collectArticleMedia } from '@/lib/articleMedia';
@@ -61,6 +63,8 @@ export default async function WritingPage({ params }: Props) {
   }
   if (!piece) notFound();
 
+  const { newer, older } = await getAdjacentPieces('writing', slug);
+
   const jsonLd = buildContentJsonLd({
     type: 'Article',
     title: piece.title,
@@ -74,6 +78,7 @@ export default async function WritingPage({ params }: Props) {
   return (
     <main id="main-content" className="min-h-screen" style={{ backgroundColor: '#0D0D0D', color: '#f8f4ef' }}>
       <JsonLd data={jsonLd} />
+      <ReadingProgress />
       <ArticleMediaProvider
         entries={collectArticleMedia(piece.body)}
         label={`Visuals — ${piece.title}`}
@@ -82,6 +87,7 @@ export default async function WritingPage({ params }: Props) {
           title={piece.title}
           description={piece.description}
           publishedAt={piece.publishedAt}
+          readingTime={piece.readingTime}
           location={piece.location}
           tags={piece.tags}
           category="Writing"
@@ -93,7 +99,7 @@ export default async function WritingPage({ params }: Props) {
           </article>
         </div>
       </ArticleMediaProvider>
-      <ArticleEndNav />
+      <ArticleEndNav newer={newer} older={older} />
     </main>
   );
 }

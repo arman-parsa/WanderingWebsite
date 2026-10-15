@@ -190,6 +190,8 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
   const tooltipRef = useRef<HTMLDivElement>(null);
   const [panel, setPanel] = useState<Cluster | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  // Faint "Drag to explore" hint — gone on the first touch of the globe.
+  const [showHint, setShowHint] = useState(true);
 
   const panelRef = useRef<Cluster | null>(null);
   // The keyboard place button that opened the panel — focus returns to it.
@@ -339,6 +341,10 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
     // ── Pins ─────────────────────────────────────────────────────────────
     const clusters = clusterItems(items);
     const pinMeshes: THREE.Mesh[] = [];
+    // Invisible, larger spheres around each pin for raycasting — the visible
+    // pins are only a few pixels across, too small to hit reliably by touch.
+    const pinHitMeshes: THREE.Mesh[] = [];
+    const hitMaterial = new THREE.MeshBasicMaterial({ visible: false });
 
     for (const cluster of clusters) {
       const r = cluster.items.length > 1 ? PIN_RADIUS * 1.5 : PIN_RADIUS;
@@ -350,12 +356,32 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
       pin.userData = { cluster };
       globeGroup.add(pin);
       pinMeshes.push(pin);
+      const hit = new THREE.Mesh(new THREE.SphereGeometry(r * 3.5, 8, 8), hitMaterial);
+      hit.position.copy(pin.position);
+      hit.userData = { cluster, pin };
+      globeGroup.add(hit);
+      pinHitMeshes.push(hit);
     }
 
     // ── Interaction state ────────────────────────────────────────────────
+    // Open facing the pieces (circular mean of the pins' longitudes) rather
+    // than wherever the default orientation happens to point. Auto-rotation
+    // waits for the inactivity delay so the pins are seen first.
+    const initialSpin = new THREE.Quaternion();
+    if (clusters.length > 0) {
+      let sx = 0, sy = 0;
+      for (const c of clusters) {
+        sx += Math.cos((c.lng * Math.PI) / 180);
+        sy += Math.sin((c.lng * Math.PI) / 180);
+      }
+      const meanLng = (Math.atan2(sy, sx) * 180) / Math.PI;
+      const facing = latLngToVec3(0, meanLng, 1).setY(0).normalize();
+      initialSpin.setFromUnitVectors(facing, new THREE.Vector3(0, 0, 1));
+    }
+
     const ia: InteractState = {
       isDragging: false,
-      isAutoRotating: !reducedMotion,
+      isAutoRotating: false,
       lastX: 0,
       lastY: 0,
       velX: 0,
@@ -364,7 +390,7 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
       pinchDist: 0,
       reducedMotion,
       tiltAngle: EARTH_TILT,
-      spinQ: new THREE.Quaternion(),
+      spinQ: initialSpin,
     };
 
     // Compose tilt (X) and spin (Y) into globeGroup.quaternion.
@@ -385,9 +411,11 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
     const scheduleResumeAutoRot = () => {
       if (ia.inactivityTimer) clearTimeout(ia.inactivityTimer);
       ia.inactivityTimer = setTimeout(() => {
-        ia.isAutoRotating = true;
+        // Never spins for people who've asked for reduced motion.
+        ia.isAutoRotating = !ia.reducedMotion;
       }, INACTIVITY_DELAY);
     };
+    scheduleResumeAutoRot();
 
     // ── Animation loop ───────────────────────────────────────────────────
     const clock = new THREE.Clock();
@@ -398,8 +426,9 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
       const delta = clock.getDelta();
       elapsed += delta;
 
-      // Auto-rotation — spin only, tilt stays fixed
-      if (ia.isAutoRotating) {
+      // Auto-rotation — spin only, tilt stays fixed. Holds still while a pin
+      // is under the pointer, so it can be clicked.
+      if (ia.isAutoRotating && !hoveredPin) {
         ia.spinQ.premultiply(
           new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), AUTO_ROT_SPEED * delta)
         );
@@ -437,8 +466,8 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
 
       // Raycasting — hover detection
       raycaster.setFromCamera(pointer, camera);
-      const pinHits = raycaster.intersectObjects(pinMeshes);
-      const nextHovered = pinHits.length > 0 ? (pinHits[0].object as THREE.Mesh) : null;
+      const pinHits = raycaster.intersectObjects(pinHitMeshes);
+      const nextHovered = pinHits.length > 0 ? (pinHits[0].object.userData.pin as THREE.Mesh) : null;
 
       if (nextHovered !== hoveredPin) {
         // Restore previous
@@ -468,8 +497,11 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
         if (camDir.dot(camPos) > 0.1) {
           const proj = wp.clone().project(camera);
           const rect = (wrap as HTMLDivElement).getBoundingClientRect();
-          const tx = ((proj.x + 1) / 2) * rect.width;
-          const ty = ((-proj.y + 1) / 2) * rect.height;
+          // The canvas slides left when the panel opens; the tooltip's parent
+          // doesn't — offset by the difference so the label stays on its pin.
+          const parentRect = tooltipEl.parentElement?.getBoundingClientRect() ?? rect;
+          const tx = rect.left - parentRect.left + ((proj.x + 1) / 2) * rect.width;
+          const ty = rect.top - parentRect.top + ((-proj.y + 1) / 2) * rect.height;
           const cl = (hoveredPin.userData.cluster as Cluster).items[0];
           tooltipEl.textContent = cl.location ?? '';
           tooltipEl.style.left = `${tx}px`;
@@ -499,6 +531,7 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
     }
 
     function onPointerDown(e: PointerEvent) {
+      setShowHint(false);
       ia.isDragging = true;
       ia.isAutoRotating = false;
       ia.velX = 0;
@@ -541,7 +574,7 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
       if (Math.abs(ia.velX) > 0.004 || Math.abs(ia.velY) > 0.004) return;
       updatePointer(e.clientX, e.clientY);
       raycaster.setFromCamera(pointer, camera);
-      const hits = raycaster.intersectObjects(pinMeshes);
+      const hits = raycaster.intersectObjects(pinHitMeshes);
       if (hits.length > 0) {
         const cluster = hits[0].object.userData.cluster as Cluster;
         setPanel(cluster);
@@ -662,6 +695,11 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
           letterSpacing: '0.04em',
         }}
       />
+
+      <p className={`globe-hint${showHint && !panelOpen ? '' : ' globe-hint--hidden'}`} aria-hidden="true">
+        <span className="globe-hint-mouse">Drag to explore · click a point to read</span>
+        <span className="globe-hint-touch">Drag to explore · tap a point to read</span>
+      </p>
 
       {/* Keyboard / screen-reader access to the pins: hidden until focused. */}
       <nav aria-label="Places on the globe" className="globe-places">

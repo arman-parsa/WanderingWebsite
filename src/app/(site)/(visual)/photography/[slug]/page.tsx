@@ -7,6 +7,7 @@ import { PHOTOGRAPHY_QUERY, PHOTOGRAPHY_SLUGS_QUERY } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
 import { ArticleHero } from '@/components/content/ArticleHero';
 import { ArticleEndNav } from '@/components/content/ArticleEndNav';
+import { getAdjacentPieces } from '@/lib/adjacentPieces';
 import { ArticleMediaProvider, LightboxTrigger } from '@/components/content/MediaLightbox';
 import { collectArticleMedia } from '@/lib/articleMedia';
 import { JsonLd } from '@/components/seo/JsonLd';
@@ -70,6 +71,8 @@ export default async function PhotographyPage({ params }: Props) {
     if (match) series = { ...PLACEHOLDER_PHOTO_SERIES, title: match.title, description: match.description, location: match.location, publishedAt: match.publishedAt };
   }
   if (!series) notFound();
+
+  const { newer, older } = await getAdjacentPieces('photography', slug);
 
   const jsonLd = buildContentJsonLd({
     type: 'ImageGallery',
@@ -135,7 +138,7 @@ export default async function PhotographyPage({ params }: Props) {
           </section>
         )}
       </ArticleMediaProvider>
-      <ArticleEndNav printsUrl={series.printsUrl ?? undefined} />
+      <ArticleEndNav printsUrl={series.printsUrl ?? undefined} newer={newer} older={older} />
     </main>
   );
 }

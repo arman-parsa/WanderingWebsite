@@ -7,6 +7,8 @@ type Props = {
   title: string;
   description?: string;
   publishedAt?: string;
+  /** Minutes, from the Sanity "Reading Time" field — shown when set. */
+  readingTime?: number;
   location?: string;
   tags?: string[];
   /** Content-type label shown as a kicker above the title (e.g. "Photography"). */
@@ -29,16 +31,19 @@ const DESC_CLASS = 'mt-6 max-w-2xl font-serif text-[length:var(--text-lg)] leadi
 function MetaRow({
   location,
   publishedAt,
+  readingTime,
   tags,
 }: {
   location?: string;
   publishedAt?: string;
+  readingTime?: number;
   tags?: string[];
 }) {
   const stamp = [location, publishedAt && formatDate(publishedAt)].filter(Boolean).join(' — ');
   return (
     <div className={`flex flex-wrap items-center gap-x-4 gap-y-2 ${META_CLASS}`}>
       {stamp && <span>{stamp}</span>}
+      {readingTime ? <span>{readingTime} min read</span> : null}
       {tags?.map((tag) => (
         <span key={tag}>#{tag}</span>
       ))}
@@ -53,7 +58,7 @@ function MetaRow({
  * The fixed site nav floats transparently over the top of it. Falls back to a
  * centred text header when a piece has no cover image.
  */
-export function ArticleHero({ title, description, publishedAt, location, tags, category, coverImage }: Props) {
+export function ArticleHero({ title, description, publishedAt, readingTime, location, tags, category, coverImage }: Props) {
   const hasImage = !!coverImage?.asset;
   const src = hasImage ? urlFor(coverImage!).width(2560).format('webp').quality(85).url() : null;
   const blurSrc = hasImage ? coverImage!.lqip : undefined;
@@ -69,7 +74,7 @@ export function ArticleHero({ title, description, publishedAt, location, tags, c
         <h1 className={TITLE_CLASS}>{title}</h1>
         {description && <p className={`${DESC_CLASS} opacity-70`}>{description}</p>}
         <div className="mt-7 opacity-70">
-          <MetaRow location={location} publishedAt={publishedAt} tags={tags} />
+          <MetaRow location={location} publishedAt={publishedAt} readingTime={readingTime} tags={tags} />
         </div>
       </header>
     );
@@ -103,7 +108,7 @@ export function ArticleHero({ title, description, publishedAt, location, tags, c
           <h1 className={TITLE_CLASS}>{title}</h1>
           {description && <p className={`${DESC_CLASS} opacity-90`}>{description}</p>}
           <div className="mt-7 opacity-85">
-            <MetaRow location={location} publishedAt={publishedAt} tags={tags} />
+            <MetaRow location={location} publishedAt={publishedAt} readingTime={readingTime} tags={tags} />
           </div>
         </div>
       </div>

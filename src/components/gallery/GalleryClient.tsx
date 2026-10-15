@@ -116,8 +116,11 @@ function targetRect(aspect: number): Rect {
   const vh = window.innerHeight;
   const maxW = Math.min(vw * 0.86, 960);
   // Leave room below for the caption (title, place, "View the piece" ≈ 142px
-  // including its 26px offset) so it never falls off short screens.
-  const maxH = Math.max(Math.min(vh * 0.62, vh - 84 - 142), 120);
+  // including its 26px offset) so it never falls off short screens; on taller
+  // screens also for the arrows beneath it (~58px). Below 480px tall the
+  // arrows move to the screen edges instead (globals.css).
+  const reserve = vh < 480 ? 142 : 200;
+  const maxH = Math.max(Math.min(vh * 0.62, vh - 84 - reserve), 120);
   let width = maxW;
   let height = width / aspect;
   if (height > maxH) {
@@ -194,6 +197,22 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
     }, OPEN_MS + 40);
   }, [lightbox]);
 
+  // Step through the photos without leaving the enlarged view. Slot k shows
+  // items[k] for every unique photo, so the new photo's thumbnail is slot k
+  // (closing then morphs back to it). Focus stays on the arrow pressed.
+  const step = useCallback((delta: number) => {
+    if (!lightbox || closingRef.current || items.length < 2) return;
+    const k = (((lightbox.index % items.length) + delta) % items.length + items.length) % items.length;
+    const img = imgRefs.current.get(k);
+    const aspect = img?.naturalWidth && img.naturalHeight
+      ? img.naturalWidth / img.naturalHeight
+      : lightbox.target.width / lightbox.target.height;
+    const button = img?.closest('button') ?? null;
+    if (button) srcButtonRef.current = button;
+    const target = targetRect(aspect);
+    setLightbox({ item: items[k], index: k, from: target, target });
+  }, [lightbox, items]);
+
   useEffect(() => {
     if (lightbox || !returnFocusRef.current) return;
     returnFocusRef.current.focus({ preventScroll: true });
@@ -204,6 +223,8 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
     if (!lightbox) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') { close(); return; }
+      if (e.key === 'ArrowRight') { step(1); return; }
+      if (e.key === 'ArrowLeft') { step(-1); return; }
       // Keep Tab inside the enlarged view (Close ↔ View the piece).
       if (e.key !== 'Tab' || !dialogRef.current) return;
       const focusables = Array.from(
@@ -221,7 +242,7 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [lightbox, close]);
+  }, [lightbox, close, step]);
 
   const shown = phase === 'active';
   const figureRect = lightbox ? (shown ? lightbox.target : lightbox.from) : null;
@@ -354,6 +375,19 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
               View the piece
             </Link>
           </div>
+          {items.length > 1 && (
+            <div className="g-stepper">
+              <button type="button" className="g-step" onClick={() => step(-1)} aria-label="Previous photograph">
+                ←
+              </button>
+              <span className="g-count" aria-live="polite">
+                {(lightbox.index % items.length) + 1} / {items.length}
+              </span>
+              <button type="button" className="g-step" onClick={() => step(1)} aria-label="Next photograph">
+                →
+              </button>
+            </div>
+          )}
         </div>
       )}
     </>
