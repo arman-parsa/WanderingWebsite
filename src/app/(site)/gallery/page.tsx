@@ -60,11 +60,15 @@ function innerImages(p: GalleryPiece): SanityImage[] {
   return out;
 }
 
-function imageUrl(img: SanityImage): string | null {
+// Collage thumbnails are small, so 1100px keeps a wall of many photos light.
+// The enlarged view (~960px wide, so ~1920px on sharp screens) swaps in the
+// FULL size once it has loaded.
+const THUMB = { width: 1100, quality: 75 };
+const FULL = { width: 2000, quality: 85 };
+
+function imageUrl(img: SanityImage, { width, quality } = THUMB): string | null {
   try {
-    // Collage thumbnails are small and the enlarged view maxes ~960px wide,
-    // so 1100px is plenty while keeping a wall of many photos light.
-    return urlFor(img).width(1100).fit('max').format('webp').quality(75).url();
+    return urlFor(img).width(width).fit('max').auto('format').quality(quality).url();
   } catch {
     return null;
   }
@@ -91,6 +95,7 @@ function buildItems(pieces: GalleryPiece[]): GalleryItem[] {
       location: piece.location,
       href: `${TYPE_HREF[piece._type] ?? '/library'}/${piece.slug}`,
       src,
+      fullSrc: imageUrl(img, FULL) ?? undefined,
       alt: img.alt || piece.title,
     });
   };

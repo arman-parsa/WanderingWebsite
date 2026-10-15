@@ -646,6 +646,14 @@ body.gallery-open footer { display: none; }
   border-radius: 2px;
   box-shadow: 0 34px 80px -28px rgba(28, 24, 20, 0.5);
 }
+.g-figure img.g-figure-full {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  box-shadow: none;
+  transition: opacity 300ms ease;
+}
+.g-figure img.g-figure-full.is-loaded { opacity: 1; }
 
 .g-close {
   position: absolute;

@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { SanityImage } from '@/components/content/SanityImage';
 import { urlFor } from '@/lib/sanityImage';
 import { formatDate } from '@/lib/utils';
 import { OpenGalleryButton } from './MediaLightbox';
@@ -76,7 +76,7 @@ export function ArticleHero({ title, description, publishedAt, location, tags, c
 
   return (
     <header className="relative w-full overflow-hidden" data-hero style={{ height: '100svh' }}>
-      <Image
+      <SanityImage
         src={src!}
         alt={coverImage?.alt ?? title}
         fill

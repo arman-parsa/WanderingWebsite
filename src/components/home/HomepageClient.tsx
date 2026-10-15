@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { sanityLoader } from '@/components/content/SanityImage';
 import Link from 'next/link';
 import { HeroNameSVG } from '@/components/home/HeroNameSVG';
 
@@ -139,6 +140,8 @@ export function HomepageClient({
               {i <= maxMounted && (
                 <Image
                   src={url}
+                  loader={url.startsWith('https://cdn.sanity.io/') ? sanityLoader : undefined}
+                  quality={90}
                   alt=""
                   fill
                   priority={i === 0}

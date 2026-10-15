@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import Image from 'next/image';
+import { SanityImage } from '@/components/content/SanityImage';
 import { client } from '@/lib/sanity';
 import { PHOTOGRAPHY_QUERY, PHOTOGRAPHY_SLUGS_QUERY } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-type SanityImage = {
+type SeriesImage = {
   _key: string;
   // imageBlock: the picture itself lives in the nested `asset` image field
   asset?: { asset?: object };
@@ -101,14 +101,14 @@ export default async function PhotographyPage({ params }: Props) {
             aria-label="Photo series"
           >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {series.images.map((image: SanityImage, i: number) => {
+              {series.images.map((image: SeriesImage, i: number) => {
                 if (!image.asset?.asset) return null;
                 const altText = image.alt || image.caption || image.description || series.title;
                 return (
                   <figure key={image._key} className="group overflow-hidden">
                     <LightboxTrigger imageKey={image._key} label={`Enlarge photograph: ${altText}`}>
                       <div className="relative aspect-[4/3] overflow-hidden bg-surface">
-                        <Image
+                        <SanityImage
                           src={urlFor(image.asset).width(900).height(675).fit('crop').format('webp').quality(85).url()}
                           alt={altText}
                           fill

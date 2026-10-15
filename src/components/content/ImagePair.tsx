@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import { SanityImage } from '@/components/content/SanityImage';
 import type { CSSProperties } from 'react';
 import { urlFor } from '@/lib/sanityImage';
 import { imageRatio, type ImagePairValue } from '@/lib/articleMedia';
@@ -37,7 +37,7 @@ export function ImagePair({ value }: { value: ImagePairValue }) {
           const clickable = !!key && !!lightbox && lightbox.entries.some((e) => e.key === key);
           const frame = (
             <div className="relative w-full overflow-hidden" style={{ aspectRatio: `${ratios[i]}` }}>
-              <Image
+              <SanityImage
                 src={urlFor(img).width(1400).format('webp').quality(85).url()}
                 alt={img.alt || img.caption || ''}
                 fill
