@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { client } from '@/lib/sanity';
+import { sanityFetch } from '@/lib/sanityFetch';
 import { VIDEOGRAPHY_QUERY, VIDEOGRAPHY_SLUGS_QUERY } from '@/lib/sanity';
 import { ArticleHero } from '@/components/content/ArticleHero';
 import { ArticleEndNav } from '@/components/content/ArticleEndNav';
@@ -52,7 +53,7 @@ type SanityVideo = {
 export default async function VideographyPage({ params }: Props) {
   const { slug } = await params;
   let piece = null;
-  try { piece = await client.fetch(VIDEOGRAPHY_QUERY, { slug }); } catch { /* CORS */ }
+  piece = await sanityFetch(VIDEOGRAPHY_QUERY, { slug });
   if (!piece) notFound();
 
   const firstVimeoId = piece.videos?.find((v: SanityVideo) => v.vimeoId)?.vimeoId;

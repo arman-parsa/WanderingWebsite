@@ -7,6 +7,7 @@ export const seoFields = defineType({
   fields: [
     defineField({ name: 'metaTitle', title: 'Meta Title', type: 'string' }),
     defineField({ name: 'metaDescription', title: 'Meta Description', type: 'text', rows: 3 }),
-    defineField({ name: 'ogImage', title: 'OG Image', type: 'image' }),
+    defineField({ name: 'ogImage', title: 'Social Share Image', type: 'image',
+      description: 'Optional. Used for the link preview when this piece is shared (instead of the cover image).' }),
   ],
 });

@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { SanityImage } from '@/components/content/SanityImage';
 import { client } from '@/lib/sanity';
+import { sanityFetch, hasRealContent } from '@/lib/sanityFetch';
 import { PHOTOGRAPHY_QUERY, PHOTOGRAPHY_SLUGS_QUERY } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
 import { ArticleHero } from '@/components/content/ArticleHero';
@@ -22,8 +23,10 @@ export async function generateStaticParams() {
     .filter((i) => i._type === 'photography')
     .map((i) => ({ slug: i.slug }));
   try {
-    const slugs = await client.fetch(PHOTOGRAPHY_SLUGS_QUERY);
-    return [...slugs.map((s: { slug: string }) => ({ slug: s.slug })), ...placeholderSlugs];
+    const slugs: { slug: string }[] = await client.fetch(PHOTOGRAPHY_SLUGS_QUERY);
+    // Placeholder pages are only built while the CMS has no real content.
+    if (slugs.length > 0 || (await hasRealContent())) return slugs.map((s) => ({ slug: s.slug }));
+    return placeholderSlugs;
   } catch {
     return placeholderSlugs;
   }
@@ -52,7 +55,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 type SeriesImage = {
   _key: string;
   // imageBlock: the picture itself lives in the nested `asset` image field
-  asset?: { asset?: object };
+  asset?: { asset?: object; lqip?: string };
   alt?: string;
   caption?: string;
   description?: string;
@@ -61,7 +64,7 @@ type SeriesImage = {
 export default async function PhotographyPage({ params }: Props) {
   const { slug } = await params;
   let series = null;
-  try { series = await client.fetch(PHOTOGRAPHY_QUERY, { slug }); } catch { /* CORS */ }
+  series = await sanityFetch(PHOTOGRAPHY_QUERY, { slug });
   if (!series && slug.startsWith('_placeholder')) {
     const match = PLACEHOLDER_ITEMS.find((i) => i.slug === slug && i._type === 'photography');
     if (match) series = { ...PLACEHOLDER_PHOTO_SERIES, title: match.title, description: match.description, location: match.location, publishedAt: match.publishedAt };
@@ -113,8 +116,8 @@ export default async function PhotographyPage({ params }: Props) {
                           alt={altText}
                           fill
                           priority={!series.coverImage?.asset && i < 3}
-                          placeholder="blur"
-                          blurDataURL={urlFor(image.asset).width(20).height(15).fit('crop').format('webp').quality(30).url()}
+                          placeholder={image.asset.lqip ? 'blur' : 'empty'}
+                          blurDataURL={image.asset.lqip}
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                           className="object-cover transition-transform duration-[var(--duration-slow)] group-hover:scale-[1.03]"
                         />

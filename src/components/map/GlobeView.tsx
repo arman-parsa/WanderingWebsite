@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
-import { formatDate } from '@/lib/utils';
 import ArticlePanel from './ArticlePanel';
 
 export type GlobeItem = {
@@ -622,16 +621,6 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
       if (wrap.contains(canvas)) wrap.removeChild(canvas);
     };
   }, [items]);
-
-  const TYPE_HREF: Record<string, string> = {
-    writing: '/writing',
-    mixedMedia: '/mixed-media',
-    photography: '/photography',
-    videography: '/videography',
-  };
-
-  void TYPE_HREF; // used in ArticlePanel, suppress warning
-  void formatDate; // used in ArticlePanel
 
   const panelOpen = panel !== null;
 

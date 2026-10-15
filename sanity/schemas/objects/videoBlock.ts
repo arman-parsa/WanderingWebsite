@@ -9,11 +9,15 @@ export const videoBlock = defineType({
       name: 'platform',
       title: 'Platform',
       type: 'string',
-      options: { list: ['vimeo', 'self-hosted'], layout: 'radio' },
+      options: { list: ['vimeo'], layout: 'radio' },
       initialValue: 'vimeo',
+      // Only Vimeo is supported by the site's player — hidden so editors
+      // can't pick an option that would render nothing.
+      hidden: true,
     }),
     defineField({ name: 'vimeoId', title: 'Vimeo Video ID', type: 'string',
-      description: 'Paste the full Vimeo link (e.g. vimeo.com/123456789) or just the numeric ID — both work, including unlisted links.' }),
+      description: 'Paste the full Vimeo link (e.g. vimeo.com/123456789) or just the numeric ID — both work, including unlisted links.',
+      validation: (Rule) => Rule.required().warning('Without a Vimeo link this video won’t appear on the site.') }),
     defineField({ name: 'title', title: 'Title', type: 'string', validation: (Rule) => Rule.required() }),
     defineField({ name: 'description', title: 'Description', type: 'text', rows: 2, description: 'Optional description shown beneath the video.' }),
     defineField({

@@ -4,6 +4,7 @@ import { SanityImage } from '@/components/content/SanityImage';
 import Link from 'next/link';
 import { useState } from 'react';
 import { urlFor } from '@/lib/sanityImage';
+import { TYPE_HREF, TYPE_LABEL } from '@/lib/contentTypes';
 
 type ContentItem = {
   _type: 'writing' | 'mixedMedia' | 'photography' | 'videography';
@@ -12,20 +13,6 @@ type ContentItem = {
   location?: string;
   description?: string;
   coverImage?: { asset?: object; alt?: string; hotspot?: { x: number; y: number } };
-};
-
-const TYPE_HREF: Record<string, string> = {
-  writing:     '/writing',
-  mixedMedia:  '/mixed-media',
-  photography: '/photography',
-  videography: '/videography',
-};
-
-const TYPE_LABEL: Record<string, string> = {
-  writing:     'Writing',
-  mixedMedia:  'Mixed Media',
-  photography: 'Photography',
-  videography: 'Videography',
 };
 
 type SpecificFilter = 'writing' | 'photography' | 'mixedMedia' | 'videography';

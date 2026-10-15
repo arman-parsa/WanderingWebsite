@@ -4,20 +4,7 @@ import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 import { formatDate } from '@/lib/utils';
 import type { Cluster, GlobeItem } from './GlobeView';
-
-const TYPE_HREF: Record<string, string> = {
-  writing: '/writing',
-  mixedMedia: '/mixed-media',
-  photography: '/photography',
-  videography: '/videography',
-};
-
-const TYPE_LABEL: Record<string, string> = {
-  writing: 'Writing',
-  mixedMedia: 'Mixed Media',
-  photography: 'Photography',
-  videography: 'Videography',
-};
+import { TYPE_HREF, TYPE_LABEL } from '@/lib/contentTypes';
 
 type Props = {
   cluster: Cluster | null;

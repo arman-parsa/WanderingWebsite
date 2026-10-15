@@ -6,6 +6,8 @@
 
 export type SanityImageObject = {
   asset?: { _ref?: string };
+  /** Tiny base64 preview from Sanity (asset->metadata.lqip), for blur-up. */
+  lqip?: string;
   hotspot?: { x: number; y: number };
   crop?: { top: number; bottom: number; left: number; right: number };
 };

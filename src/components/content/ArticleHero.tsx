@@ -15,6 +15,7 @@ type Props = {
     asset?: object;
     alt?: string;
     hotspot?: { x: number; y: number };
+    lqip?: string;
   };
 };
 
@@ -55,7 +56,7 @@ function MetaRow({
 export function ArticleHero({ title, description, publishedAt, location, tags, category, coverImage }: Props) {
   const hasImage = !!coverImage?.asset;
   const src = hasImage ? urlFor(coverImage!).width(2560).format('webp').quality(85).url() : null;
-  const blurSrc = hasImage ? urlFor(coverImage!).width(20).format('webp').quality(30).url() : undefined;
+  const blurSrc = hasImage ? coverImage!.lqip : undefined;
   const objectPosition = coverImage?.hotspot
     ? `${coverImage.hotspot.x * 100}% ${coverImage.hotspot.y * 100}%`
     : 'center';

@@ -41,8 +41,8 @@ export function ImagePair({ value }: { value: ImagePairValue }) {
                 src={urlFor(img).width(1400).format('webp').quality(85).url()}
                 alt={img.alt || img.caption || ''}
                 fill
-                placeholder="blur"
-                blurDataURL={urlFor(img).width(20).format('webp').quality(30).url()}
+                placeholder={img.lqip ? 'blur' : 'empty'}
+                blurDataURL={img.lqip}
                 sizes={
                   allPortrait
                     ? `${share(i)}vw`

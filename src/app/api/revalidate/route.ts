@@ -1,24 +1,18 @@
 import { revalidatePath } from 'next/cache';
 import { type NextRequest } from 'next/server';
+import { TYPE_HREF as TYPE_PATH } from '@/lib/contentTypes';
 
 /*
  * Sanity webhook → POST /api/revalidate
  *
  * Configure in Sanity: API → Webhooks → Create webhook
- *   URL: https://yourdomain.com/api/revalidate
+ *   URL: https://armanparsa.earth/api/revalidate
  *   Dataset: production
  *   Trigger on: Create, Update, Delete
  *   Projections: { _type, slug }
  *   HTTP method: POST
  *   HTTP Headers: Authorization: Bearer <SANITY_WEBHOOK_SECRET>
  */
-
-const TYPE_PATH: Record<string, string> = {
-  writing:     '/writing',
-  mixedMedia:  '/mixed-media',
-  photography: '/photography',
-  videography: '/videography',
-};
 
 export async function POST(request: NextRequest) {
   const secret = request.headers.get('authorization')?.replace('Bearer ', '');
@@ -39,14 +33,11 @@ export async function POST(request: NextRequest) {
   const { _type, slug } = body;
   const basePath = _type ? TYPE_PATH[_type] : null;
 
-  if (basePath && slug?.current) {
-    revalidatePath(`${basePath}/${slug.current}`);
-  }
-
-  // Always revalidate index pages
-  revalidatePath('/library');
-  revalidatePath('/earth');
-  revalidatePath('/');
+  // One publish can touch many pages — the piece itself, every list it
+  // appears in (home, library, earth, gallery), its social card, the
+  // sitemap, and the old path if a slug was renamed or a piece deleted.
+  // At this size, refreshing everything is cheap and never misses one.
+  revalidatePath('/', 'layout');
 
   return Response.json({
     revalidated: true,

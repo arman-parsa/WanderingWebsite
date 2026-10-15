@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
-import { client, GALLERY_CONTENT_QUERY } from '@/lib/sanity';
+import { GALLERY_CONTENT_QUERY } from '@/lib/sanity';
+import { sanityFetch } from '@/lib/sanityFetch';
 import { urlFor } from '@/lib/sanityImage';
 import { GalleryClient, type GalleryItem } from '@/components/gallery/GalleryClient';
 import { pageMetadata } from '@/lib/metadata';
+import { TYPE_HREF } from '@/lib/contentTypes';
 
 export const revalidate = 60;
 
@@ -12,13 +14,6 @@ export const metadata: Metadata = pageMetadata({
     'A floating collage of photographs drawn from the pieces on armanparsa.earth — click any work to explore the story it belongs to.',
   path: '/gallery',
 });
-
-const TYPE_HREF: Record<string, string> = {
-  writing:     '/writing',
-  mixedMedia:  '/mixed-media',
-  photography: '/photography',
-  videography: '/videography',
-};
 
 // Safety ceiling only — the gallery shows every photo it can get.
 const MAX_ITEMS = 90;
@@ -35,6 +30,7 @@ type GalleryPiece = {
   bodyPairs?: PairEntry[];
   galleryBlocks?: ImgEntry[];
   galleryPairs?: PairEntry[];
+  cover?: ImgEntry | null;
 };
 
 /**
@@ -106,6 +102,16 @@ function buildItems(pieces: GalleryPiece[]): GalleryItem[] {
 }
 
 /**
+ * Fallback when no piece has inline photographs yet (e.g. only writing with
+ * covers): use each piece's cover so the gallery isn't empty.
+ */
+function buildCoverItems(pieces: GalleryPiece[]): GalleryItem[] {
+  return buildItems(pieces.map(p => ({
+    ...p, bodyBlocks: [], bodyPairs: [], galleryPairs: [], galleryBlocks: p.cover ? [p.cover] : [],
+  })));
+}
+
+/**
  * Local photos are 2560px originals; serve them through the Next image
  * optimiser at thumbnail / enlarged sizes instead (widths must be in the
  * default deviceSizes, quality in images.qualities). One fixed URL each keeps
@@ -132,20 +138,22 @@ const PLACEHOLDER_GALLERY: GalleryItem[] = [
 ];
 
 export default async function GalleryPage() {
-  let pieces: GalleryPiece[] = [];
-  try {
-    pieces = await client.fetch(GALLERY_CONTENT_QUERY);
-  } catch {
-    // Sanity unreachable — placeholder collage below.
-  }
+  const pieces = (await sanityFetch<GalleryPiece[]>(GALLERY_CONTENT_QUERY)) ?? [];
 
   let items = buildItems(pieces);
-  if (items.length === 0) items = PLACEHOLDER_GALLERY.map(optimisedLocal);
+  // Pieces with no inline photographs yet: fall back to their covers.
+  if (items.length === 0) items = buildCoverItems(pieces);
+  // Placeholder collage only while the CMS is empty.
+  if (items.length === 0 && pieces.length === 0) items = PLACEHOLDER_GALLERY.map(optimisedLocal);
 
   return (
     <main id="main-content" className="gallery-stage">
       <h1 className="sr-only">Gallery — photographs from the pieces on this site</h1>
-      <GalleryClient items={items} />
+      {items.length > 0 ? (
+        <GalleryClient items={items} />
+      ) : (
+        <p className="gallery-empty">Nothing here yet.</p>
+      )}
     </main>
   );
 }

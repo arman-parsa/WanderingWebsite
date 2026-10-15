@@ -3,7 +3,7 @@ import { urlFor } from '@/lib/sanityImage';
 import { SITE_NAME, SITE_URL } from '@/lib/siteConfig';
 
 // Re-export constants so callers can import from one place
-export { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SOCIAL_PROFILES, OG_IMAGE } from '@/lib/siteConfig';
+export { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SOCIAL_PROFILES } from '@/lib/siteConfig';
 
 type SanityImageRef = { asset?: object; alt?: string };
 

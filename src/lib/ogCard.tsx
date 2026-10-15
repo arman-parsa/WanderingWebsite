@@ -14,6 +14,7 @@
 import { ImageResponse } from 'next/og';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { TYPE_LABEL } from '@/lib/contentTypes';
 
 export const OG_SIZE = { width: 1200, height: 630 };
 export const OG_CONTENT_TYPE = 'image/png';
@@ -173,13 +174,6 @@ export async function siteOgImage() {
 }
 
 export const SITE_OG_ALT = 'Arman Parsa — a portfolio of writing, photography and videography';
-
-const TYPE_LABEL: Record<string, string> = {
-  writing: 'Writing',
-  mixedMedia: 'Mixed Media',
-  photography: 'Photography',
-  videography: 'Videography',
-};
 
 /** category · location eyebrow from a piece. */
 export function eyebrowFor(type: string, location?: string) {

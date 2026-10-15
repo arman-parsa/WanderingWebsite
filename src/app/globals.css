@@ -175,58 +175,10 @@ a, button {
 }
 
 /* ── Entrance animations ─────────────────────────────────── */
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
 @keyframes fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-
-@keyframes fade-in-scale {
-  from { opacity: 0; transform: scale(1.04); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-@keyframes fade-up-24 {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fade-up {
-  animation: fade-up var(--duration-slow) var(--ease-out) both;
-}
-
-.animate-fade-in {
-  animation: fade-in var(--duration-slow) var(--ease-out) both;
-}
-
-.animate-fade-in-scale {
-  animation: fade-in-scale var(--duration-slow) var(--ease-out) both;
-}
-
-.animate-fade-up-24 {
-  animation: fade-up-24 var(--duration-slow) var(--ease-out) both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-fade-up,
-  .animate-fade-in,
-  .animate-fade-in-scale,
-  .animate-fade-up-24 {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/* ── Aspect ratios ───────────────────────────────────────── */
-.aspect-hero    { aspect-ratio: 16 / 9; }
-.aspect-portrait { aspect-ratio: 3 / 4; }
-.aspect-wide    { aspect-ratio: 21 / 9; }
-.aspect-film    { aspect-ratio: 2.39 / 1; }
 
 /* ── Article media: breakout widths ──────────────────────── */
 /* Escape the 740px text column from inside it; centred on the viewport
@@ -263,13 +215,6 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
 .lightbox-track::-webkit-scrollbar { display: none; }
 
 /* ── Typography utilities ────────────────────────────────── */
-.text-body {
-  font-family: var(--font-serif);
-  font-size: var(--text-base);
-  line-height: var(--leading-relaxed);
-  color: var(--color-ink);
-}
-
 .text-caption {
   font-family: var(--font-sans);
   font-size: var(--text-xs);
@@ -277,14 +222,6 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
   letter-spacing: var(--tracking-wide);
   color: var(--color-ink-muted);
   text-transform: uppercase;
-}
-
-.text-display {
-  font-family: var(--font-serif);
-  font-size: var(--text-display);
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-tight);
-  font-weight: 300;
 }
 
 /* ── Article body ────────────────────────────────────────── */
@@ -351,16 +288,6 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
   transition: color 400ms ease;
 }
 
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: clamp(1.5rem, 3vw, 2.5rem);
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  min-width: 0;
-}
-
 .nav-link {
   font-family: var(--font-sans);
   font-size: 0.7rem;
@@ -395,22 +322,6 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
   transform: scaleX(1);
   transform-origin: left;
   transition: none;
-}
-
-.nav-wordmark {
-  font-family: var(--font-serif);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: clamp(0.75rem, 1.2vw, 0.95rem);
-  color: var(--nav-text, #1c1814);
-  text-decoration: none;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition: opacity 250ms ease;
-}
-
-.nav-wordmark:hover {
-  opacity: 0.65;
 }
 
 /* ── Hero section ────────────────────────────────────────────── */
@@ -886,31 +797,6 @@ body.gallery-open footer { display: none; }
 .logo-link:hover { opacity: 0.65; }
 
 /* ── Homepage ─────────────────────────────────────────────── */
-.home-opening {
-  padding-top: 168px;
-  padding-bottom: 132px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 40px;
-}
-.home-tagline {
-  font-family: var(--font-serif);
-  font-size: 16px;
-  font-weight: 300;
-  font-style: italic;
-  letter-spacing: 0.01em;
-  line-height: 1.6;
-  text-align: center;
-}
-.home-title {
-  font-family: var(--font-serif);
-  font-weight: 300;
-  font-size: clamp(60px, 5.6vw, 80px);
-  letter-spacing: -0.03em;
-  line-height: 1.04;
-}
 /* Matches .home-read-more so the section opens and closes in one voice. */
 .home-section-label {
   font-family: var(--font-sans);
@@ -999,13 +885,6 @@ body.gallery-open footer { display: none; }
 }
 
 @media (max-width: 860px) {
-  .home-opening {
-    flex-direction: column;
-    align-items: flex-start;
-    padding-top: 112px;
-    padding-bottom: 80px;
-  }
-  .home-tagline         { text-align: left; }
   .home-article-row        { flex-direction: column; align-items: flex-start; gap: 10px; }
   .home-article-titleblock { flex: none; width: 100%; }
   .home-article-meta       { flex: none; width: 100%; }
@@ -1171,4 +1050,16 @@ html.intro-seen .intro-loader { display: none !important; }
   border: none;
   cursor: pointer;
   text-align: left;
+}
+
+/* Gallery with no photographs yet (real content, none with images). */
+.gallery-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  font-family: var(--font-serif);
+  color: var(--color-ink-muted);
 }

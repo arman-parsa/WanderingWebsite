@@ -21,6 +21,9 @@ export const photography = defineType({
       type: 'string',
       options: { list: ['grid', 'slideshow', 'vertical-scroll'], layout: 'radio' },
       initialValue: 'grid',
+      // Not built yet — the photography page always shows a grid. Hidden
+      // until slideshow / vertical-scroll layouts exist; stored values kept.
+      hidden: true,
     }),
     defineField({
       name: 'printsUrl',

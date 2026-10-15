@@ -38,7 +38,6 @@ export function ImageBlock({ value }: { value: ImageBlockValue }) {
   const constrain = isPortrait ? { maxWidth: '32rem', marginInline: 'auto' } : undefined;
 
   const src = urlFor(image).width(FETCH_WIDTH[width]).format('webp').quality(85).url();
-  const blurSrc = urlFor(image).width(20).format('webp').quality(30).url();
   const objectPosition = image.hotspot
     ? `${image.hotspot.x * 100}% ${image.hotspot.y * 100}%`
     : 'center';
@@ -55,8 +54,8 @@ export function ImageBlock({ value }: { value: ImageBlockValue }) {
         src={src}
         alt={value.alt || value.caption || ''}
         fill
-        placeholder="blur"
-        blurDataURL={blurSrc}
+        placeholder={image.lqip ? 'blur' : 'empty'}
+        blurDataURL={image.lqip}
         sizes={isPortrait ? '(max-width: 640px) 100vw, 512px' : SIZES[width]}
         className="object-cover"
         style={{ objectPosition }}
