@@ -2,20 +2,16 @@ import type { Metadata } from 'next';
 import { client, GALLERY_CONTENT_QUERY } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
 import { GalleryClient, type GalleryItem } from '@/components/gallery/GalleryClient';
-import { SITE_URL } from '@/lib/metadata';
+import { pageMetadata } from '@/lib/metadata';
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Gallery',
-  description: 'A floating collage of photographs drawn from the pieces on armanparsa.earth — click any work to explore the story it belongs to.',
-  alternates: { canonical: `${SITE_URL}/gallery` },
-  openGraph: {
-    title: 'Gallery · Arman Parsa',
-    description: 'A floating collage of photographs drawn from the pieces on armanparsa.earth — click any work to explore the story it belongs to.',
-    url: `${SITE_URL}/gallery`,
-  },
-};
+  description:
+    'A floating collage of photographs drawn from the pieces on armanparsa.earth — click any work to explore the story it belongs to.',
+  path: '/gallery',
+});
 
 const TYPE_HREF: Record<string, string> = {
   writing:     '/writing',

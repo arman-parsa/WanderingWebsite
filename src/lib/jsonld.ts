@@ -21,7 +21,7 @@ export const WEBSITE_JSON_LD = {
       name: SITE_NAME,
       description: SITE_DESCRIPTION,
       publisher: { '@id': `${SITE_URL}/#person` },
-      inLanguage: 'en',
+      inLanguage: 'en-GB',
     },
     PERSON_JSON_LD,
   ],
@@ -58,7 +58,9 @@ export function buildContentJsonLd(input: ContentJsonLdInput) {
       [input.type === 'VideoObject' ? 'thumbnailUrl' : 'image']: input.imageUrl,
     }),
     ...(input.embedUrl && { embedUrl: input.embedUrl }),
-    author: { '@id': `${SITE_URL}/#person` },
-    inLanguage: 'en',
+    // Inline name/url as well as the @id so validators that read one block
+    // at a time still see a complete author.
+    author: { '@type': 'Person', '@id': `${SITE_URL}/#person`, name: 'Arman Parsa', url: SITE_URL },
+    inLanguage: 'en-GB',
   };
 }

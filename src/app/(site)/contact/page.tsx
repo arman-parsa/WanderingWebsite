@@ -1,16 +1,12 @@
 import type { Metadata } from 'next';
-import { SITE_URL } from '@/lib/metadata';
+import { pageMetadata } from '@/lib/metadata';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Contact',
-  description: 'Get in touch with Arman Parsa for partnerships, editorial enquiries, or to say hello.',
-  alternates: { canonical: `${SITE_URL}/contact` },
-  openGraph: {
-    title: 'Contact · Arman Parsa',
-    description: 'Get in touch with Arman Parsa for partnerships, editorial enquiries, or to say hello.',
-    url: `${SITE_URL}/contact`,
-  },
-};
+  description:
+    'Get in touch with Arman Parsa for partnerships, editorial enquiries, or to say hello.',
+  path: '/contact',
+});
 
 export default function ContactPage() {
   return (

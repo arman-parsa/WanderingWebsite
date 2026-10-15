@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useRef } from 'react';
 import { formatDate } from '@/lib/utils';
 import type { Cluster, GlobeItem } from './GlobeView';
 
@@ -26,6 +27,18 @@ type Props = {
 
 export default function ArticlePanel({ cluster, onClose, isMobile }: Props) {
   const open = cluster !== null;
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  // Move focus into the panel when it opens, so keyboard users land on it.
+  useEffect(() => {
+    if (cluster) closeRef.current?.focus({ preventScroll: true });
+  }, [cluster]);
+
+  const label = cluster
+    ? cluster.items.length === 1
+      ? cluster.items[0].location || cluster.items[0].title
+      : `${cluster.items.length} pieces near ${cluster.items[0].location ?? 'this place'}`
+    : undefined;
 
   // While closed the panel is also visibility:hidden (flipped only after the
   // slide-out finishes). Without this, the desktop→mobile style swap on
@@ -67,7 +80,13 @@ export default function ArticlePanel({ cluster, onClose, isMobile }: Props) {
       };
 
   return (
-    <div style={panelStyle} aria-hidden={!open}>
+    <div
+      style={panelStyle}
+      role="dialog"
+      aria-label={label}
+      aria-hidden={!open}
+      inert={!open ? true : undefined}
+    >
       {cluster && (
         <div style={{
           padding: '2rem',
@@ -75,13 +94,17 @@ export default function ArticlePanel({ cluster, onClose, isMobile }: Props) {
           position: 'relative',
         }}>
           {/* Close */}
+          {/* 44px tap target; the extra padding is offset so the × stays put. */}
           <button
+            ref={closeRef}
             onClick={onClose}
             aria-label="Close panel"
             style={{
               position: 'absolute',
-              top: isMobile ? '1.25rem' : 'calc(4rem + 1.25rem)',
-              right: '1.25rem',
+              top: isMobile ? 'calc(1.25rem - 12px)' : 'calc(4rem + 1.25rem - 12px)',
+              right: 'calc(1.25rem - 12px)',
+              minWidth: '44px',
+              minHeight: '44px',
               fontFamily: 'var(--font-sans)',
               fontSize: '1rem',
               color: '#7a7067',
@@ -89,7 +112,7 @@ export default function ArticlePanel({ cluster, onClose, isMobile }: Props) {
               border: 'none',
               cursor: 'pointer',
               lineHeight: 1,
-              padding: '4px',
+              padding: '16px',
             }}
           >
             ×

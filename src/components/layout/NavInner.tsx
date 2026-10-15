@@ -60,6 +60,7 @@ export function NavInner() {
   const [scrolled, setScrolled]         = useState(false);
   const [isMobile, setIsMobile]         = useState(false);
   const logoRef = useRef<HTMLAnchorElement>(null);
+  const menuBtnRef = useRef<HTMLButtonElement>(null);
 
   // Reset scroll-derived state and close the menu on route change — during
   // render (React's "adjust state when props change" pattern) so the bar can
@@ -130,6 +131,18 @@ export function NavInner() {
     };
   }, [isHomepage]);
 
+  // Escape closes the menu and returns focus to its button.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      setMenuOpen(false);
+      menuBtnRef.current?.focus();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [menuOpen]);
+
   // Mobile breakpoint for the dropdown layout.
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 640);
@@ -164,6 +177,7 @@ export function NavInner() {
         }}
       />
       <nav
+        aria-label="Main"
         className="nav-inner nav-grid"
         style={{ '--nav-text': textColour } as React.CSSProperties}
       >
@@ -202,20 +216,13 @@ export function NavInner() {
 
         {/* Right — hamburger / expanded links */}
         <div className="nav-grid-right">
-          {menuOpen && !isMobile && (
-            <div className="nav-menu-expanded">
-              <NavLink href="/library">LIBRARY</NavLink>
-              <NavLink href="/gallery">GALLERY</NavLink>
-              <NavLink href="/store" prefetch={false}>STORE</NavLink>
-              <NavLink href="/about">ABOUT</NavLink>
-              <NavLink href="/contact">CONTACT</NavLink>
-            </div>
-          )}
           <button
+            ref={menuBtnRef}
             className="nav-hamburger-btn"
             onClick={() => setMenuOpen(o => !o)}
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
+            aria-controls={menuOpen ? 'site-menu' : undefined}
           >
             {menuOpen ? (
               <span className="nav-close-x" style={{ color: textColour }}>✕</span>
@@ -226,12 +233,24 @@ export function NavInner() {
               </span>
             )}
           </button>
+          {/* After the button in the DOM so Tab reaches the links next;
+              order:-1 keeps them visually to its left. */}
+          {menuOpen && !isMobile && (
+            <div id="site-menu" className="nav-menu-expanded" style={{ order: -1 }}>
+              <NavLink href="/library">LIBRARY</NavLink>
+              <NavLink href="/gallery">GALLERY</NavLink>
+              <NavLink href="/store" prefetch={false}>STORE</NavLink>
+              <NavLink href="/about">ABOUT</NavLink>
+              <NavLink href="/contact">CONTACT</NavLink>
+            </div>
+          )}
         </div>
       </nav>
 
       {/* Mobile full-width dropdown (below nav bar) */}
       {menuOpen && isMobile && (
         <div
+          id="site-menu"
           className="nav-menu-mobile"
           style={{
             background: darkSurface ? 'rgba(13, 13, 13, 0.97)' : 'rgba(248, 244, 239, 0.97)',

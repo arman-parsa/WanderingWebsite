@@ -115,7 +115,9 @@ function targetRect(aspect: number): Rect {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
   const maxW = Math.min(vw * 0.86, 960);
-  const maxH = vh * 0.62;
+  // Leave room below for the caption (title, place, "View the piece" ≈ 142px
+  // including its 26px offset) so it never falls off short screens.
+  const maxH = Math.max(Math.min(vh * 0.62, vh - 84 - 142), 120);
   let width = maxW;
   let height = width / aspect;
   if (height > maxH) {
@@ -136,6 +138,8 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
   const imgRefs = useRef(new Map<number, HTMLImageElement>());
   const srcButtonRef = useRef<HTMLButtonElement | null>(null);
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const returnFocusRef = useRef<HTMLButtonElement | null>(null);
   const closingRef = useRef(false);
 
   // The gallery is a fixed-viewport scene: no page scroll, no site footer.
@@ -180,17 +184,41 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
     if (img) setLightbox(lb => (lb ? { ...lb, from: rectOf(img) } : lb));
     setPhase('exit');
     window.setTimeout(() => {
+      // Focus returns after React has un-hidden the source print (a
+      // visibility:hidden element can't take focus) — see the effect below.
+      returnFocusRef.current = srcButtonRef.current;
       setLightbox(null);
       setPhase('enter');
       closingRef.current = false;
-      srcButtonRef.current?.focus();
       srcButtonRef.current = null;
     }, OPEN_MS + 40);
   }, [lightbox]);
 
   useEffect(() => {
+    if (lightbox || !returnFocusRef.current) return;
+    returnFocusRef.current.focus({ preventScroll: true });
+    returnFocusRef.current = null;
+  }, [lightbox]);
+
+  useEffect(() => {
     if (!lightbox) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close(); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { close(); return; }
+      // Keep Tab inside the enlarged view (Close ↔ View the piece).
+      if (e.key !== 'Tab' || !dialogRef.current) return;
+      const focusables = Array.from(
+        dialogRef.current.querySelectorAll<HTMLElement>('button, a[href]')
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const inside = dialogRef.current.contains(document.activeElement);
+      if (e.shiftKey && (document.activeElement === first || !inside)) {
+        e.preventDefault(); last.focus();
+      } else if (!e.shiftKey && (document.activeElement === last || !inside)) {
+        e.preventDefault(); first.focus();
+      }
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [lightbox, close]);
@@ -210,7 +238,7 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
   return (
     <>
       {/* ── Floating collage ── */}
-      <div className="g-stage" aria-label="Photo collage">
+      <div className="g-stage" aria-label="Photo collage" inert={lightbox ? true : undefined}>
         {/* Every photo gets a slot, each photo shown once. With more photos
             than base slots, extra slots are derived; with slightly fewer,
             the prints spread across the composition so gaps distribute
@@ -224,6 +252,9 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
             ? slotFor(i)
             : SLOTS[Math.floor((i * SLOTS.length) / items.length)];
           const isSource = lightbox?.index === i;
+          // A sparse set repeats photos to fill the wall; the repeats are
+          // decorative, so keyboard and screen readers get each photo once.
+          const isRepeat = i >= items.length;
           return (
             <button
               key={`${item.key}-slot${i}`}
@@ -240,6 +271,8 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
                 ['--g-drift-delay' as string]: `${s.delay}s`,
               } as React.CSSProperties}
               onClick={e => open(item, i, e.currentTarget)}
+              tabIndex={isRepeat ? -1 : undefined}
+              aria-hidden={isRepeat ? true : undefined}
               aria-label={`${item.title}${item.location ? ` — ${item.location}` : ''} (enlarge)`}
             >
               <span className={`g-drift g-drift--${s.drift}`}>
@@ -266,6 +299,7 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
       {/* ── Enlarged view ── */}
       {lightbox && (
         <div
+          ref={dialogRef}
           className={`g-lightbox${shown ? ' g-lightbox--shown' : ''}`}
           role="dialog"
           aria-modal="true"

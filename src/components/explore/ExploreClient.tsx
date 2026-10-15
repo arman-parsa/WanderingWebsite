@@ -65,11 +65,18 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
           {items.length} {items.length === 1 ? 'Piece' : 'Pieces'}
         </p>
 
+        {/* Announces the result count to screen readers when filters change. */}
+        <p className="sr-only" aria-live="polite">
+          {active.size === 0 ? '' : `Showing ${visible.length} ${visible.length === 1 ? 'piece' : 'pieces'}`}
+        </p>
+
         {/* Filter pills */}
         <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
           {FILTERS.map(({ label, value }) => (
             <button
               key={value}
+              type="button"
+              aria-pressed={active.has(value)}
               onClick={() => toggleFilter(value)}
               style={{
                 background: 'none',

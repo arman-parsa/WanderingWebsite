@@ -252,7 +252,6 @@ export function HomepageClient({
                           category and place already live on the title. */}
                       <div
                         className="home-article-meta"
-                        aria-hidden={!showMeta}
                         style={{ opacity: showMeta ? 1 : 0, transition: 'opacity 100ms ease' }}
                       >
                         {item.description && (

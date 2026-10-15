@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { formatDate } from '@/lib/utils';
 import ArticlePanel from './ArticlePanel';
@@ -193,11 +193,26 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
   const [isMobile, setIsMobile] = useState(false);
 
   const panelRef = useRef<Cluster | null>(null);
+  // The keyboard place button that opened the panel — focus returns to it.
+  const placeTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   const handlePanelClose = useCallback(() => {
     setPanel(null);
     panelRef.current = null;
+    placeTriggerRef.current?.focus({ preventScroll: true });
+    placeTriggerRef.current = null;
   }, []);
+
+  // Same clusters as the pins, for the keyboard / screen-reader place list.
+  const places = useMemo(() => clusterItems(items), [items]);
+
+  // Escape closes the panel.
+  useEffect(() => {
+    if (!panel) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') handlePanelClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [panel, handlePanelClose]);
 
   // Track mobile breakpoint
   useEffect(() => {
@@ -652,6 +667,31 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
           letterSpacing: '0.04em',
         }}
       />
+
+      {/* Keyboard / screen-reader access to the pins: hidden until focused. */}
+      <nav aria-label="Places on the globe" className="globe-places">
+        <ul>
+          {places.map((cluster) => {
+            const first = cluster.items[0];
+            const label = first.location || first.title;
+            const n = cluster.items.length;
+            return (
+              <li key={`${cluster.lat},${cluster.lng}`}>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    placeTriggerRef.current = e.currentTarget;
+                    setPanel(cluster);
+                    panelRef.current = cluster;
+                  }}
+                >
+                  {label} — {n} {n === 1 ? 'piece' : 'pieces'}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
 
       {/* Article panel */}
       <ArticlePanel cluster={panel} onClose={handlePanelClose} isMobile={isMobile} />

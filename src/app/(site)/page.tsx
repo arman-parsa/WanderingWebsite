@@ -18,6 +18,8 @@ export const metadata: Metadata = {
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
     url: SITE_URL,
+    siteName: SITE_NAME,
+    locale: 'en_GB',
     type: 'website',
   },
 };

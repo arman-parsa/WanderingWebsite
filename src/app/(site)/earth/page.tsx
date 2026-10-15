@@ -5,20 +5,16 @@ import { MAP_CONTENT_QUERY } from '@/lib/sanity';
 import { GlobeLoader } from '@/components/map';
 import { PLACEHOLDER_GLOBE_ITEMS } from '@/lib/placeholders';
 import type { GlobeItem } from '@/components/map';
-import { SITE_URL } from '@/lib/metadata';
+import { pageMetadata } from '@/lib/metadata';
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Earth',
-  description: 'An interactive globe showing the geographic locations of all published work — stories collected across the world by Arman Parsa.',
-  alternates: { canonical: `${SITE_URL}/earth` },
-  openGraph: {
-    title: 'Earth · Arman Parsa',
-    description: 'An interactive globe showing the geographic locations of all published work — stories collected across the world by Arman Parsa.',
-    url: `${SITE_URL}/earth`,
-  },
-};
+  description:
+    'An interactive globe showing the geographic locations of all published work — stories collected across the world by Arman Parsa.',
+  path: '/earth',
+});
 
 export default async function MapPage() {
   // Start fetching the land outlines with the page, not after the globe's
