@@ -304,14 +304,17 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
 
     // ── Land (async) ─────────────────────────────────────────────────────
     let landMesh: THREE.Mesh | null = null;
+    let disposed = false;
     fetch('/data/ne_110m_land.json')
       .then((r) => r.json() as Promise<GeoCollection>)
       .then((geojson) => {
+        if (disposed) return; // left /earth before the data arrived
         const landGeo = buildLandGeometry(geojson);
         const landMat = new THREE.MeshStandardMaterial({ color: 0x8a9a6a, roughness: 0.9, metalness: 0, side: THREE.DoubleSide });
         landMesh = new THREE.Mesh(landGeo, landMat);
         globeGroup.add(landMesh);
-      });
+      })
+      .catch(() => { /* land outlines unavailable — ocean sphere and pins still render */ });
 
     // ── Pins ─────────────────────────────────────────────────────────────
     const clusters = clusterItems(items);
@@ -572,6 +575,7 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
 
     // ── Cleanup ──────────────────────────────────────────────────────────
     return () => {
+      disposed = true;
       cancelAnimationFrame(rafId);
       resizeObserver.disconnect();
       if (ia.inactivityTimer) clearTimeout(ia.inactivityTimer);

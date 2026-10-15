@@ -112,7 +112,7 @@ export default async function PhotographyPage({ params }: Props) {
                           src={urlFor(image.asset).width(900).height(675).fit('crop').format('webp').quality(85).url()}
                           alt={altText}
                           fill
-                          priority={i < 3}
+                          priority={!series.coverImage?.asset && i < 3}
                           placeholder="blur"
                           blurDataURL={urlFor(image.asset).width(20).height(15).fit('crop').format('webp').quality(30).url()}
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

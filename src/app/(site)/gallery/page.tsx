@@ -60,10 +60,11 @@ function innerImages(p: GalleryPiece): SanityImage[] {
   return out;
 }
 
-// Collage thumbnails are small, so 1100px keeps a wall of many photos light.
-// The enlarged view (~960px wide, so ~1920px on sharp screens) swaps in the
-// FULL size once it has loaded.
-const THUMB = { width: 1100, quality: 75 };
+// Collage thumbnails render at most ~330px wide, so 800px stays sharp on
+// retina screens while keeping a wall of many photos light. The enlarged view
+// (~960px wide, so ~1920px on sharp screens) swaps in the FULL size once it
+// has loaded.
+const THUMB = { width: 800, quality: 75 };
 const FULL = { width: 2000, quality: 85 };
 
 function imageUrl(img: SanityImage, { width, quality } = THUMB): string | null {
@@ -108,6 +109,19 @@ function buildItems(pieces: GalleryPiece[]): GalleryItem[] {
   return items;
 }
 
+/**
+ * Local photos are 2560px originals; serve them through the Next image
+ * optimiser at thumbnail / enlarged sizes instead (widths must be in the
+ * default deviceSizes, quality in images.qualities). One fixed URL each keeps
+ * the enlarge morph seamless.
+ */
+const nextImage = (src: string, w: number) => `/_next/image?url=${encodeURIComponent(src)}&w=${w}&q=75`;
+const optimisedLocal = (item: GalleryItem): GalleryItem => ({
+  ...item,
+  src: nextImage(item.src, 828),
+  fullSrc: nextImage(item.src, 1920),
+});
+
 /** Local fallback so the gallery works before Sanity content exists. */
 const PLACEHOLDER_GALLERY: GalleryItem[] = [
   { key: 'ph-1',  title: 'Light and Distance in the Atlas Mountains', location: 'Marrakech, Morocco',  href: '/writing/_placeholder-atlas',        src: '/images/DSC06456.jpg', alt: 'A hiker on a forested mountain path' },
@@ -130,7 +144,7 @@ export default async function GalleryPage() {
   }
 
   let items = buildItems(pieces);
-  if (items.length === 0) items = PLACEHOLDER_GALLERY;
+  if (items.length === 0) items = PLACEHOLDER_GALLERY.map(optimisedLocal);
 
   return (
     <main id="main-content" className="gallery-stage">

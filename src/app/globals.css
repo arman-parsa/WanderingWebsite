@@ -3,7 +3,8 @@
 /* ── Font faces ──────────────────────────────────────────────── */
 @font-face {
   font-family: 'Lyon Text';
-  src: url('/fonts/Lyon_Regular.ttf') format('truetype');
+  src: url('/fonts/Lyon_Regular.woff2') format('woff2'),
+       url('/fonts/Lyon_Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -11,7 +12,8 @@
 
 @font-face {
   font-family: 'Suisse Int\'l';
-  src: url('/fonts/SuisseIntl_Light.ttf') format('truetype');
+  src: url('/fonts/SuisseIntl_Light.woff2') format('woff2'),
+       url('/fonts/SuisseIntl_Light.ttf') format('truetype');
   font-weight: 300 400;
   font-style: normal;
   font-display: swap;

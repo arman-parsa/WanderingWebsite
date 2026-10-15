@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { preload } from 'react-dom';
 import { client } from '@/lib/sanity';
 import { MAP_CONTENT_QUERY } from '@/lib/sanity';
 import { GlobeLoader } from '@/components/map';
@@ -20,6 +21,9 @@ export const metadata: Metadata = {
 };
 
 export default async function MapPage() {
+  // Start fetching the land outlines with the page, not after the globe's
+  // three.js chunk has loaded and run.
+  preload('/data/ne_110m_land.json', { as: 'fetch', crossOrigin: 'anonymous' });
   let items: GlobeItem[] = [];
 
   try {

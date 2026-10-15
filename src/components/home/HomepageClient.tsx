@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { sanityLoader } from '@/components/content/SanityImage';
 import Link from 'next/link';
@@ -41,7 +41,14 @@ export function HomepageClient({
   const [bgIdx, setBgIdx]       = useState(0);
   // Slides 0..maxMounted render an <Image>; the rest stay empty until the
   // rotation approaches them, so the browser never downloads all heroes at once.
-  const [maxMounted, setMaxMounted] = useState(() => Math.min(1, heroImages.length - 1));
+  // Slide 1 mounts once slide 0 has loaded, so it doesn't compete with the
+  // first (LCP) image for bandwidth.
+  const [maxMounted, setMaxMounted] = useState(0);
+  const mountSecondSlide = () => setMaxMounted(m => Math.max(m, Math.min(1, heroImages.length - 1)));
+  // Rotation pauses while the hero is scrolled away or the tab is hidden.
+  const heroRef = useRef<HTMLElement>(null);
+  const [heroVisible, setHeroVisible] = useState(true);
+  const [tabVisible, setTabVisible]   = useState(true);
 
   const bgActive = hovered !== null;
   const bgUrl    = hovered?.coverImageUrl;
@@ -53,9 +60,27 @@ export function HomepageClient({
     return () => window.removeEventListener('resize', check);
   }, []);
 
+  // Fallback in case slide 0's load event is missed (e.g. served from cache
+  // before hydration): mount slide 1 well before the first rotation at 5s.
+  useEffect(() => {
+    const id = setTimeout(mountSecondSlide, 3000);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) return;
+    const io = new IntersectionObserver(([entry]) => setHeroVisible(entry.isIntersecting));
+    io.observe(hero);
+    const onVis = () => setTabVisible(document.visibilityState === 'visible');
+    document.addEventListener('visibilitychange', onVis);
+    return () => { io.disconnect(); document.removeEventListener('visibilitychange', onVis); };
+  }, []);
+
   // Rotate hero background images
   useEffect(() => {
-    if (heroImages.length <= 1) return;
+    if (heroImages.length <= 1 || !heroVisible || !tabVisible) return;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reducedMotion) return;
     const id = setInterval(() => {
@@ -67,16 +92,22 @@ export function HomepageClient({
       });
     }, 5000);
     return () => clearInterval(id);
-  }, [heroImages]);
+  }, [heroImages, heroVisible, tabVisible]);
 
-  // Preload article cover images
+  // Preload article cover images for the hover background — only on devices
+  // that can hover (touch screens never show it), and only once the page has
+  // settled so they don't compete with the hero.
   useEffect(() => {
-    items.forEach(item => {
-      if (item.coverImageUrl) {
-        const img = new window.Image();
-        img.src = item.coverImageUrl;
-      }
-    });
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    const id = setTimeout(() => {
+      items.forEach(item => {
+        if (item.coverImageUrl) {
+          const img = new window.Image();
+          img.src = item.coverImageUrl;
+        }
+      });
+    }, 2000);
+    return () => clearTimeout(id);
   }, [items]);
 
   // Sync body class for NavInner bg-active detection
@@ -122,6 +153,7 @@ export function HomepageClient({
         {/* ── Hero ─────────────────────────────────────────── */}
         {/* z-index 1: below hover bg (z=2), so article hover covers it when partially visible */}
         <section
+          ref={heroRef}
           className="hero-section"
           aria-label="Site introduction"
           data-hero
@@ -145,6 +177,7 @@ export function HomepageClient({
                   alt=""
                   fill
                   priority={i === 0}
+                  onLoad={i === 0 ? mountSecondSlide : undefined}
                   sizes="100vw"
                   className="object-cover"
                 />

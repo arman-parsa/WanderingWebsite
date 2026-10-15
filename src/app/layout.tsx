@@ -36,8 +36,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
       <head>
-        <link rel="preload" as="font" href="/fonts/Lyon_Regular.ttf" type="font/ttf" crossOrigin="anonymous" />
-        <link rel="preload" as="font" href="/fonts/SuisseIntl_Light.ttf" type="font/ttf" crossOrigin="anonymous" />
+        <link rel="preload" as="font" href="/fonts/Lyon_Regular.woff2" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" as="font" href="/fonts/SuisseIntl_Light.woff2" type="font/woff2" crossOrigin="anonymous" />
       </head>
       <body className="bg-paper text-ink antialiased">
         {/* Pre-hydration: skip the intro overlay if it has already played this session. */}

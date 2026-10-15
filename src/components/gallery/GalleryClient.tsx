@@ -247,6 +247,7 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
                 <img
                   src={item.src}
                   alt={item.alt}
+                  loading="lazy"
                   decoding="async"
                   ref={el => {
                     if (el) imgRefs.current.set(i, el);

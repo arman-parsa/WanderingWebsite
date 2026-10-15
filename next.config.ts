@@ -31,6 +31,13 @@ const nextConfig: NextConfig = {
         source: '/(.*)',
         headers: securityHeaders,
       },
+      // Fonts and the globe's land data rarely change — let browsers keep
+      // them for 30 days instead of revalidating on every page load.
+      // (Give a file a new name if it's ever replaced.)
+      {
+        source: '/:dir(fonts|data)/:file*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=86400' }],
+      },
     ];
   },
 
