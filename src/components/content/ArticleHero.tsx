@@ -22,9 +22,9 @@ type Props = {
 // Larger, grounded introductory title — one serif voice shared by every type.
 const TITLE_CLASS =
   'font-serif font-light tracking-tight leading-[1.04] text-[clamp(2.75rem,1.9rem+4.2vw,5.25rem)]';
-const META_CLASS = 'font-sans text-[var(--text-xs)] uppercase tracking-wider';
-const EYEBROW_CLASS = 'mb-4 font-sans text-[var(--text-xs)] uppercase tracking-[0.22em]';
-const DESC_CLASS = 'mt-6 max-w-2xl font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]';
+const META_CLASS = 'font-sans text-[length:var(--text-xs)] uppercase tracking-wider';
+const EYEBROW_CLASS = 'mb-4 font-sans text-[length:var(--text-xs)] uppercase tracking-[0.22em]';
+const DESC_CLASS = 'mt-6 max-w-2xl font-serif text-[length:var(--text-lg)] leading-[var(--leading-relaxed)]';
 
 function MetaRow({
   location,
@@ -40,7 +40,7 @@ function MetaRow({
     <div className={`flex flex-wrap items-center gap-x-4 gap-y-2 ${META_CLASS}`}>
       {stamp && <span>{stamp}</span>}
       {tags?.map((tag) => (
-        <span key={tag} className="opacity-75">#{tag}</span>
+        <span key={tag}>#{tag}</span>
       ))}
       <OpenGalleryButton />
     </div>
@@ -68,7 +68,7 @@ export function ArticleHero({ title, description, publishedAt, location, tags, c
         {category && <p className={`${EYEBROW_CLASS} opacity-70`}>{category}</p>}
         <h1 className={TITLE_CLASS}>{title}</h1>
         {description && <p className={`${DESC_CLASS} opacity-70`}>{description}</p>}
-        <div className="mt-7 opacity-60">
+        <div className="mt-7 opacity-70">
           <MetaRow location={location} publishedAt={publishedAt} tags={tags} />
         </div>
       </header>

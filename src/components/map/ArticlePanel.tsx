@@ -94,7 +94,7 @@ export default function ArticlePanel({ cluster, onClose, isMobile }: Props) {
               minHeight: '44px',
               fontFamily: 'var(--font-sans)',
               fontSize: '1rem',
-              color: '#7a7067',
+              color: '#736960',
               background: 'none',
               border: 'none',
               cursor: 'pointer',
@@ -126,7 +126,7 @@ function SingleArticle({ item }: { item: GlobeItem }) {
         fontSize: '0.65rem',
         textTransform: 'uppercase',
         letterSpacing: '0.15em',
-        color: '#a09890',
+        color: '#736960',
         margin: 0,
       }}>
         {item.location ?? ''}
@@ -138,7 +138,7 @@ function SingleArticle({ item }: { item: GlobeItem }) {
         fontSize: '0.62rem',
         textTransform: 'uppercase',
         letterSpacing: '0.12em',
-        color: '#a09890',
+        color: '#736960',
         margin: '0.5rem 0 0',
       }}>
         {TYPE_LABEL[item._type] ?? item._type}
@@ -163,7 +163,7 @@ function SingleArticle({ item }: { item: GlobeItem }) {
           fontStyle: 'italic',
           fontSize: '0.95rem',
           lineHeight: 1.7,
-          color: '#7a7067',
+          color: '#736960',
           margin: '1rem 0 0',
         }}>
           {item.description}
@@ -175,7 +175,7 @@ function SingleArticle({ item }: { item: GlobeItem }) {
         <p style={{
           fontFamily: 'var(--font-sans)',
           fontSize: '0.65rem',
-          color: '#a09890',
+          color: '#736960',
           margin: '1.5rem 0 0',
         }}>
           {formatDate(item.publishedAt)}
@@ -199,7 +199,7 @@ function ClusterList({ items }: { items: GlobeItem[] }) {
         fontSize: '0.65rem',
         textTransform: 'uppercase',
         letterSpacing: '0.15em',
-        color: '#a09890',
+        color: '#736960',
         margin: '0 0 1.5rem',
       }}>
         {items[0].location ?? ''}
@@ -217,7 +217,7 @@ function ClusterList({ items }: { items: GlobeItem[] }) {
               fontSize: '0.62rem',
               textTransform: 'uppercase',
               letterSpacing: '0.12em',
-              color: '#a09890',
+              color: '#736960',
               margin: '0 0 0.4rem',
             }}>
               {TYPE_LABEL[item._type] ?? item._type}
@@ -258,6 +258,9 @@ function ReadLink({ href }: { href: string }) {
         display: 'inline-flex',
         alignItems: 'center',
         gap: '0.3rem',
+        // 44px-tall tap target without moving the text.
+        padding: '14px 0',
+        margin: '-14px 0',
       }}
       className="read-link"
     >

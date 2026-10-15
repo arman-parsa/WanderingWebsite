@@ -13,7 +13,9 @@ const GlobeView = dynamic(() => import('./GlobeView'), {
         height: '100%',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#f8f4ef',
+        // Transparent over the page's night-sky background — a cream
+        // placeholder flashed before the globe appeared.
+        backgroundColor: 'transparent',
       }}
     >
       <p
@@ -22,7 +24,7 @@ const GlobeView = dynamic(() => import('./GlobeView'), {
           fontSize: '0.7rem',
           textTransform: 'uppercase',
           letterSpacing: '0.12em',
-          color: '#a09890',
+          color: 'rgba(248, 244, 239, 0.6)',
         }}
       >
         Loading

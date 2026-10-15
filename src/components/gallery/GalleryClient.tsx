@@ -294,7 +294,10 @@ export function GalleryClient({ items }: { items: GalleryItem[] }) {
       </div>
 
       {/* ── Frosted hint ── */}
-      <p className="g-hint" aria-hidden="true">Click any work to explore</p>
+      <p className="g-hint" aria-hidden="true">
+        <span className="g-hint-click">Click</span>
+        <span className="g-hint-tap">Tap</span> any work to explore
+      </p>
 
       {/* ── Enlarged view ── */}
       {lightbox && (

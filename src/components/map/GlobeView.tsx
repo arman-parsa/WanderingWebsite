@@ -205,6 +205,12 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
   // Same clusters as the pins, for the keyboard / screen-reader place list.
   const places = useMemo(() => clusterItems(items), [items]);
 
+  // Lets the nav switch its menu button to ink over the cream desktop panel.
+  useEffect(() => {
+    document.body.classList.toggle('globe-panel-open', !!panel && !isMobile);
+    return () => document.body.classList.remove('globe-panel-open');
+  }, [panel, isMobile]);
+
   // Escape closes the panel.
   useEffect(() => {
     if (!panel) return;

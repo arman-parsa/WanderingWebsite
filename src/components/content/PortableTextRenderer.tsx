@@ -15,12 +15,12 @@ const components: PortableTextComponents = {
   },
   block: {
     h2: ({ children }) => (
-      <h2 className="mb-4 mt-12 font-serif text-[var(--text-2xl)] font-light leading-snug tracking-tight">
+      <h2 className="mb-4 mt-12 font-serif text-[length:var(--text-2xl)] font-light leading-snug tracking-tight">
         {children}
       </h2>
     ),
     h3: ({ children }) => (
-      <h3 className="mb-3 mt-8 font-serif text-[var(--text-xl)] font-light leading-snug">
+      <h3 className="mb-3 mt-8 font-serif text-[length:var(--text-xl)] font-light leading-snug">
         {children}
       </h3>
     ),
@@ -30,12 +30,12 @@ const components: PortableTextComponents = {
       </h4>
     ),
     blockquote: ({ children }) => (
-      <blockquote className="my-8 border-l-2 border-current pl-6 font-serif text-[var(--text-lg)] italic opacity-65">
+      <blockquote className="my-8 border-l-2 border-current pl-6 font-serif text-[length:var(--text-lg)] italic opacity-65">
         {children}
       </blockquote>
     ),
     normal: ({ children }) => (
-      <p className="font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
+      <p className="font-serif text-[length:var(--text-lg)] leading-[var(--leading-relaxed)]">
         {children}
       </p>
     ),

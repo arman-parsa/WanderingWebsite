@@ -123,7 +123,7 @@ export function OpenGalleryButton() {
     <button
       type="button"
       onClick={() => ctx.openAt(0)}
-      className="font-sans text-[var(--text-xs)] uppercase tracking-wide opacity-55 underline-offset-4 transition-opacity duration-[var(--duration-fast)] hover:opacity-100 hover:underline focus-visible:opacity-100"
+      className="font-sans text-[length:var(--text-xs)] uppercase tracking-wide opacity-55 underline-offset-4 transition-opacity duration-[var(--duration-fast)] hover:opacity-100 hover:underline focus-visible:opacity-100"
     >
       {parts} — view
     </button>
@@ -241,7 +241,7 @@ function Lightbox({
       {/* Counter */}
       <p
         aria-live="polite"
-        className="absolute left-5 top-5 font-sans text-[var(--text-xs)] uppercase tracking-widest opacity-60"
+        className="absolute left-5 top-5 font-sans text-[length:var(--text-xs)] uppercase tracking-widest opacity-60"
       >
         {pad(active + 1)} — {pad(entries.length)}
       </p>
@@ -287,7 +287,7 @@ function Lightbox({
 
       {/* Caption bar */}
       {captionText && (
-        <p className="pointer-events-none absolute inset-x-0 bottom-6 mx-auto max-w-2xl px-6 text-center font-sans text-[var(--text-xs)] uppercase tracking-wide opacity-60">
+        <p className="pointer-events-none absolute inset-x-0 bottom-6 mx-auto max-w-2xl px-6 text-center font-sans text-[length:var(--text-xs)] uppercase tracking-wide opacity-60">
           {captionText}
         </p>
       )}

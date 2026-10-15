@@ -33,14 +33,14 @@ export default function AboutPage() {
           />
         </div>
         <div className="about-text">
-          <p className="font-serif font-bold text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
+          <p className="font-serif font-bold text-[length:var(--text-lg)] leading-[var(--leading-relaxed)]">
             Amir Arman Ghanbari Parsa is a London-born, 23 year-old, Oxford-educated
             Iranian journalist and photographer/videographer.
           </p>
-          <p className="mt-6 font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
+          <p className="mt-6 font-serif text-[length:var(--text-lg)] leading-[var(--leading-relaxed)]">
             Arman&apos;s work opens an unhurried, grounded and intimate window onto the places he travels — and tries to do justice to what those places have made of him. Across writing, photography and film, he is drawn to culture, spirit and our place in the natural world. His work aims to kindle wonder about the earth and its people, and to inspire the drive to go and see the world for oneself.
           </p>
-          <p className="mt-6 font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
+          <p className="mt-6 font-serif text-[length:var(--text-lg)] leading-[var(--leading-relaxed)]">
             For projects and collaborations, please reach out via the{' '}
             <Link href="/contact" className="underline underline-offset-4 opacity-80 transition-opacity duration-[var(--duration-fast)] hover:opacity-100">
               contact

@@ -34,7 +34,7 @@ const isArticlePath = (path: string) =>
 // Palette (kept in step with globals.css).
 const INK = '#1c1814';
 const PAPER = '#f8f4ef';
-const BAR_PAPER = 'rgba(248, 244, 239, 0.82)'; // translucent white — library on scroll
+const BAR_PAPER = 'rgba(248, 244, 239, 0.82)'; // translucent white — light pages on scroll
 const BAR_INK = 'rgba(13, 13, 13, 0.82)';      // translucent dark  — article past hero
 
 // Header height (h-16 = 64px): the article bar appears the instant the hero's
@@ -50,11 +50,14 @@ const SYMBOL_SCALE_END = 220;
 export function NavInner() {
   const pathname   = usePathname();
   const isHomepage = pathname === '/';
-  const isLibrary  = pathname === '/library';
   const isEarth    = pathname === '/earth';
+  const isGallery  = pathname === '/gallery';
   const isArticle  = isArticlePath(pathname);
 
   const [bodyBgActive, setBodyBgActive] = useState(false);
+  const [globePanelOpen, setGlobePanelOpen] = useState(false);
+  const [hasHero, setHasHero]           = useState(true);
+  const [isPhone, setIsPhone]           = useState(false);
   const [menuOpen, setMenuOpen]         = useState(false);
   const [pastHero, setPastHero]         = useState(false);
   const [scrolled, setScrolled]         = useState(false);
@@ -73,10 +76,12 @@ export function NavInner() {
     setMenuOpen(false);
   }
 
-  // Homepage article-hover overlay (set on <body> by HomepageClient).
+  // Homepage article-hover overlay (set on <body> by HomepageClient), and
+  // the globe's cream side panel (set by GlobeView on desktop).
   useEffect(() => {
     const observer = new MutationObserver(() => {
       setBodyBgActive(document.body.classList.contains('bg-active'));
+      setGlobePanelOpen(document.body.classList.contains('globe-panel-open'));
     });
     observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
     return () => observer.disconnect();
@@ -103,7 +108,12 @@ export function NavInner() {
   // "On scroll" for the library bar — a plain top-or-not flag, mirrored from the
   // resize listener pattern below.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > SCROLL_THRESHOLD_PX);
+    const onScroll = () => {
+      setScrolled(window.scrollY > SCROLL_THRESHOLD_PX);
+      // Articles without a cover have no hero to observe — their dark bar
+      // falls back to this plain "scrolled" flag.
+      setHasHero(!!document.querySelector('[data-hero]'));
+    };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -143,9 +153,13 @@ export function NavInner() {
     return () => document.removeEventListener('keydown', onKey);
   }, [menuOpen]);
 
-  // Mobile breakpoint for the dropdown layout.
+  // Below 1100px the expanded row of links would run into the centred symbol
+  // (tablets, phones held sideways), so the full-width dropdown is used.
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 640);
+    const check = () => {
+      setIsMobile(window.innerWidth < 1100);
+      setIsPhone(window.innerWidth < 640);
+    };
     check();
     window.addEventListener('resize', check, { passive: true });
     return () => window.removeEventListener('resize', check);
@@ -157,14 +171,23 @@ export function NavInner() {
   const darkSurface = isEarth || isArticle || bodyBgActive || (isHomepage && !pastHero);
   const textColour  = darkSurface ? PAPER : INK;
 
-  // The translucent bar — white on the library list, dark on an opened article.
+  // The translucent bar, so scrolled content never runs under the nav:
+  //   • articles — dark, once past the cover (or on scroll, if no cover)
+  //   • light pages (home below the hero, library, about, contact…) — white,
+  //     on scroll
+  //   • gallery on phones — white always: prints float right under the nav
   // The homepage hover overlay keeps the bar fully transparent.
   let barBackground = 'transparent';
   if (!bodyBgActive) {
-    if (isLibrary && scrolled)      barBackground = BAR_PAPER;
-    else if (isArticle && pastHero) barBackground = BAR_INK;
+    if (isArticle) {
+      if (pastHero || (!hasHero && scrolled)) barBackground = BAR_INK;
+    } else if (!darkSurface && (scrolled || (isGallery && isPhone))) {
+      barBackground = BAR_PAPER;
+    }
   }
   const showBar = barBackground !== 'transparent';
+  // The menu button sits over the globe's cream panel when it's open.
+  const menuColour = isEarth && globePanelOpen && !isMobile ? INK : textColour;
 
   return (
     <div className="nav-shell" style={{ overflow: 'visible' }}>
@@ -225,18 +248,23 @@ export function NavInner() {
             aria-controls={menuOpen ? 'site-menu' : undefined}
           >
             {menuOpen ? (
-              <span className="nav-close-x" style={{ color: textColour }}>✕</span>
+              <span className="nav-close-x" style={{ color: menuColour }}>✕</span>
             ) : (
               <span className="nav-hamburger-bars" aria-hidden="true">
-                <span style={{ background: textColour }} />
-                <span style={{ background: textColour }} />
+                <span style={{ background: menuColour }} />
+                <span style={{ background: menuColour }} />
               </span>
             )}
           </button>
-          {/* After the button in the DOM so Tab reaches the links next;
-              order:-1 keeps them visually to its left. */}
+          {/* After the button in the DOM so Tab reaches the links next; it's
+              absolutely positioned to the button's left (globals.css) so it
+              never widens the grid column and shifts the centred symbol. */}
           {menuOpen && !isMobile && (
-            <div id="site-menu" className="nav-menu-expanded" style={{ order: -1 }}>
+            <div
+              id="site-menu"
+              className="nav-menu-expanded"
+              style={{ '--nav-text': menuColour } as React.CSSProperties}
+            >
               <NavLink href="/library">LIBRARY</NavLink>
               <NavLink href="/gallery">GALLERY</NavLink>
               <NavLink href="/store" prefetch={false}>STORE</NavLink>

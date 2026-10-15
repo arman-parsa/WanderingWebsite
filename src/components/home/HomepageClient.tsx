@@ -37,7 +37,9 @@ export function HomepageClient({
   const [heroVisible, setHeroVisible] = useState(true);
   const [tabVisible, setTabVisible]   = useState(true);
 
-  const bgActive = hovered !== null;
+  // Only pieces with a cover darken the page on hover — without one the
+  // overlay was just a flat grey wash.
+  const bgActive = !!hovered?.coverImageUrl;
   const bgUrl    = hovered?.coverImageUrl;
 
   useEffect(() => {
@@ -106,7 +108,7 @@ export function HomepageClient({
     return () => { document.body.classList.remove('bg-active'); };
   }, []);
 
-  const px = 'clamp(1.5rem, 4vw, 3.75rem)';
+  const px = 'clamp(1.5rem, 4vw, 3rem)'; // same side margin as the nav
 
   return (
     <>
@@ -171,8 +173,18 @@ export function HomepageClient({
               )}
             </div>
           ))}
-          {/* Overlay */}
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(28,24,20,0.48)', zIndex: 1 }} />
+          {/* Overlay — an even tint, plus a faint crown behind the nav and a
+              slightly deeper foot behind the name, so both stay legible on
+              the brightest slides. */}
+          <div
+            style={{
+              position: 'absolute', inset: 0, zIndex: 1,
+              background:
+                'linear-gradient(to bottom, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0) 16%), ' +
+                'linear-gradient(to top, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0) 38%), ' +
+                'rgba(28,24,20,0.48)',
+            }}
+          />
           {/* Bottom text block */}
           <div
             style={{
@@ -245,7 +257,7 @@ export function HomepageClient({
                           <p style={{
                             fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 300,
                             fontStyle: 'italic', lineHeight: 1.7, margin: 0,
-                            color: isMobile ? 'rgba(122,112,103,0.80)' : 'rgba(248,244,239,0.70)',
+                            color: isMobile ? 'var(--color-ink-muted)' : 'rgba(248,244,239,0.70)',
                           }}>
                             {item.description}
                           </p>

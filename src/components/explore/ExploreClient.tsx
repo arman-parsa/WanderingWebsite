@@ -45,10 +45,10 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
     <div style={{ backgroundColor: '#f8f4ef', color: '#1c1814', minHeight: '100vh', paddingTop: '6rem' }}>
       {/* Header */}
       <div style={{ textAlign: 'center', paddingBottom: '2.5rem' }}>
-        <p aria-hidden="true" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(28,24,20,0.6)', marginBottom: '0.5rem' }}>
+        <p aria-hidden="true" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(28,24,20,0.68)', marginBottom: '0.5rem' }}>
           Library
         </p>
-        <p aria-hidden="true" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', letterSpacing: '0.12em', color: 'rgba(28,24,20,0.35)', marginBottom: '2rem' }}>
+        <p aria-hidden="true" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.6875rem', letterSpacing: '0.12em', color: 'rgba(28,24,20,0.66)', marginBottom: '2rem' }}>
           {items.length} {items.length === 1 ? 'Piece' : 'Pieces'}
         </p>
 
@@ -85,7 +85,7 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
       </div>
 
       {/* Grid */}
-      <div style={{ padding: '0 clamp(1rem, 4vw, 3rem) 6rem' }}>
+      <div style={{ padding: '0 clamp(1.5rem, 4vw, 3rem) 6rem' }}>
         <div className="explore-grid">
           {visible.map(item => {
             const href = `${TYPE_HREF[item._type]}/${item.slug}`;
@@ -117,7 +117,7 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
 
                   {/* Text */}
                   <div style={{ paddingTop: '1rem' }}>
-                    <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.62rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(28,24,20,0.45)', marginBottom: '0.5rem' }}>
+                    <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.6875rem', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(28,24,20,0.66)', marginBottom: '0.5rem' }}>
                       {TYPE_LABEL[item._type]}
                       {item.location ? ` · ${item.location}` : ''}
                     </p>
@@ -132,7 +132,7 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
         </div>
 
         {visible.length === 0 && (
-          <p style={{ fontFamily: 'var(--font-serif)', color: 'rgba(28,24,20,0.4)', textAlign: 'center' }}>
+          <p style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-ink-muted)', textAlign: 'center' }}>
             Nothing here yet.
           </p>
         )}

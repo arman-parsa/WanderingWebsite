@@ -27,7 +27,7 @@
   /* ── Colours ─────────────────────────────────────────────── */
   --color-paper:       #f8f4ef;
   --color-ink:         #1c1814;
-  --color-ink-muted:   #7a7067;
+  --color-ink-muted:   #736960; /* 4.9:1 on paper (was #7a7067, 4.4:1) */
   --color-ink-faint:   #b8b3ac;
   --color-surface:     #efece6;
   --color-border:      #ddd9d2;
@@ -86,7 +86,7 @@
   --content-max-width:  740px;
   --content-wide-width: 1100px;
   --content-full-width: 1440px;
-  --content-padding-x:  clamp(1rem, 4vw, 3rem);
+  --content-padding-x:  clamp(1.5rem, 4vw, 3rem); /* = the nav's side margin */
 
   /* ── Animation ───────────────────────────────────────────── */
   --duration-instant: 100ms;
@@ -245,7 +245,8 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
   float: left;
   margin-right: var(--space-2);
   margin-top: var(--space-1);
-  color: var(--color-accent);
+  /* Same colour as the text — the accent (ink-brown) vanished on dark pages. */
+  color: currentColor;
 }
 
 @media (max-width: 639px) {
@@ -357,7 +358,10 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
   letter-spacing: 0.14em;
   text-transform: uppercase;
   line-height: 1.8;
-  color: rgba(248, 244, 239, 0.72);
+  /* Solid paper with a soft shadow: the 72% tint dropped below readable
+     contrast over the brighter slides. */
+  color: var(--color-paper);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.35);
 }
 .hero-meta--solo {
   white-space: nowrap;
@@ -571,10 +575,11 @@ body.gallery-open footer { display: none; }
 
 .g-close {
   position: absolute;
-  top: 78px;
-  right: clamp(1.5rem, 4vw, 3.75rem);
+  /* 44px target; offsets keep the ✕ exactly where it was (10px padding). */
+  top: calc(78px - 3.5px);
+  right: calc(clamp(1.5rem, 4vw, 3rem) - 3.5px);
   z-index: 2;
-  padding: 10px;
+  padding: 13.5px;
   border: none;
   background: none;
   cursor: pointer;
@@ -592,7 +597,7 @@ body.gallery-open footer { display: none; }
   left: 0;
   right: 0;
   text-align: center;
-  padding: 0 clamp(1.5rem, 4vw, 3.75rem);
+  padding: 0 clamp(1.5rem, 4vw, 3rem);
   opacity: 0;
   transform: translateY(12px);
   transition: opacity 500ms var(--ease-out) 300ms, transform 500ms var(--ease-out) 300ms;
@@ -684,6 +689,7 @@ body.gallery-open footer { display: none; }
 }
 
 .nav-grid-right {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -725,10 +731,17 @@ body.gallery-open footer { display: none; }
 }
 
 /* ── Expanded menu links ─────────────────────────────────────── */
+/* Out of flow, to the left of the 44px menu button, so opening it never
+   widens the right grid column (which would nudge the centred symbol). */
 .nav-menu-expanded {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: calc(44px + clamp(1.5rem, 3vw, 2rem));
   display: flex;
   align-items: center;
   gap: clamp(1.5rem, 3vw, 2rem);
+  white-space: nowrap;
   animation: nav-expand 180ms ease-out;
 }
 
@@ -757,7 +770,7 @@ body.gallery-open footer { display: none; }
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 1.05rem clamp(1.5rem, 4vw, 3.75rem);
+  padding: 1.05rem clamp(1.5rem, 4vw, 3rem);
   font-size: 0.78rem;
   letter-spacing: 0.16em;
   opacity: 0.66;
@@ -847,6 +860,9 @@ body.gallery-open footer { display: none; }
   will-change: opacity;
 }
 .home-read-more {
+  /* 44px-tall tap target without changing the layout. */
+  padding-block: 12px;
+  margin-block: -12px;
   font-family: var(--font-sans);
   font-size: 13px;
   font-weight: 400;
@@ -1062,4 +1078,20 @@ html.intro-seen .intro-loader { display: none !important; }
   margin: 0;
   font-family: var(--font-serif);
   color: var(--color-ink-muted);
+}
+
+/* Larger tap area for the small nav links (EARTH, the desktop menu row)
+   without changing their layout or underline. */
+.nav-grid-left .nav-link::before,
+.nav-menu-expanded .nav-link::before {
+  content: '';
+  position: absolute;
+  inset: -13px -8px;
+}
+
+/* Gallery hint: "Tap" on touch screens, "Click" with a mouse. */
+.g-hint-tap { display: none; }
+@media (hover: none) {
+  .g-hint-click { display: none; }
+  .g-hint-tap { display: inline; }
 }
