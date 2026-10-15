@@ -1,16 +1,12 @@
 import type { Metadata } from 'next';
-import { SITE_URL } from '@/lib/metadata';
+import { pageMetadata } from '@/lib/metadata';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Contact',
-  description: 'Get in touch with Arman Parsa for partnerships, editorial enquiries, or to say hello.',
-  alternates: { canonical: `${SITE_URL}/contact` },
-  openGraph: {
-    title: 'Contact · Arman Parsa',
-    description: 'Get in touch with Arman Parsa for partnerships, editorial enquiries, or to say hello.',
-    url: `${SITE_URL}/contact`,
-  },
-};
+  description:
+    'Get in touch with Arman Parsa for partnerships, editorial enquiries, or to say hello.',
+  path: '/contact',
+});
 
 export default function ContactPage() {
   return (
@@ -20,13 +16,13 @@ export default function ContactPage() {
     >
       <div className="mx-auto w-full max-w-[var(--content-max-width)] px-[var(--content-padding-x)] text-center">
         <h1 className="sr-only">Contact</h1>
-        <p className="font-serif text-[var(--text-lg)] leading-[var(--leading-relaxed)]">
+        <p className="font-serif text-[length:var(--text-lg)] leading-[var(--leading-relaxed)]">
           For partnerships, editorial enquiries, or just to say hello — reach out by email.
         </p>
 
         <a
           href="mailto:armanparsa03@gmail.com"
-          className="mt-8 inline-block font-sans text-sm uppercase tracking-widest text-ink underline-offset-4 opacity-60 transition-opacity duration-[var(--duration-fast)] hover:opacity-100"
+          className="mt-8 inline-block font-sans text-sm uppercase tracking-widest text-ink underline-offset-4 opacity-75 transition-opacity duration-[var(--duration-fast)] hover:opacity-100"
         >
           armanparsa03@gmail.com
         </a>
@@ -37,7 +33,7 @@ export default function ContactPage() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Arman Parsa on Instagram"
-            className="text-ink opacity-55 transition-opacity duration-[var(--duration-fast)] hover:opacity-80 active:opacity-80"
+            className="-m-3 inline-flex p-3 text-ink opacity-55 transition-opacity duration-[var(--duration-fast)] hover:opacity-80 active:opacity-80"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
@@ -51,7 +47,7 @@ export default function ContactPage() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Arman Parsa on TikTok"
-            className="text-ink opacity-55 transition-opacity duration-[var(--duration-fast)] hover:opacity-80 active:opacity-80"
+            className="-m-3 inline-flex p-3 text-ink opacity-55 transition-opacity duration-[var(--duration-fast)] hover:opacity-80 active:opacity-80"
           >
             <svg width="18" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style={{ display: 'block' }}>
               <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.09 8.09 0 0 0 4.73 1.52V6.77a4.85 4.85 0 0 1-.96-.08z" />
@@ -63,7 +59,7 @@ export default function ContactPage() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Arman Parsa on LinkedIn"
-            className="text-ink opacity-55 transition-opacity duration-[var(--duration-fast)] hover:opacity-80 active:opacity-80"
+            className="-m-3 inline-flex p-3 text-ink opacity-55 transition-opacity duration-[var(--duration-fast)] hover:opacity-80 active:opacity-80"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />

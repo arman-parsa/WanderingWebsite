@@ -11,11 +11,11 @@ import { renderOgCard, eyebrowFor, fetchPhoto, fallbackPhoto } from '@/lib/ogCar
 
 const OG_PIECE_QUERY = `
   *[_type == $type && slug.current == $slug && !(_id in path("drafts.**"))][0]{
-    title, location, coverImage
+    title, location, coverImage, "ogImage": seo.ogImage
   }
 `;
 
-type Piece = { title?: string; location?: string; coverImage?: unknown };
+type Piece = { title?: string; location?: string; coverImage?: unknown; ogImage?: { asset?: unknown } };
 
 export async function articleOgImage(type: string, slug: string) {
   let piece: Piece | null = null;
@@ -29,10 +29,12 @@ export async function articleOgImage(type: string, slug: string) {
   const title = piece?.title ?? placeholder?.title ?? 'Arman Parsa';
   const location = piece?.location ?? placeholder?.location;
 
+  // The SEO "social share image" wins when set; otherwise the cover.
+  const sharePhoto = piece?.ogImage?.asset ? piece.ogImage : piece?.coverImage;
   let photo: string | null = null;
-  if (piece?.coverImage) {
+  if (sharePhoto) {
     try {
-      const url = urlFor(piece.coverImage as Parameters<typeof urlFor>[0])
+      const url = urlFor(sharePhoto as Parameters<typeof urlFor>[0])
         .width(1200).height(630).fit('crop').format('jpg').quality(80).url();
       photo = await fetchPhoto(url);
     } catch {

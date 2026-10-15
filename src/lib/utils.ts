@@ -1,17 +1,13 @@
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
 export function formatDate(dateString: string): string {
-  // Date-only strings parse as UTC midnight — format in UTC so the displayed
-  // date never shifts a day for viewers west of UTC.
+  // Always UK time, whoever is viewing: Sanity's "Published At" is a
+  // date-time stored in UTC, so a piece published just after midnight in
+  // British Summer Time would otherwise show the previous day. Date-only
+  // strings (UTC midnight) still land on the same date, as London is never
+  // behind UTC.
   return new Date(dateString).toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
-    timeZone: 'UTC',
+    timeZone: 'Europe/London',
   });
 }

@@ -8,6 +8,8 @@ export default defineConfig({
   title: 'Wandering Website',
   projectId: '8p5lsu79',
   dataset: 'production',
+  // Embedded at /studio (src/app/studio) — lets deep links and reloads resolve.
+  basePath: '/studio',
   plugins: [structureTool(), visionTool()],
   schema: { types: schemaTypes },
 });

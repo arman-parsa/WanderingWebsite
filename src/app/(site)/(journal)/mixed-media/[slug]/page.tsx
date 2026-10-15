@@ -1,9 +1,12 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { client } from '@/lib/sanity';
+import { sanityFetch, hasRealContent } from '@/lib/sanityFetch';
 import { MIXED_MEDIA_QUERY, MIXED_MEDIA_SLUGS_QUERY } from '@/lib/sanity';
 import { ArticleHero } from '@/components/content/ArticleHero';
 import { ArticleEndNav } from '@/components/content/ArticleEndNav';
+import { getAdjacentPieces } from '@/lib/adjacentPieces';
+import { ReadingProgress } from '@/components/content/ReadingProgress';
 import { PortableTextRenderer } from '@/components/content/PortableTextRenderer';
 import { ImageBlock } from '@/components/content/ImageBlock';
 import { ImagePair } from '@/components/content/ImagePair';
@@ -24,8 +27,10 @@ export async function generateStaticParams() {
     .filter((i) => i._type === 'mixedMedia')
     .map((i) => ({ slug: i.slug }));
   try {
-    const slugs = await client.fetch(MIXED_MEDIA_SLUGS_QUERY);
-    return [...slugs.map((s: { slug: string }) => ({ slug: s.slug })), ...placeholderSlugs];
+    const slugs: { slug: string }[] = await client.fetch(MIXED_MEDIA_SLUGS_QUERY);
+    // Placeholder pages are only built while the CMS has no real content.
+    if (slugs.length > 0 || (await hasRealContent())) return slugs.map((s) => ({ slug: s.slug }));
+    return placeholderSlugs;
   } catch {
     return placeholderSlugs;
   }
@@ -54,12 +59,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function MixedMediaPage({ params }: Props) {
   const { slug } = await params;
   let piece = null;
-  try { piece = await client.fetch(MIXED_MEDIA_QUERY, { slug }); } catch { /* CORS */ }
+  piece = await sanityFetch(MIXED_MEDIA_QUERY, { slug });
   if (!piece && slug.startsWith('_placeholder')) {
     const match = PLACEHOLDER_ITEMS.find((i) => i.slug === slug && i._type === 'mixedMedia');
     if (match) piece = { ...PLACEHOLDER_WRITING, title: match.title, description: match.description, location: match.location, publishedAt: match.publishedAt };
   }
   if (!piece) notFound();
+
+  const { newer, older } = await getAdjacentPieces('mixedMedia', slug);
 
   // Media in the dedicated Images/Videos fields renders as a gallery after
   // the body. Media inserted inline in the Body interleaves with the text.
@@ -91,6 +98,7 @@ export default async function MixedMediaPage({ params }: Props) {
   return (
     <main id="main-content" className="min-h-screen" style={{ backgroundColor: '#0D0D0D', color: '#f8f4ef' }}>
       <JsonLd data={jsonLd} />
+      <ReadingProgress />
       <ArticleMediaProvider
         entries={lightboxEntries}
         label={`Visuals — ${piece.title}`}
@@ -100,6 +108,7 @@ export default async function MixedMediaPage({ params }: Props) {
           title={piece.title}
           description={piece.description}
           publishedAt={piece.publishedAt}
+          readingTime={piece.readingTime}
           location={piece.location}
           tags={piece.tags}
           category="Mixed Media"
@@ -144,7 +153,7 @@ export default async function MixedMediaPage({ params }: Props) {
             )}
           </div>
       </ArticleMediaProvider>
-      <ArticleEndNav />
+      <ArticleEndNav newer={newer} older={older} />
     </main>
   );
 }

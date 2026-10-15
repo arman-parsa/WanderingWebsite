@@ -1,6 +1,10 @@
 import type { MetadataRoute } from 'next';
 import { SITE_URL } from '@/lib/siteConfig';
 
+// Rebuilt at most hourly (and on every publish via /api/revalidate), so new
+// pieces reach the sitemap without a redeploy.
+export const revalidate = 3600;
+
 type SlugRow = { slug: string };
 
 const SECTIONS = [

@@ -3,7 +3,8 @@
 /* ── Font faces ──────────────────────────────────────────────── */
 @font-face {
   font-family: 'Lyon Text';
-  src: url('/fonts/Lyon_Regular.ttf') format('truetype');
+  src: url('/fonts/Lyon_Regular.woff2') format('woff2'),
+       url('/fonts/Lyon_Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -11,7 +12,8 @@
 
 @font-face {
   font-family: 'Suisse Int\'l';
-  src: url('/fonts/SuisseIntl_Light.ttf') format('truetype');
+  src: url('/fonts/SuisseIntl_Light.woff2') format('woff2'),
+       url('/fonts/SuisseIntl_Light.ttf') format('truetype');
   font-weight: 300 400;
   font-style: normal;
   font-display: swap;
@@ -25,7 +27,7 @@
   /* ── Colours ─────────────────────────────────────────────── */
   --color-paper:       #f8f4ef;
   --color-ink:         #1c1814;
-  --color-ink-muted:   #7a7067;
+  --color-ink-muted:   #736960; /* 4.9:1 on paper (was #7a7067, 4.4:1) */
   --color-ink-faint:   #b8b3ac;
   --color-surface:     #efece6;
   --color-border:      #ddd9d2;
@@ -84,7 +86,7 @@
   --content-max-width:  740px;
   --content-wide-width: 1100px;
   --content-full-width: 1440px;
-  --content-padding-x:  clamp(1rem, 4vw, 3rem);
+  --content-padding-x:  clamp(1.5rem, 4vw, 3rem); /* = the nav's side margin */
 
   /* ── Animation ───────────────────────────────────────────── */
   --duration-instant: 100ms;
@@ -173,58 +175,10 @@ a, button {
 }
 
 /* ── Entrance animations ─────────────────────────────────── */
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
 @keyframes fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-
-@keyframes fade-in-scale {
-  from { opacity: 0; transform: scale(1.04); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-@keyframes fade-up-24 {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fade-up {
-  animation: fade-up var(--duration-slow) var(--ease-out) both;
-}
-
-.animate-fade-in {
-  animation: fade-in var(--duration-slow) var(--ease-out) both;
-}
-
-.animate-fade-in-scale {
-  animation: fade-in-scale var(--duration-slow) var(--ease-out) both;
-}
-
-.animate-fade-up-24 {
-  animation: fade-up-24 var(--duration-slow) var(--ease-out) both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-fade-up,
-  .animate-fade-in,
-  .animate-fade-in-scale,
-  .animate-fade-up-24 {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/* ── Aspect ratios ───────────────────────────────────────── */
-.aspect-hero    { aspect-ratio: 16 / 9; }
-.aspect-portrait { aspect-ratio: 3 / 4; }
-.aspect-wide    { aspect-ratio: 21 / 9; }
-.aspect-film    { aspect-ratio: 2.39 / 1; }
 
 /* ── Article media: breakout widths ──────────────────────── */
 /* Escape the 740px text column from inside it; centred on the viewport
@@ -261,13 +215,6 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
 .lightbox-track::-webkit-scrollbar { display: none; }
 
 /* ── Typography utilities ────────────────────────────────── */
-.text-body {
-  font-family: var(--font-serif);
-  font-size: var(--text-base);
-  line-height: var(--leading-relaxed);
-  color: var(--color-ink);
-}
-
 .text-caption {
   font-family: var(--font-sans);
   font-size: var(--text-xs);
@@ -275,14 +222,6 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
   letter-spacing: var(--tracking-wide);
   color: var(--color-ink-muted);
   text-transform: uppercase;
-}
-
-.text-display {
-  font-family: var(--font-serif);
-  font-size: var(--text-display);
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-tight);
-  font-weight: 300;
 }
 
 /* ── Article body ────────────────────────────────────────── */
@@ -306,7 +245,8 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
   float: left;
   margin-right: var(--space-2);
   margin-top: var(--space-1);
-  color: var(--color-accent);
+  /* Same colour as the text — the accent (ink-brown) vanished on dark pages. */
+  color: currentColor;
 }
 
 @media (max-width: 639px) {
@@ -349,16 +289,6 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
   transition: color 400ms ease;
 }
 
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: clamp(1.5rem, 3vw, 2.5rem);
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  min-width: 0;
-}
-
 .nav-link {
   font-family: var(--font-sans);
   font-size: 0.7rem;
@@ -395,22 +325,6 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
   transition: none;
 }
 
-.nav-wordmark {
-  font-family: var(--font-serif);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: clamp(0.75rem, 1.2vw, 0.95rem);
-  color: var(--nav-text, #1c1814);
-  text-decoration: none;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition: opacity 250ms ease;
-}
-
-.nav-wordmark:hover {
-  opacity: 0.65;
-}
-
 /* ── Hero section ────────────────────────────────────────────── */
 .hero-section {
   position: relative;
@@ -444,7 +358,10 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
   letter-spacing: 0.14em;
   text-transform: uppercase;
   line-height: 1.8;
-  color: rgba(248, 244, 239, 0.72);
+  /* Solid paper with a soft shadow: the 72% tint dropped below readable
+     contrast over the brighter slides. */
+  color: var(--color-paper);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.35);
 }
 .hero-meta--solo {
   white-space: nowrap;
@@ -533,7 +450,8 @@ body.gallery-open footer { display: none; }
 .g-drift--2 { animation-name: g-drift-2; }
 .g-drift--3 { animation-name: g-drift-3; }
 /* Hovering "catches" the print mid-float. */
-.g-item:hover .g-drift { animation-play-state: paused; }
+.g-item:hover .g-drift,
+.g-item:focus-visible .g-drift { animation-play-state: paused; }
 
 .g-item img {
   display: block;
@@ -657,10 +575,11 @@ body.gallery-open footer { display: none; }
 
 .g-close {
   position: absolute;
-  top: 78px;
-  right: clamp(1.5rem, 4vw, 3.75rem);
+  /* 44px target; offsets keep the ✕ exactly where it was (10px padding). */
+  top: calc(78px - 3.5px);
+  right: calc(clamp(1.5rem, 4vw, 3rem) - 3.5px);
   z-index: 2;
-  padding: 10px;
+  padding: 13.5px;
   border: none;
   background: none;
   cursor: pointer;
@@ -678,7 +597,7 @@ body.gallery-open footer { display: none; }
   left: 0;
   right: 0;
   text-align: center;
-  padding: 0 clamp(1.5rem, 4vw, 3.75rem);
+  padding: 0 clamp(1.5rem, 4vw, 3rem);
   opacity: 0;
   transform: translateY(12px);
   transition: opacity 500ms var(--ease-out) 300ms, transform 500ms var(--ease-out) 300ms;
@@ -770,6 +689,7 @@ body.gallery-open footer { display: none; }
 }
 
 .nav-grid-right {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -811,10 +731,17 @@ body.gallery-open footer { display: none; }
 }
 
 /* ── Expanded menu links ─────────────────────────────────────── */
+/* Out of flow, to the left of the 44px menu button, so opening it never
+   widens the right grid column (which would nudge the centred symbol). */
 .nav-menu-expanded {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: calc(44px + clamp(1.5rem, 3vw, 2rem));
   display: flex;
   align-items: center;
   gap: clamp(1.5rem, 3vw, 2rem);
+  white-space: nowrap;
   animation: nav-expand 180ms ease-out;
 }
 
@@ -843,7 +770,7 @@ body.gallery-open footer { display: none; }
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 1.05rem clamp(1.5rem, 4vw, 3.75rem);
+  padding: 1.05rem clamp(1.5rem, 4vw, 3rem);
   font-size: 0.78rem;
   letter-spacing: 0.16em;
   opacity: 0.66;
@@ -883,31 +810,6 @@ body.gallery-open footer { display: none; }
 .logo-link:hover { opacity: 0.65; }
 
 /* ── Homepage ─────────────────────────────────────────────── */
-.home-opening {
-  padding-top: 168px;
-  padding-bottom: 132px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 40px;
-}
-.home-tagline {
-  font-family: var(--font-serif);
-  font-size: 16px;
-  font-weight: 300;
-  font-style: italic;
-  letter-spacing: 0.01em;
-  line-height: 1.6;
-  text-align: center;
-}
-.home-title {
-  font-family: var(--font-serif);
-  font-weight: 300;
-  font-size: clamp(60px, 5.6vw, 80px);
-  letter-spacing: -0.03em;
-  line-height: 1.04;
-}
 /* Matches .home-read-more so the section opens and closes in one voice. */
 .home-section-label {
   font-family: var(--font-sans);
@@ -958,6 +860,9 @@ body.gallery-open footer { display: none; }
   will-change: opacity;
 }
 .home-read-more {
+  /* 44px-tall tap target without changing the layout. */
+  padding-block: 12px;
+  margin-block: -12px;
   font-family: var(--font-sans);
   font-size: 13px;
   font-weight: 400;
@@ -996,13 +901,6 @@ body.gallery-open footer { display: none; }
 }
 
 @media (max-width: 860px) {
-  .home-opening {
-    flex-direction: column;
-    align-items: flex-start;
-    padding-top: 112px;
-    padding-bottom: 80px;
-  }
-  .home-tagline         { text-align: left; }
   .home-article-row        { flex-direction: column; align-items: flex-start; gap: 10px; }
   .home-article-titleblock { flex: none; width: 100%; }
   .home-article-meta       { flex: none; width: 100%; }
@@ -1131,4 +1029,180 @@ html.intro-seen .intro-loader { display: none !important; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ── Globe: keyboard place list ──────────────────────────────────
+   Visually hidden until a keyboard user tabs into it, then shown as a
+   small list over the bottom-left of the globe. */
+.globe-places {
+  position: absolute;
+  left: clamp(1.5rem, 4vw, 3rem);
+  bottom: 1.5rem;
+  z-index: 25;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.globe-places:focus-within {
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  padding: 0.75rem 1rem;
+  background: rgba(7, 11, 18, 0.85);
+  border: 0.5px solid rgba(248, 244, 239, 0.2);
+}
+.globe-places ul { list-style: none; margin: 0; padding: 0; }
+.globe-places button {
+  display: block;
+  min-height: 32px;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f8f4ef;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+/* Gallery with no photographs yet (real content, none with images). */
+.gallery-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  font-family: var(--font-serif);
+  color: var(--color-ink-muted);
+}
+
+/* Larger tap area for the small nav links (EARTH, the desktop menu row)
+   without changing their layout or underline. */
+.nav-grid-left .nav-link::before,
+.nav-menu-expanded .nav-link::before {
+  content: '';
+  position: absolute;
+  inset: -13px -8px;
+}
+
+/* Gallery hint: "Tap" on touch screens, "Click" with a mouse. */
+.g-hint-tap { display: none; }
+@media (hover: none) {
+  .g-hint-click { display: none; }
+  .g-hint-tap { display: inline; }
+}
+
+/* Globe: faint first-visit hint, bottom centre. */
+.globe-hint {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(1.25rem, 4vh, 2.5rem);
+  transform: translateX(-50%);
+  z-index: 10;
+  margin: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(248, 244, 239, 0.62);
+  transition: opacity 600ms ease;
+}
+.globe-hint--hidden { opacity: 0; }
+.globe-hint-touch { display: none; }
+@media (hover: none) {
+  .globe-hint-mouse { display: none; }
+  .globe-hint-touch { display: inline; }
+}
+
+/* Article reading progress — a hairline along the bottom edge of the nav. */
+.reading-progress {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  z-index: 51;
+  height: 1px;
+  background: rgba(248, 244, 239, 0.55);
+  transform: scaleX(0);
+  transform-origin: left center;
+  opacity: 0;
+  transition: opacity 250ms ease;
+  pointer-events: none;
+}
+
+/* Gallery enlarged view: previous / next + counter, bottom centre. */
+.g-stepper {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(1rem, 3vh, 2rem);
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 400ms var(--ease-out) 220ms;
+}
+.g-lightbox--shown .g-stepper { opacity: 1; }
+.g-step {
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--color-ink);
+  opacity: 0.65;
+  transition: opacity 150ms ease;
+}
+.g-step:hover, .g-step:focus-visible { opacity: 1; }
+.g-count {
+  min-width: 4.5em;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  color: var(--color-ink-muted);
+}
+
+/* Page transition: a short fade-in on each navigation (src/app/(site)/
+   template.tsx). `backwards` fill only applies the start state before the
+   animation runs — nothing lingers afterwards, so no stacking context is
+   left behind for the pages' fixed / z-indexed layers. */
+@keyframes page-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.page-fade { animation: page-fade-in 320ms var(--ease-out) backwards; }
+@media (prefers-reduced-motion: reduce) {
+  .page-fade { animation: none; }
+}
+
+/* Keyboard focus: a quiet hairline in the current text colour, replacing the
+   browser's default ring. :where() keeps specificity at zero, so any
+   component-specific focus style still wins. */
+:where(a, button, [role="button"], input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 4px;
+  border-radius: 1px;
+}
+@media (max-height: 479px) {
+  .g-stepper {
+    left: 0;
+    right: 0;
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
+    justify-content: space-between;
+    padding-inline: 0.5rem;
+    pointer-events: none;
+  }
+  .g-step { pointer-events: auto; }
+  .g-count { display: none; }
 }

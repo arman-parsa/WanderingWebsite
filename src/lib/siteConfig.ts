@@ -13,5 +13,3 @@ export const SOCIAL_PROFILES = [
  * next.config.ts), so this is the one place to change if the store moves.
  */
 export const STORE_URL = 'https://store.armanparsa.earth';
-/** Site-wide social share image (resolved against metadataBase). */
-export const OG_IMAGE = { url: '/og.jpg', width: 1200, height: 630 };

@@ -1,28 +1,19 @@
 import type { Metadata } from 'next';
-import { client, GALLERY_CONTENT_QUERY } from '@/lib/sanity';
+import { GALLERY_CONTENT_QUERY } from '@/lib/sanity';
+import { sanityFetch } from '@/lib/sanityFetch';
 import { urlFor } from '@/lib/sanityImage';
 import { GalleryClient, type GalleryItem } from '@/components/gallery/GalleryClient';
-import { SITE_URL } from '@/lib/metadata';
+import { pageMetadata } from '@/lib/metadata';
+import { TYPE_HREF } from '@/lib/contentTypes';
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Gallery',
-  description: 'A floating collage of photographs drawn from the pieces on armanparsa.earth — click any work to explore the story it belongs to.',
-  alternates: { canonical: `${SITE_URL}/gallery` },
-  openGraph: {
-    title: 'Gallery · Arman Parsa',
-    description: 'A floating collage of photographs drawn from the pieces on armanparsa.earth — click any work to explore the story it belongs to.',
-    url: `${SITE_URL}/gallery`,
-  },
-};
-
-const TYPE_HREF: Record<string, string> = {
-  writing:     '/writing',
-  mixedMedia:  '/mixed-media',
-  photography: '/photography',
-  videography: '/videography',
-};
+  description:
+    'A floating collage of photographs drawn from the pieces on armanparsa.earth — click any work to explore the story it belongs to.',
+  path: '/gallery',
+});
 
 // Safety ceiling only — the gallery shows every photo it can get.
 const MAX_ITEMS = 90;
@@ -39,6 +30,7 @@ type GalleryPiece = {
   bodyPairs?: PairEntry[];
   galleryBlocks?: ImgEntry[];
   galleryPairs?: PairEntry[];
+  cover?: ImgEntry | null;
 };
 
 /**
@@ -60,10 +52,11 @@ function innerImages(p: GalleryPiece): SanityImage[] {
   return out;
 }
 
-// Collage thumbnails are small, so 1100px keeps a wall of many photos light.
-// The enlarged view (~960px wide, so ~1920px on sharp screens) swaps in the
-// FULL size once it has loaded.
-const THUMB = { width: 1100, quality: 75 };
+// Collage thumbnails render at most ~330px wide, so 800px stays sharp on
+// retina screens while keeping a wall of many photos light. The enlarged view
+// (~960px wide, so ~1920px on sharp screens) swaps in the FULL size once it
+// has loaded.
+const THUMB = { width: 800, quality: 75 };
 const FULL = { width: 2000, quality: 85 };
 
 function imageUrl(img: SanityImage, { width, quality } = THUMB): string | null {
@@ -108,12 +101,35 @@ function buildItems(pieces: GalleryPiece[]): GalleryItem[] {
   return items;
 }
 
+/**
+ * Fallback when no piece has inline photographs yet (e.g. only writing with
+ * covers): use each piece's cover so the gallery isn't empty.
+ */
+function buildCoverItems(pieces: GalleryPiece[]): GalleryItem[] {
+  return buildItems(pieces.map(p => ({
+    ...p, bodyBlocks: [], bodyPairs: [], galleryPairs: [], galleryBlocks: p.cover ? [p.cover] : [],
+  })));
+}
+
+/**
+ * Local photos are 2560px originals; serve them through the Next image
+ * optimiser at thumbnail / enlarged sizes instead (widths must be in the
+ * default deviceSizes, quality in images.qualities). One fixed URL each keeps
+ * the enlarge morph seamless.
+ */
+const nextImage = (src: string, w: number) => `/_next/image?url=${encodeURIComponent(src)}&w=${w}&q=75`;
+const optimisedLocal = (item: GalleryItem): GalleryItem => ({
+  ...item,
+  src: nextImage(item.src, 828),
+  fullSrc: nextImage(item.src, 1920),
+});
+
 /** Local fallback so the gallery works before Sanity content exists. */
 const PLACEHOLDER_GALLERY: GalleryItem[] = [
-  { key: 'ph-1',  title: 'Light and Distance in the Atlas Mountains', location: 'Marrakech, Morocco',  href: '/writing/_placeholder-atlas',        src: '/images/DSC07031.JPG', alt: 'Hikers on a mountain path' },
+  { key: 'ph-1',  title: 'Light and Distance in the Atlas Mountains', location: 'Marrakech, Morocco',  href: '/writing/_placeholder-atlas',        src: '/images/DSC06456.jpg', alt: 'A hiker on a forested mountain path' },
   { key: 'ph-2',  title: 'Harbour Town at the End of Season',         location: 'Essaouira, Morocco',  href: '/photography/_placeholder-harbour',  src: '/images/DSC07782.JPG', alt: 'A souk interior crowded with silverware' },
   { key: 'ph-3',  title: 'Interiors: Riad Architecture',              location: 'Fès el-Bali, Morocco', href: '/photography/_placeholder-riads',   src: '/images/DSC07742.JPG', alt: 'A carved wooden door in a stone wall' },
-  { key: 'ph-4',  title: 'On Travelling Without a Camera',            location: 'Lisbon, Portugal',    href: '/mixed-media/_placeholder-nocamera', src: '/images/DSC06207.JPG', alt: 'A temple gate with paper lanterns' },
+  { key: 'ph-4',  title: 'On Travelling Without a Camera',            location: 'Lisbon, Portugal',    href: '/mixed-media/_placeholder-nocamera', src: '/images/DSC06207.jpg', alt: 'A temple gate with paper lanterns' },
   { key: 'ph-5',  title: 'The Slow Train from Tangier',               location: 'Fès, Morocco',        href: '/writing/_placeholder-train',        src: '/images/DSC06705.JPG', alt: 'A waterfall behind a shrine rope' },
   { key: 'ph-6',  title: 'Field Notes on the Medina',                 location: 'Meknès, Morocco',     href: '/mixed-media/_placeholder-medina',   src: '/images/DSC09132.JPG', alt: 'Hikers descending a foggy ridge' },
   { key: 'ph-8',  title: 'Harbour Town at the End of Season',         location: 'Essaouira, Morocco',  href: '/photography/_placeholder-harbour',  src: '/images/DSC07607.JPG', alt: 'Coastal town scenery' },
@@ -122,20 +138,22 @@ const PLACEHOLDER_GALLERY: GalleryItem[] = [
 ];
 
 export default async function GalleryPage() {
-  let pieces: GalleryPiece[] = [];
-  try {
-    pieces = await client.fetch(GALLERY_CONTENT_QUERY);
-  } catch {
-    // Sanity unreachable — placeholder collage below.
-  }
+  const pieces = (await sanityFetch<GalleryPiece[]>(GALLERY_CONTENT_QUERY)) ?? [];
 
   let items = buildItems(pieces);
-  if (items.length === 0) items = PLACEHOLDER_GALLERY;
+  // Pieces with no inline photographs yet: fall back to their covers.
+  if (items.length === 0) items = buildCoverItems(pieces);
+  // Placeholder collage only while the CMS is empty.
+  if (items.length === 0 && pieces.length === 0) items = PLACEHOLDER_GALLERY.map(optimisedLocal);
 
   return (
     <main id="main-content" className="gallery-stage">
       <h1 className="sr-only">Gallery — photographs from the pieces on this site</h1>
-      <GalleryClient items={items} />
+      {items.length > 0 ? (
+        <GalleryClient items={items} />
+      ) : (
+        <p className="gallery-empty">Nothing here yet.</p>
+      )}
     </main>
   );
 }

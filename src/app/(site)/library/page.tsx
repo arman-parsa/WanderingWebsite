@@ -1,22 +1,18 @@
 import type { Metadata } from 'next';
-import { client } from '@/lib/sanity';
+import { sanityFetch } from '@/lib/sanityFetch';
 import { ALL_CONTENT_QUERY } from '@/lib/sanity';
 import { PLACEHOLDER_ITEMS } from '@/lib/placeholders';
 import { ExploreClient } from '@/components/explore/ExploreClient';
-import { SITE_URL } from '@/lib/metadata';
+import { pageMetadata } from '@/lib/metadata';
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Library',
-  description: 'Browse all writing, photography, mixed media, and videography by Arman Parsa — a personal archive of stories from around the world.',
-  alternates: { canonical: `${SITE_URL}/library` },
-  openGraph: {
-    title: 'Library · Arman Parsa',
-    description: 'Browse all writing, photography, mixed media, and videography by Arman Parsa — a personal archive of stories from around the world.',
-    url: `${SITE_URL}/library`,
-  },
-};
+  description:
+    'Browse all writing, photography, mixed media, and videography by Arman Parsa — a personal archive of stories from around the world.',
+  path: '/library',
+});
 
 type ContentItem = {
   _type: 'writing' | 'mixedMedia' | 'photography' | 'videography';
@@ -29,12 +25,8 @@ type ContentItem = {
 };
 
 export default async function ArticlesPage() {
-  let items: ContentItem[] = [];
-  try {
-    items = await client.fetch(ALL_CONTENT_QUERY);
-  } catch {
-    // Returns empty list when Sanity CORS is not yet configured
-  }
+  // An empty result means no published content yet → placeholders.
+  let items = (await sanityFetch<ContentItem[]>(ALL_CONTENT_QUERY)) ?? [];
   if (items.length === 0) items = PLACEHOLDER_ITEMS as ContentItem[];
 
   return (

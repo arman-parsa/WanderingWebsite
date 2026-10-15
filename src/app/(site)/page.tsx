@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import fs from 'fs';
 import path from 'path';
-import { client } from '@/lib/sanity';
+import { sanityFetch } from '@/lib/sanityFetch';
 import { ALL_CONTENT_QUERY } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
 import { PLACEHOLDER_ITEMS } from '@/lib/placeholders';
@@ -18,6 +18,8 @@ export const metadata: Metadata = {
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
     url: SITE_URL,
+    siteName: SITE_NAME,
+    locale: 'en_GB',
     type: 'website',
   },
 };
@@ -32,13 +34,8 @@ type ContentItem = {
 };
 
 export default async function HomePage() {
-  let items: ContentItem[] = [];
-  try {
-    const all = await client.fetch(ALL_CONTENT_QUERY);
-    items = (all as ContentItem[]).slice(0, 3);
-  } catch {
-    // Sanity unavailable — fall through to placeholders
-  }
+  // An empty result means no published content yet → placeholders.
+  let items = ((await sanityFetch<ContentItem[]>(ALL_CONTENT_QUERY)) ?? []).slice(0, 3);
   if (items.length === 0) items = PLACEHOLDER_ITEMS.slice(0, 3) as ContentItem[];
 
   const homeItems: HomeItem[] = items.map(item => ({

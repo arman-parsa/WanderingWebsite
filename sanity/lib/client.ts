@@ -15,11 +15,3 @@ export const client = createClient({
   // page but stay missing from cached list queries until the CDN TTL lapses.
   useCdn: false,
 });
-
-export const previewClient = createClient({
-  projectId,
-  dataset,
-  apiVersion: '2024-01-01',
-  useCdn: false,
-  token: process.env.SANITY_API_READ_TOKEN,
-});

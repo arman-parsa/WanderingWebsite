@@ -23,7 +23,8 @@ export const metadata: Metadata = {
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
   },
-  robots: { index: true, follow: true },
+  // No site-wide robots tag: indexing is the default, and a global
+  // "index, follow" contradicted the 404 page's own noindex.
 };
 
 export const viewport: Viewport = {
@@ -34,17 +35,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   // Manual preloads: Next.js only auto-preloads next/font fonts, not the
   // @font-face files declared in globals.css.
   return (
-    <html lang="en" className="h-full" suppressHydrationWarning>
+    <html lang="en-GB" className="h-full" suppressHydrationWarning>
       <head>
-        <link rel="preload" as="font" href="/fonts/Lyon_Regular.ttf" type="font/ttf" crossOrigin="anonymous" />
-        <link rel="preload" as="font" href="/fonts/SuisseIntl_Light.ttf" type="font/ttf" crossOrigin="anonymous" />
+        <link rel="preload" as="font" href="/fonts/Lyon_Regular.woff2" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" as="font" href="/fonts/SuisseIntl_Light.woff2" type="font/woff2" crossOrigin="anonymous" />
       </head>
       <body className="bg-paper text-ink antialiased">
-        {/* Pre-hydration: skip the intro overlay if it has already played this session. */}
+        {/* Pre-hydration: skip the intro overlay if it has already played this
+            session, or if the visit starts anywhere but the homepage. */}
         <script
           dangerouslySetInnerHTML={{
             __html:
-              "try{if(sessionStorage.getItem('introSeen'))document.documentElement.classList.add('intro-seen')}catch(e){}",
+              "try{if(location.pathname!=='/'||sessionStorage.getItem('introSeen'))document.documentElement.classList.add('intro-seen')}catch(e){}",
           }}
         />
         <JsonLd data={WEBSITE_JSON_LD} />

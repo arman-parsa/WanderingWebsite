@@ -1,24 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { sanityLoader } from '@/components/content/SanityImage';
 import Link from 'next/link';
 import { HeroNameSVG } from '@/components/home/HeroNameSVG';
-
-const TYPE_HREF: Record<string, string> = {
-  writing:     '/writing',
-  mixedMedia:  '/mixed-media',
-  photography: '/photography',
-  videography: '/videography',
-};
-
-const TYPE_LABEL: Record<string, string> = {
-  writing:     'Writing',
-  mixedMedia:  'Mixed Media',
-  photography: 'Photography',
-  videography: 'Videography',
-};
+import { TYPE_HREF, TYPE_LABEL } from '@/lib/contentTypes';
 
 export type HomeItem = {
   _type: string;
@@ -41,9 +28,18 @@ export function HomepageClient({
   const [bgIdx, setBgIdx]       = useState(0);
   // Slides 0..maxMounted render an <Image>; the rest stay empty until the
   // rotation approaches them, so the browser never downloads all heroes at once.
-  const [maxMounted, setMaxMounted] = useState(() => Math.min(1, heroImages.length - 1));
+  // Slide 1 mounts once slide 0 has loaded, so it doesn't compete with the
+  // first (LCP) image for bandwidth.
+  const [maxMounted, setMaxMounted] = useState(0);
+  const mountSecondSlide = () => setMaxMounted(m => Math.max(m, Math.min(1, heroImages.length - 1)));
+  // Rotation pauses while the hero is scrolled away or the tab is hidden.
+  const heroRef = useRef<HTMLElement>(null);
+  const [heroVisible, setHeroVisible] = useState(true);
+  const [tabVisible, setTabVisible]   = useState(true);
 
-  const bgActive = hovered !== null;
+  // Only pieces with a cover darken the page on hover — without one the
+  // overlay was just a flat grey wash.
+  const bgActive = !!hovered?.coverImageUrl;
   const bgUrl    = hovered?.coverImageUrl;
 
   useEffect(() => {
@@ -53,9 +49,27 @@ export function HomepageClient({
     return () => window.removeEventListener('resize', check);
   }, []);
 
+  // Fallback in case slide 0's load event is missed (e.g. served from cache
+  // before hydration): mount slide 1 well before the first rotation at 5s.
+  useEffect(() => {
+    const id = setTimeout(mountSecondSlide, 3000);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) return;
+    const io = new IntersectionObserver(([entry]) => setHeroVisible(entry.isIntersecting));
+    io.observe(hero);
+    const onVis = () => setTabVisible(document.visibilityState === 'visible');
+    document.addEventListener('visibilitychange', onVis);
+    return () => { io.disconnect(); document.removeEventListener('visibilitychange', onVis); };
+  }, []);
+
   // Rotate hero background images
   useEffect(() => {
-    if (heroImages.length <= 1) return;
+    if (heroImages.length <= 1 || !heroVisible || !tabVisible) return;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reducedMotion) return;
     const id = setInterval(() => {
@@ -67,16 +81,22 @@ export function HomepageClient({
       });
     }, 5000);
     return () => clearInterval(id);
-  }, [heroImages]);
+  }, [heroImages, heroVisible, tabVisible]);
 
-  // Preload article cover images
+  // Preload article cover images for the hover background — only on devices
+  // that can hover (touch screens never show it), and only once the page has
+  // settled so they don't compete with the hero.
   useEffect(() => {
-    items.forEach(item => {
-      if (item.coverImageUrl) {
-        const img = new window.Image();
-        img.src = item.coverImageUrl;
-      }
-    });
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    const id = setTimeout(() => {
+      items.forEach(item => {
+        if (item.coverImageUrl) {
+          const img = new window.Image();
+          img.src = item.coverImageUrl;
+        }
+      });
+    }, 2000);
+    return () => clearTimeout(id);
   }, [items]);
 
   // Sync body class for NavInner bg-active detection
@@ -88,7 +108,7 @@ export function HomepageClient({
     return () => { document.body.classList.remove('bg-active'); };
   }, []);
 
-  const px = 'clamp(1.5rem, 4vw, 3.75rem)';
+  const px = 'clamp(1.5rem, 4vw, 3rem)'; // same side margin as the nav
 
   return (
     <>
@@ -122,6 +142,7 @@ export function HomepageClient({
         {/* ── Hero ─────────────────────────────────────────── */}
         {/* z-index 1: below hover bg (z=2), so article hover covers it when partially visible */}
         <section
+          ref={heroRef}
           className="hero-section"
           aria-label="Site introduction"
           data-hero
@@ -145,14 +166,25 @@ export function HomepageClient({
                   alt=""
                   fill
                   priority={i === 0}
+                  onLoad={i === 0 ? mountSecondSlide : undefined}
                   sizes="100vw"
                   className="object-cover"
                 />
               )}
             </div>
           ))}
-          {/* Overlay */}
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(28,24,20,0.48)', zIndex: 1 }} />
+          {/* Overlay — an even tint, plus a faint crown behind the nav and a
+              slightly deeper foot behind the name, so both stay legible on
+              the brightest slides. */}
+          <div
+            style={{
+              position: 'absolute', inset: 0, zIndex: 1,
+              background:
+                'linear-gradient(to bottom, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0) 16%), ' +
+                'linear-gradient(to top, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0) 38%), ' +
+                'rgba(28,24,20,0.48)',
+            }}
+          />
           {/* Bottom text block */}
           <div
             style={{
@@ -219,14 +251,13 @@ export function HomepageClient({
                           category and place already live on the title. */}
                       <div
                         className="home-article-meta"
-                        aria-hidden={!showMeta}
                         style={{ opacity: showMeta ? 1 : 0, transition: 'opacity 100ms ease' }}
                       >
                         {item.description && (
                           <p style={{
                             fontFamily: 'var(--font-sans)', fontSize: '12px', fontWeight: 300,
                             fontStyle: 'italic', lineHeight: 1.7, margin: 0,
-                            color: isMobile ? 'rgba(122,112,103,0.80)' : 'rgba(248,244,239,0.70)',
+                            color: isMobile ? 'var(--color-ink-muted)' : 'rgba(248,244,239,0.70)',
                           }}>
                             {item.description}
                           </p>

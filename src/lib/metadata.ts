@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { urlFor } from '@/lib/sanityImage';
-import { SITE_NAME } from '@/lib/siteConfig';
+import { SITE_NAME, SITE_URL } from '@/lib/siteConfig';
 
 // Re-export constants so callers can import from one place
-export { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SOCIAL_PROFILES, OG_IMAGE } from '@/lib/siteConfig';
+export { SITE_URL, SITE_NAME, SITE_DESCRIPTION, SOCIAL_PROFILES } from '@/lib/siteConfig';
 
 type SanityImageRef = { asset?: object; alt?: string };
 
@@ -42,6 +42,7 @@ export function buildContentMetadata(input: ContentMetaInput): Metadata {
       description,
       url: input.path,
       siteName: SITE_NAME,
+      locale: 'en_GB',
       type: 'article',
       ...(input.publishedAt && { publishedTime: input.publishedAt }),
       ...(input.tags?.length && { tags: input.tags }),
@@ -56,4 +57,36 @@ export function buildContentMetadata(input: ContentMetaInput): Metadata {
 
 export function contentImageUrl(image: SanityImageRef | undefined): string | undefined {
   return ogImageUrl(image);
+}
+
+/**
+ * Metadata for the site's own pages (Library, Earth, About…). A page-level
+ * `openGraph` replaces the root one wholesale, so the shared fields (site
+ * name, locale, type) and a matching Twitter title/description are set here
+ * rather than lost. Images come from each route's opengraph-image file.
+ */
+export function pageMetadata({ title, description, path }: {
+  title: string;
+  description: string;
+  path: string;
+}): Metadata {
+  const socialTitle = `${title} · Arman Parsa`;
+  return {
+    title,
+    description,
+    alternates: { canonical: `${SITE_URL}${path}` },
+    openGraph: {
+      title: socialTitle,
+      description,
+      url: `${SITE_URL}${path}`,
+      siteName: SITE_NAME,
+      locale: 'en_GB',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: socialTitle,
+      description,
+    },
+  };
 }
