@@ -260,6 +260,23 @@ Enlarged view: morph from the thumbnail, 2000px version fades in over it,
 caption + "View the piece", ←/→ + counter (edge arrows below 480px tall),
 focus trapped, collage `inert`, focus returns to the source print.
 
+### Video (Vimeo) — `AmbientVimeo`, `VideoBlock`, `src/lib/vimeo.ts`
+Free Vimeo, made fast:
+- **Poster first:** pages look up each film's still frame on the server via
+  Vimeo's public oEmbed (no key; cached a day; `withVideoPosters()` adds
+  `poster` to body/`videos[]` blocks) and show it instantly.
+- **Lazy player:** the iframe is created only within ~one screen of the
+  viewport, boots paused (src never changes, so it never reloads), and fades
+  in over the poster on its first progress event.
+- **One plays at a time:** a module-level registry plays only the most
+  visible film (≥25% on screen); the rest pause; nothing plays in a hidden
+  tab. The lightbox's film (`eager`) always wins; the page film resumes on close.
+- Preconnects to player.vimeo.com / i.vimeocdn.com / f.vimeocdn.com.
+- Reduced motion: standard player, no autoplay, still lazy.
+- Possible next step: a streaming host (Mux / Cloudflare Stream / Bunny) or
+  Vimeo direct-file links → native `<video>` for instant start and short
+  ambient loops site-wide. Paid, so not done.
+
 ### IntroLoader
 Homepage only, once per session (pre-hydration script in the root layout adds
 `intro-seen` for other paths / repeat visits). Page behind is `inert` while it plays.
