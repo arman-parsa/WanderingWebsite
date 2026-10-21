@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { client } from '@/lib/sanity';
+import { withVideoPosters } from '@/lib/vimeo';
 import { sanityFetch } from '@/lib/sanityFetch';
 import { VIDEOGRAPHY_QUERY, VIDEOGRAPHY_SLUGS_QUERY } from '@/lib/sanity';
 import { ArticleHero } from '@/components/content/ArticleHero';
@@ -49,12 +50,14 @@ type SanityVideo = {
   vimeoId?: string;
   title: string;
   description?: string;
+  poster?: string;
 };
 
 export default async function VideographyPage({ params }: Props) {
   const { slug } = await params;
   let piece = null;
   piece = await sanityFetch(VIDEOGRAPHY_QUERY, { slug });
+  if (piece) piece = { ...piece, videos: await withVideoPosters(piece.videos) };
   if (!piece) notFound();
 
   const { newer, older } = await getAdjacentPieces('videography', slug);
@@ -93,7 +96,7 @@ export default async function VideographyPage({ params }: Props) {
           {piece.videos.map((video: SanityVideo) => (
             video.vimeoId ? (
               <div key={video._key}>
-                <VideoBlock videoId={video.vimeoId} title={video.title} width="wide" />
+                <VideoBlock videoId={video.vimeoId} title={video.title} poster={video.poster} width="wide" />
                 {video.description && (
                   <p className="mt-4 font-sans text-sm leading-relaxed" style={{ color: '#a09890' }}>
                     {video.description}

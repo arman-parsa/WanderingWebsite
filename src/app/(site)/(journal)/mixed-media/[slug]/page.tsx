@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { client } from '@/lib/sanity';
+import { withVideoPosters } from '@/lib/vimeo';
 import { sanityFetch, hasRealContent } from '@/lib/sanityFetch';
 import { MIXED_MEDIA_QUERY, MIXED_MEDIA_SLUGS_QUERY } from '@/lib/sanity';
 import { ArticleHero } from '@/components/content/ArticleHero';
@@ -60,6 +61,10 @@ export default async function MixedMediaPage({ params }: Props) {
   const { slug } = await params;
   let piece = null;
   piece = await sanityFetch(MIXED_MEDIA_QUERY, { slug });
+  if (piece) {
+    const [body, videos] = await Promise.all([withVideoPosters(piece.body), withVideoPosters(piece.videos)]);
+    piece = { ...piece, body, videos };
+  }
   if (!piece && slug.startsWith('_placeholder')) {
     const match = PLACEHOLDER_ITEMS.find((i) => i.slug === slug && i._type === 'mixedMedia');
     if (match) piece = { ...PLACEHOLDER_WRITING, title: match.title, description: match.description, location: match.location, publishedAt: match.publishedAt };
@@ -80,6 +85,7 @@ export default async function MixedMediaPage({ params }: Props) {
     title: string;
     description?: string;
     width?: MediaWidth;
+    poster?: string;
   }[];
   const hasGallery = galleryBlocks.length > 0 || galleryVideos.length > 0;
   // Every visual in the piece, in narrative order, for the lightbox.
@@ -137,6 +143,7 @@ export default async function MixedMediaPage({ params }: Props) {
                     videoId={video.vimeoId}
                     title={video.title}
                     caption={video.description}
+                    poster={video.poster}
                     width={video.width}
                     lightboxKey={video._key}
                   />

@@ -231,7 +231,7 @@ function Lightbox({
                 className="relative w-full overflow-hidden bg-black"
                 style={{ aspectRatio: '16 / 9', maxWidth: 'calc((100dvh - 13rem) * 16 / 9)' }}
               >
-                <AmbientVimeo videoId={entry.videoId} title={entry.title} />
+                <AmbientVimeo videoId={entry.videoId} title={entry.title} poster={entry.poster} eager />
               </div>
             )}
           </div>

@@ -8,6 +8,8 @@ type Props = {
   videoId?: string;
   title: string;
   caption?: string;
+  /** Still frame shown until the film plays (see src/lib/vimeo.ts). */
+  poster?: string;
   width?: MediaWidth;
   /** The Sanity block _key — when registered with the lightbox, clicking the film enlarges it. */
   lightboxKey?: string;
@@ -19,7 +21,7 @@ const FIGURE_CLASS: Record<MediaWidth, string> = {
   full: 'my-14 media-full',
 };
 
-export function VideoBlock({ videoId, title, caption, width = 'column', lightboxKey }: Props) {
+export function VideoBlock({ videoId, title, caption, poster, width = 'column', lightboxKey }: Props) {
   const lightbox = useLightbox();
   if (!parseVimeo(videoId)) return null;
 
@@ -32,6 +34,7 @@ export function VideoBlock({ videoId, title, caption, width = 'column', lightbox
         <AmbientVimeo
           videoId={videoId}
           title={title}
+          poster={poster}
           enlarge={
             clickable
               ? { label: `Enlarge film: ${title}`, onClick: () => lightbox.openAt(lightboxKey) }

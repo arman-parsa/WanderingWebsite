@@ -37,7 +37,7 @@ export type ImagePairValue = {
 
 export type LightboxEntry =
   | { kind: 'image'; key: string; image: SanityImageObject; alt: string; caption?: string }
-  | { kind: 'video'; key: string; videoId: string; title: string; caption?: string };
+  | { kind: 'video'; key: string; videoId: string; title: string; caption?: string; poster?: string };
 
 /**
  * Accepts a bare numeric Vimeo ID ("123456789") or any pasted Vimeo URL,
@@ -53,7 +53,7 @@ export function parseVimeo(input?: string): { id: string; hash?: string } | null
   return { id, hash };
 }
 
-type VideoLike = { _key?: string; vimeoId?: string; title?: string; description?: string };
+type VideoLike = { _key?: string; vimeoId?: string; title?: string; description?: string; poster?: string };
 
 /**
  * Collects every visual in a piece, in narrative order: portable-text body
@@ -80,6 +80,7 @@ export function collectArticleMedia(
       videoId: video.vimeoId!,
       title: video.title ?? 'Film',
       caption: video.description,
+      poster: video.poster,
     });
   };
 

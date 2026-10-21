@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { client } from '@/lib/sanity';
+import { withVideoPosters } from '@/lib/vimeo';
 import { sanityFetch, hasRealContent } from '@/lib/sanityFetch';
 import { WRITING_QUERY, WRITING_SLUGS_QUERY } from '@/lib/sanity';
 import { ArticleHero } from '@/components/content/ArticleHero';
@@ -57,6 +58,7 @@ export default async function WritingPage({ params }: Props) {
   const { slug } = await params;
   let piece = null;
   piece = await sanityFetch(WRITING_QUERY, { slug });
+  if (piece) piece = { ...piece, body: await withVideoPosters(piece.body) };
   if (!piece && slug.startsWith('_placeholder')) {
     const match = PLACEHOLDER_ITEMS.find((i) => i.slug === slug && i._type === 'writing');
     if (match) piece = { ...PLACEHOLDER_WRITING, title: match.title, description: match.description, location: match.location, publishedAt: match.publishedAt };

@@ -11,7 +11,7 @@ const components: PortableTextComponents = {
     imageBlock: ({ value }) => <ImageBlock value={value} />,
     imagePair:  ({ value }) => <ImagePair value={value} />,
     pullQuote:  ({ value }) => <PullQuote quote={value.quote} attribution={value.attribution} />,
-    videoBlock: ({ value }) => <VideoBlock videoId={value.vimeoId} title={value.title} caption={value.description} width={value.width} lightboxKey={value._key} />,
+    videoBlock: ({ value }) => <VideoBlock videoId={value.vimeoId} title={value.title} caption={value.description} poster={value.poster} width={value.width} lightboxKey={value._key} />,
   },
   block: {
     h2: ({ children }) => (
