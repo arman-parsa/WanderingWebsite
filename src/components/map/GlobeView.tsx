@@ -327,7 +327,7 @@ export default function GlobeView({ items }: { items: GlobeItem[] }) {
     // ── Land (async) ─────────────────────────────────────────────────────
     let landMesh: THREE.Mesh | null = null;
     let disposed = false;
-    fetch('/data/ne_110m_land.json')
+    fetch('/data/land.json') // Natural Earth 50m — see scripts/build-land.mjs
       .then((r) => r.json() as Promise<GeoCollection>)
       .then((geojson) => {
         if (disposed) return; // left /earth before the data arrived
