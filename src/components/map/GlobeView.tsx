@@ -63,10 +63,63 @@ function latLngToVec3(lat: number, lng: number, radius: number): THREE.Vector3 {
 }
 
 // Recursively subdivide a flat earcut triangle (in lng/lat space) until every
-// edge spans ≤ MAX_SPAN degrees, then project each leaf triangle onto the sphere.
-// Without subdivision, large-country triangles form flat chords that dip below
-// the ocean sphere surface — the ocean occludes them from the camera as holes.
-const MAX_TRI_SPAN = 10;
+// edge spans ≤ MAX_TRI_SPAN degrees, then project each leaf triangle onto the
+// sphere. Without subdivision, large-country triangles form flat chords that
+// dip below the ocean sphere surface — the ocean occludes them as holes.
+//
+// The split decision is made per EDGE (from that edge's own length), never per
+// triangle, so the two triangles sharing an edge always split it at the same
+// midpoint. Deciding per triangle left T-junctions: one side cut the edge, the
+// other drew it straight, and once projected onto the sphere the lng/lat
+// midpoint sits off that straight chord — opening wedge-shaped cracks through
+// which the ocean showed.
+const MAX_TRI_SPAN = 4;
+const MAX_SUBDIV_DEPTH = 24; // safety net; real triangles stop far sooner
+
+type LL = readonly [number, number]; // [lng, lat]
+
+const isLongEdge = (a: LL, b: LL) =>
+  Math.abs(a[0] - b[0]) > MAX_TRI_SPAN || Math.abs(a[1] - b[1]) > MAX_TRI_SPAN;
+// (a+b)/2 === (b+a)/2 exactly in floating point, so both neighbours of an
+// edge compute bit-identical midpoints regardless of winding.
+const mid = (a: LL, b: LL): LL => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+
+function emitTri(a: LL, b: LL, c: LL, out: number[], depth: number): void {
+  const ab = isLongEdge(a, b), bc = isLongEdge(b, c), ca = isLongEdge(c, a);
+  const longCount = +ab + +bc + +ca;
+
+  if (longCount === 0 || depth >= MAX_SUBDIV_DEPTH) {
+    for (const [lng, lat] of [a, b, c]) {
+      const v = latLngToVec3(lat, lng, LAND_RADIUS);
+      out.push(v.x, v.y, v.z);
+    }
+    return;
+  }
+  const d = depth + 1;
+  if (longCount === 3) {
+    const mab = mid(a, b), mbc = mid(b, c), mca = mid(c, a);
+    emitTri(a, mab, mca, out, d);
+    emitTri(mab, b, mbc, out, d);
+    emitTri(mca, mbc, c, out, d);
+    emitTri(mab, mbc, mca, out, d);
+    return;
+  }
+  // Rotate (keeping winding) so the long edge(s) come first: x→y is long, and
+  // for two long edges y→z is long too.
+  let x = a, y = b, z = c;
+  if (longCount === 1) {
+    if (bc) { x = b; y = c; z = a; } else if (ca) { x = c; y = a; z = b; }
+    const m = mid(x, y);
+    emitTri(x, m, z, out, d);
+    emitTri(m, y, z, out, d);
+  } else {
+    if (!ab) { x = b; y = c; z = a; } else if (!bc) { x = c; y = a; z = b; }
+    const mxy = mid(x, y), myz = mid(y, z);
+    emitTri(mxy, y, myz, out, d);
+    emitTri(x, mxy, myz, out, d);
+    emitTri(x, myz, z, out, d);
+  }
+}
 
 function subdivideAndEmit(
   lng0: number, lat0: number,
@@ -74,24 +127,75 @@ function subdivideAndEmit(
   lng2: number, lat2: number,
   out: number[]
 ): void {
-  const dLng = Math.max(Math.abs(lng1 - lng0), Math.abs(lng2 - lng0), Math.abs(lng2 - lng1));
-  const dLat = Math.max(Math.abs(lat1 - lat0), Math.abs(lat2 - lat0), Math.abs(lat2 - lat1));
+  emitTri([lng0, lat0], [lng1, lat1], [lng2, lat2], out, 0);
+}
 
-  if (dLng <= MAX_TRI_SPAN && dLat <= MAX_TRI_SPAN) {
-    const v0 = latLngToVec3(lat0, lng0, LAND_RADIUS);
-    const v1 = latLngToVec3(lat1, lng1, LAND_RADIUS);
-    const v2 = latLngToVec3(lat2, lng2, LAND_RADIUS);
-    out.push(v0.x, v0.y, v0.z, v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
-    return;
+// Earcut (inside triangulateShape) produces many needle-thin triangles that
+// stretch across whole continents. Wrapped onto the sphere, a needle's two
+// long sides bend by slightly different amounts, so it folds over itself and
+// leaves a hairline of ocean showing. Flipping every interior edge that fails
+// the Delaunay test (Lawson flips) turns those needles into well-shaped
+// triangles. Coastline edges are never flipped, so the outline is unchanged.
+function delaunayRefine(pts: GeoRing, faces: number[][]): void {
+  const n = pts.length;
+  const orient = (a: number, b: number, c: number) =>
+    (pts[b][0] - pts[a][0]) * (pts[c][1] - pts[a][1]) -
+    (pts[b][1] - pts[a][1]) * (pts[c][0] - pts[a][0]);
+  // > 0 when d lies strictly inside the circumcircle of CCW triangle abc.
+  const inCircle = (a: number, b: number, c: number, d: number) => {
+    const [dx, dy] = pts[d];
+    const ax = pts[a][0] - dx, ay = pts[a][1] - dy;
+    const bx = pts[b][0] - dx, by = pts[b][1] - dy;
+    const cx = pts[c][0] - dx, cy = pts[c][1] - dy;
+    return (ax * ax + ay * ay) * (bx * cy - cx * by) -
+           (bx * bx + by * by) * (ax * cy - cx * ay) +
+           (cx * cx + cy * cy) * (ax * by - bx * ay);
+  };
+  const key = (u: number, v: number) => (u < v ? u * n + v : v * n + u);
+  const ccw = (f: number[]) => { if (orient(f[0], f[1], f[2]) < 0) [f[1], f[2]] = [f[2], f[1]]; };
+
+  const edgeFaces = new Map<number, number[]>();
+  const link = (u: number, v: number, fi: number) => {
+    const k = key(u, v);
+    const list = edgeFaces.get(k);
+    if (list) list.push(fi); else edgeFaces.set(k, [fi]);
+  };
+  const relink = (u: number, v: number, from: number, to: number) => {
+    const list = edgeFaces.get(key(u, v));
+    if (list) list[list.indexOf(from)] = to;
+  };
+  faces.forEach((f, fi) => {
+    ccw(f);
+    link(f[0], f[1], fi); link(f[1], f[2], fi); link(f[2], f[0], fi);
+  });
+
+  const isCoast = (k: number) => {
+    const u = Math.floor(k / n), v = k % n;
+    return v - u === 1 || (u === 0 && v === n - 1);
+  };
+  const stack = [...edgeFaces.keys()];
+  let budget = faces.length * 50; // flips always terminate; this is a guard
+  while (stack.length && budget-- > 0) {
+    const k = stack.pop() as number;
+    const fs = edgeFaces.get(k);
+    if (!fs || fs.length !== 2 || isCoast(k)) continue;
+    const a = Math.floor(k / n), b = k % n;
+    const [f1, f2] = fs;
+    const c = faces[f1].find((v) => v !== a && v !== b) as number;
+    const d = faces[f2].find((v) => v !== a && v !== b) as number;
+    const [p, q, r] = faces[f1];
+    if (inCircle(p, q, r, d) <= 1e-12) continue;
+    // Only flip a convex quad: a and b must lie on opposite sides of c–d.
+    if (orient(c, d, a) * orient(c, d, b) >= 0) continue;
+
+    faces[f1] = [c, a, d]; ccw(faces[f1]);
+    faces[f2] = [c, d, b]; ccw(faces[f2]);
+    edgeFaces.delete(k);
+    edgeFaces.set(key(c, d), [f1, f2]);
+    relink(a, d, f2, f1);
+    relink(b, c, f1, f2);
+    stack.push(key(a, c), key(a, d), key(b, c), key(b, d));
   }
-  // Split into 4 sub-triangles at edge midpoints
-  const m01lng = (lng0 + lng1) / 2, m01lat = (lat0 + lat1) / 2;
-  const m12lng = (lng1 + lng2) / 2, m12lat = (lat1 + lat2) / 2;
-  const m20lng = (lng2 + lng0) / 2, m20lat = (lat2 + lat0) / 2;
-  subdivideAndEmit(lng0, lat0,   m01lng, m01lat, m20lng, m20lat, out);
-  subdivideAndEmit(m01lng, m01lat, lng1, lat1,   m12lng, m12lat, out);
-  subdivideAndEmit(m20lng, m20lat, m12lng, m12lat, lng2, lat2,  out);
-  subdivideAndEmit(m01lng, m01lat, m12lng, m12lat, m20lng, m20lat, out);
 }
 
 function buildLandGeometry(geojson: GeoCollection): THREE.BufferGeometry {
@@ -107,25 +211,21 @@ function buildLandGeometry(geojson: GeoCollection): THREE.BufferGeometry {
       if (Math.abs(ring[(i + 1) % n][0] - ring[i][0]) > 180) return;
     }
 
-    const shape = new THREE.Shape();
-    shape.moveTo(ring[0][0], ring[0][1]);
-    for (let i = 1; i < n; i++) shape.lineTo(ring[i][0], ring[i][1]);
+    const pts = ring.slice(0, n);
+    const faces = THREE.ShapeUtils.triangulateShape(
+      pts.map(([lng, lat]) => new THREE.Vector2(lng, lat)),
+      []
+    );
+    delaunayRefine(pts, faces);
 
-    const shapeGeo = new THREE.ShapeGeometry(shape);
-    const flat = shapeGeo.toNonIndexed();
-    const pos = flat.attributes.position;
-
-    for (let i = 0; i < pos.count; i += 3) {
+    for (const [a, b, c] of faces) {
       subdivideAndEmit(
-        pos.getX(i),     pos.getY(i),
-        pos.getX(i + 1), pos.getY(i + 1),
-        pos.getX(i + 2), pos.getY(i + 2),
+        pts[a][0], pts[a][1],
+        pts[b][0], pts[b][1],
+        pts[c][0], pts[c][1],
         verts
       );
     }
-
-    shapeGeo.dispose();
-    flat.dispose();
   }
 
   for (const feature of geojson.features) {
@@ -140,8 +240,18 @@ function buildLandGeometry(geojson: GeoCollection): THREE.BufferGeometry {
   }
 
   const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(verts), 3));
-  geo.computeVertexNormals();
+  const positions = new Float32Array(verts);
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  // Land lies on a sphere, so the true surface normal is the radial direction.
+  // Per-face normals (computeVertexNormals on unindexed data) made every
+  // triangle shade slightly differently — a faceted, patchy look.
+  const normals = new Float32Array(positions.length);
+  for (let i = 0; i < positions.length; i += 3) {
+    const x = positions[i], y = positions[i + 1], z = positions[i + 2];
+    const len = Math.hypot(x, y, z) || 1;
+    normals[i] = x / len; normals[i + 1] = y / len; normals[i + 2] = z / len;
+  }
+  geo.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
   return geo;
 }
 
