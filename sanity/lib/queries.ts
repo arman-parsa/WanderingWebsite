@@ -166,3 +166,18 @@ export const MAP_CONTENT_QUERY = defineQuery(`
 export const REAL_CONTENT_COUNT_QUERY = defineQuery(`
   count(*[_type in ["writing", "mixedMedia", "photography", "videography"] && !(_id in path("drafts.**"))])
 `);
+
+// ─── Site Settings (the single "siteSettings" document) ──────────────────
+// Published version only (drafts live at "drafts.siteSettings"). Every field
+// may be missing — src/lib/siteSettings.ts fills the gaps with fallbacks.
+
+export const SITE_SETTINGS_QUERY = defineQuery(`
+  *[_id == "siteSettings"][0] {
+    "heroImages": heroImages[defined(asset)] {
+      ..., "alt": coalesce(alt, ""), hotspot, "lqip": asset->metadata.lqip
+    },
+    bio,
+    contactEmail,
+    "socialLinks": socialLinks[defined(platform) && defined(url)] { platform, url }
+  }
+`);
