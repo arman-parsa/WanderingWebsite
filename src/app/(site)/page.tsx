@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
-import fs from 'fs';
-import path from 'path';
 import { sanityFetch } from '@/lib/sanityFetch';
 import { ALL_CONTENT_QUERY } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
 import { PLACEHOLDER_ITEMS } from '@/lib/placeholders';
 import { HomepageClient, type HomeItem } from '@/components/home/HomepageClient';
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from '@/lib/metadata';
+import { getSiteSettings } from '@/lib/siteSettings';
 
 export const revalidate = 300;
 
@@ -35,7 +34,11 @@ type ContentItem = {
 
 export default async function HomePage() {
   // An empty result means no published content yet → placeholders.
-  let items = ((await sanityFetch<ContentItem[]>(ALL_CONTENT_QUERY)) ?? []).slice(0, 3);
+  const [content, settings] = await Promise.all([
+    sanityFetch<ContentItem[]>(ALL_CONTENT_QUERY),
+    getSiteSettings(),
+  ]);
+  let items = (content ?? []).slice(0, 3);
   if (items.length === 0) items = PLACEHOLDER_ITEMS.slice(0, 3) as ContentItem[];
 
   const homeItems: HomeItem[] = items.map(item => ({
@@ -49,16 +52,5 @@ export default async function HomePage() {
       : undefined,
   }));
 
-  // Static hero images from public/images/ — all image files discovered at
-  // build time, except portraits that belong to other pages (about-*).
-  const IMAGE_EXTS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif']);
-  const imagesDir = path.join(process.cwd(), 'public', 'images');
-  const heroImages = fs.existsSync(imagesDir)
-    ? fs.readdirSync(imagesDir)
-        .filter(f => IMAGE_EXTS.has(path.extname(f).toLowerCase()) && !f.startsWith('about-'))
-        .sort()
-        .map(f => `/images/${f}`)
-    : [];
-
-  return <HomepageClient items={homeItems} heroImages={heroImages} />;
+  return <HomepageClient items={homeItems} heroSlides={settings.heroSlides} />;
 }

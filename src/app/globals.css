@@ -94,6 +94,7 @@
   --duration-normal:  350ms;
   --duration-slow:    600ms;
   --duration-slower:  900ms;
+  --duration-hero-fade: 1500ms; /* homepage hero crossfade — HERO_FADE_MS in HomeHero.tsx */
 
   --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-in:      cubic-bezier(0.4, 0, 1, 1);
@@ -325,50 +326,91 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
   transition: none;
 }
 
-/* ── Hero section ────────────────────────────────────────────── */
-.hero-section {
+/* ── Homepage hero ───────────────────────────────────────────────
+   Site Settings images crossfade slowly (HomeHero.tsx); the name and tagline
+   sit left-aligned and vertically centred, on the nav's left edge. */
+.home-hero {
   position: relative;
+  z-index: 1; /* below the article-hover background (z 2) */
   height: 100vh;
   height: 100svh; /* small viewport height — prevents iOS toolbar jump */
   overflow: hidden;
+  background: var(--color-ink);
+}
+.home-hero__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--duration-hero-fade) var(--ease-default);
+}
+.home-hero__slide--shown { opacity: 1; }
+.home-hero__img { object-fit: cover; }
+
+/* Legibility without a shape: a faint crown behind the nav, and a very wide,
+   soft left-to-right falloff behind the text — it reads as the photograph's
+   own vignetting, gone well before the right of the frame. */
+.home-hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-ink) 22%, transparent) 0%, transparent 16%),
+    linear-gradient(
+      to right,
+      color-mix(in srgb, var(--color-ink) 42%, transparent) 0%,
+      color-mix(in srgb, var(--color-ink) 26%, transparent) 30%,
+      color-mix(in srgb, var(--color-ink) 8%, transparent) 58%,
+      transparent 78%
+    );
+}
+@media (max-width: 639px) {
+  /* The text spans most of a phone screen, so the falloff does too. */
+  .home-hero__scrim {
+    background:
+      linear-gradient(to bottom, color-mix(in srgb, var(--color-ink) 22%, transparent) 0%, transparent 16%),
+      linear-gradient(
+        to right,
+        color-mix(in srgb, var(--color-ink) 44%, transparent) 0%,
+        color-mix(in srgb, var(--color-ink) 30%, transparent) 55%,
+        color-mix(in srgb, var(--color-ink) 14%, transparent) 100%
+      );
+  }
 }
 
-.hero-name-link {
-  text-decoration: none;
-  display: block;
-  color: #ffffff;
+.home-hero__text {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding-inline: var(--content-padding-x); /* = the nav's side margin */
+  color: var(--color-paper);
+  text-shadow: 0 1px 18px color-mix(in srgb, var(--color-ink) 35%, transparent);
 }
-/* The name is a baked vector outline (see HeroNameSVG.tsx): the SVG spans the
-   container's content box and the viewBox scales the glyphs to fill it exactly,
-   so the ink edges align with the padding on BOTH sides at every viewport width,
-   in every browser. No font metrics, no font loading, nothing to drift. */
-.hero-name-svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 6620 / 736; /* mirrors the viewBox — guards height:auto everywhere */
-}
-/* Single standfirst line above the hero name, left-aligned to match the
-   name's left edge — one small-caps sans voice, one line, no wrap. */
-.hero-meta {
+.home-hero__name {
   margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: var(--text-4xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+.home-hero__tagline {
+  margin: 0;
+  max-width: 28rem; /* keeps both lines inside the darker part of the falloff */
   font-family: var(--font-sans);
   font-weight: 300;
-  font-size: clamp(0.68rem, 0.85vw, 0.8rem);
-  letter-spacing: 0.14em;
+  font-size: var(--text-xs);
+  line-height: var(--leading-relaxed);
+  letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
-  line-height: 1.8;
-  /* Solid paper with a soft shadow: the 72% tint dropped below readable
-     contrast over the brighter slides. */
-  color: var(--color-paper);
-  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.35);
 }
-.hero-meta--solo {
-  white-space: nowrap;
-  margin-bottom: clamp(0.9rem, 2vw, 1.6rem);
-}
-@media (max-width: 767px) {
-  .hero-meta--solo { white-space: normal; }
+@media (max-width: 639px) {
+  .home-hero__tagline { max-width: 20rem; }
 }
 
 /* ── About page — portrait + text, side by side ──────────────── */

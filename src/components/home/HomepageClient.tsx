@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
-import { sanityLoader } from '@/components/content/SanityImage';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { HeroNameSVG } from '@/components/home/HeroNameSVG';
+import { HomeHero } from '@/components/home/HomeHero';
 import { TYPE_HREF, TYPE_LABEL } from '@/lib/contentTypes';
+import type { HeroSlide } from '@/lib/siteSettings';
 
 export type HomeItem = {
   _type: string;
@@ -18,25 +17,13 @@ export type HomeItem = {
 
 export function HomepageClient({
   items,
-  heroImages = [],
+  heroSlides,
 }: {
   items: HomeItem[];
-  heroImages?: string[];
+  heroSlides: HeroSlide[];
 }) {
   const [hovered, setHovered]   = useState<HomeItem | null>(null);
   const [isMobile, setIsMobile] = useState(false);
-  const [bgIdx, setBgIdx]       = useState(0);
-  // Slides 0..maxMounted render an <Image>; the rest stay empty until the
-  // rotation approaches them, so the browser never downloads all heroes at once.
-  // Slide 1 mounts once slide 0 has loaded, so it doesn't compete with the
-  // first (LCP) image for bandwidth.
-  const [maxMounted, setMaxMounted] = useState(0);
-  const mountSecondSlide = () => setMaxMounted(m => Math.max(m, Math.min(1, heroImages.length - 1)));
-  // Rotation pauses while the hero is scrolled away or the tab is hidden.
-  const heroRef = useRef<HTMLElement>(null);
-  const [heroVisible, setHeroVisible] = useState(true);
-  const [tabVisible, setTabVisible]   = useState(true);
-
   // Only pieces with a cover darken the page on hover — without one the
   // overlay was just a flat grey wash.
   const bgActive = !!hovered?.coverImageUrl;
@@ -48,40 +35,6 @@ export function HomepageClient({
     window.addEventListener('resize', check, { passive: true });
     return () => window.removeEventListener('resize', check);
   }, []);
-
-  // Fallback in case slide 0's load event is missed (e.g. served from cache
-  // before hydration): mount slide 1 well before the first rotation at 5s.
-  useEffect(() => {
-    const id = setTimeout(mountSecondSlide, 3000);
-    return () => clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    const hero = heroRef.current;
-    if (!hero) return;
-    const io = new IntersectionObserver(([entry]) => setHeroVisible(entry.isIntersecting));
-    io.observe(hero);
-    const onVis = () => setTabVisible(document.visibilityState === 'visible');
-    document.addEventListener('visibilitychange', onVis);
-    return () => { io.disconnect(); document.removeEventListener('visibilitychange', onVis); };
-  }, []);
-
-  // Rotate hero background images
-  useEffect(() => {
-    if (heroImages.length <= 1 || !heroVisible || !tabVisible) return;
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reducedMotion) return;
-    const id = setInterval(() => {
-      setBgIdx(i => {
-        const next = (i + 1) % heroImages.length;
-        // Mount one slide ahead so the upcoming image has the full 5s to load
-        setMaxMounted(m => Math.max(m, Math.min(next + 1, heroImages.length - 1)));
-        return next;
-      });
-    }, 5000);
-    return () => clearInterval(id);
-  }, [heroImages, heroVisible, tabVisible]);
 
   // Preload article cover images for the hover background — only on devices
   // that can hover (touch screens never show it), and only once the page has
@@ -140,68 +93,9 @@ export function HomepageClient({
       <main id="main-content" style={{ position: 'relative' }}>
 
         {/* ── Hero ─────────────────────────────────────────── */}
-        {/* z-index 1: below hover bg (z=2), so article hover covers it when partially visible */}
-        <section
-          ref={heroRef}
-          className="hero-section"
-          aria-label="Site introduction"
-          data-hero
-          style={{ background: '#070b12', position: 'relative', zIndex: 1 }}
-        >
-          {heroImages.map((url, i) => (
-            <div
-              key={url}
-              aria-hidden="true"
-              style={{
-                position: 'absolute', inset: 0,
-                opacity: i === bgIdx ? 1 : 0,
-                transition: 'opacity 1500ms ease',
-              }}
-            >
-              {i <= maxMounted && (
-                <Image
-                  src={url}
-                  loader={url.startsWith('https://cdn.sanity.io/') ? sanityLoader : undefined}
-                  quality={90}
-                  alt=""
-                  fill
-                  priority={i === 0}
-                  onLoad={i === 0 ? mountSecondSlide : undefined}
-                  sizes="100vw"
-                  className="object-cover"
-                />
-              )}
-            </div>
-          ))}
-          {/* Overlay — an even tint, plus a faint crown behind the nav and a
-              slightly deeper foot behind the name, so both stay legible on
-              the brightest slides. */}
-          <div
-            style={{
-              position: 'absolute', inset: 0, zIndex: 1,
-              background:
-                'linear-gradient(to bottom, rgba(0,0,0,0.32) 0%, rgba(0,0,0,0) 16%), ' +
-                'linear-gradient(to top, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0) 38%), ' +
-                'rgba(28,24,20,0.48)',
-            }}
-          />
-          {/* Bottom text block */}
-          <div
-            style={{
-              position: 'absolute', inset: 0, zIndex: 2,
-              display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-              padding: `0 ${px} clamp(1.25rem, 3vw, 2.5rem)`,
-            }}
-          >
-            <p className="hero-meta hero-meta--solo">
-              A portfolio of writing, photography and videography on nature, culture and spirit.
-            </p>
-            <Link href="/about" className="hero-name-link">
-              <h1 className="sr-only">Arman Parsa</h1>
-              <HeroNameSVG className="hero-name-svg" />
-            </Link>
-          </div>
-        </section>
+        {/* z-index 1 (globals.css): below the hover bg (z=2), so an article
+            hover covers it when it's partly in view. */}
+        <HomeHero slides={heroSlides} />
 
         {/* ── Article list + footer link ────────────────────── */}
         {/* z-index 3: above hover bg (z=2) so titles stay readable while bg image shows */}
