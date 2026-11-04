@@ -2,7 +2,8 @@
 
 import { usePathname } from 'next/navigation';
 
-const ARTICLE_PREFIXES = ['/writing/', '/photography/', '/mixed-media/', '/videography/'];
+// Dark detail pages (the four piece types and individual commissions).
+const ARTICLE_PREFIXES = ['/writing/', '/photography/', '/mixed-media/', '/videography/', '/commissions/'];
 
 export function SiteFooter() {
   // Client-side so the year is the visitor's current year, not the build's.

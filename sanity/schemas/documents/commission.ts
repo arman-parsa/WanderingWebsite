@@ -1,18 +1,5 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
-
-export const COMMISSION_SECTORS = [
-  { title: 'Hospitality', value: 'hospitality' },
-  { title: 'Outdoor', value: 'outdoor' },
-  { title: 'Travel Experience', value: 'travelExperience' },
-  { title: 'Conservation', value: 'conservation' },
-  { title: 'Editorial', value: 'editorial' },
-];
-
-export const COMMISSION_DELIVERABLES = [
-  { title: 'Photography', value: 'photography' },
-  { title: 'Film', value: 'film' },
-  { title: 'Writing', value: 'writing' },
-];
+import { COMMISSION_DELIVERABLES, COMMISSION_SECTORS } from '../../lib/commissionOptions';
 
 /**
  * Commissioned work for clients. A separate type from the editorial pieces

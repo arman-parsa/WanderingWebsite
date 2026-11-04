@@ -27,7 +27,8 @@ import { NavLink } from '@/components/layout/NavLink';
    stay legible against whatever shows through the transparent bar.
    ─────────────────────────────────────────────────────────────────────────── */
 
-const ARTICLE_PREFIXES = ['/writing', '/photography', '/mixed-media', '/videography'];
+// Dark detail pages: the four piece types, and individual commissions.
+const ARTICLE_PREFIXES = ['/writing', '/photography', '/mixed-media', '/videography', '/commissions'];
 const isArticlePath = (path: string) =>
   ARTICLE_PREFIXES.some((p) => path.startsWith(`${p}/`));
 

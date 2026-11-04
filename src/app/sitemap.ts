@@ -12,6 +12,7 @@ const SECTIONS = [
   { prefix: '/mixed-media', queryKey: 'MIXED_MEDIA_SLUGS_QUERY' },
   { prefix: '/photography', queryKey: 'PHOTOGRAPHY_SLUGS_QUERY' },
   { prefix: '/videography', queryKey: 'VIDEOGRAPHY_SLUGS_QUERY' },
+  { prefix: '/commissions', queryKey: 'COMMISSION_SLUGS_QUERY' },
 ] as const;
 
 async function fetchSlugs(queryKey: string): Promise<SlugRow[]> {
@@ -33,6 +34,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: SITE_URL, changeFrequency: 'weekly', priority: 1 },
     { url: `${SITE_URL}/library`, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${SITE_URL}/gallery`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${SITE_URL}/commissions`, changeFrequency: 'monthly', priority: 0.9 },
     { url: `${SITE_URL}/earth`, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${SITE_URL}/about`, changeFrequency: 'yearly', priority: 0.5 },
     { url: `${SITE_URL}/contact`, changeFrequency: 'yearly', priority: 0.5 },
