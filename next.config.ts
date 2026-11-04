@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
     ],
     formats: ['image/avif', 'image/webp'],
     // Next 16 only allows quality 75 unless listed here; 90 is used for the
-    // full-screen hero and the About portrait.
+    // full-screen hero and the Contact portrait.
     qualities: [75, 90],
   },
 
@@ -47,6 +47,8 @@ const nextConfig: NextConfig = {
     return [
       { source: '/articles', destination: '/library', permanent: true },
       { source: '/map', destination: '/earth', permanent: true },
+      // About was merged into Contact.
+      { source: '/about', destination: '/contact', permanent: true },
       // Temporary, so the store can later become a page on this site
       // without browsers having cached the redirect.
       { source: '/store', destination: STORE_URL, permanent: false },

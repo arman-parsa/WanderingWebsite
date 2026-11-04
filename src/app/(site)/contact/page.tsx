@@ -1,72 +1,64 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { pageMetadata } from '@/lib/metadata';
+import { getSiteSettings } from '@/lib/siteSettings';
+
+// Bio, email and social links come from Site Settings (with fallbacks).
+export const revalidate = 300;
 
 export const metadata: Metadata = pageMetadata({
   title: 'Contact',
   description:
-    'Get in touch with Arman Parsa for partnerships, editorial enquiries, or to say hello.',
+    'Arman Parsa — writer, photographer and filmmaker, UK based and working worldwide. Get in touch about commissions, collaborations and editorial projects.',
   path: '/contact',
 });
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const { bio, contactEmail, socialLinks } = await getSiteSettings();
+
   return (
-    <main
-      id="main-content"
-      className="flex flex-1 flex-col justify-center py-24"
-    >
-      <div className="mx-auto w-full max-w-[var(--content-max-width)] px-[var(--content-padding-x)] text-center">
-        <h1 className="sr-only">Contact</h1>
-        <p className="font-serif text-[length:var(--text-lg)] leading-[var(--leading-relaxed)]">
-          For partnerships, editorial enquiries, or just to say hello — reach out by email.
-        </p>
+    <main id="main-content" className="flex flex-1 flex-col justify-center py-24">
+      <div className="contact-layout">
+        <div className="contact-portrait">
+          <Image
+            src="/images/about-portrait.jpg"
+            alt="Arman Parsa hiking in the Dolomites, carrying a camera pack and tripod"
+            fill
+            preload
+            quality={90}
+            // The photo is landscape (≈1.5:1) cropped into a 3:4 frame of at
+            // most 330px wide, so it renders ~2× the frame's width: 660px.
+            sizes="660px"
+            className="contact-portrait__img"
+          />
+        </div>
 
-        <a
-          href="mailto:armanparsa03@gmail.com"
-          className="mt-8 inline-block font-sans text-sm uppercase tracking-widest text-ink underline-offset-4 opacity-75 transition-opacity duration-[var(--duration-fast)] hover:opacity-100"
-        >
-          armanparsa03@gmail.com
-        </a>
+        <div className="contact-text">
+          <h1 className="contact-heading">Arman Parsa</h1>
+          <div className="contact-bio">
+            {bio.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
 
-        <div className="mt-10 flex items-center justify-center gap-7">
-          <a
-            href="https://www.instagram.com/armanparsa_/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Arman Parsa on Instagram"
-            className="-m-3 inline-flex p-3 text-ink opacity-55 transition-opacity duration-[var(--duration-fast)] hover:opacity-80 active:opacity-80"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-              <circle cx="12" cy="12" r="4" />
-              <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none" />
-            </svg>
-          </a>
+          <hr className="contact-rule" />
 
-          <a
-            href="https://www.tiktok.com/@armanparsa_"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Arman Parsa on TikTok"
-            className="-m-3 inline-flex p-3 text-ink opacity-55 transition-opacity duration-[var(--duration-fast)] hover:opacity-80 active:opacity-80"
-          >
-            <svg width="18" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style={{ display: 'block' }}>
-              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.09 8.09 0 0 0 4.73 1.52V6.77a4.85 4.85 0 0 1-.96-.08z" />
-            </svg>
-          </a>
-
-          <a
-            href="https://www.linkedin.com/in/armanparsa-/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Arman Parsa on LinkedIn"
-            className="-m-3 inline-flex p-3 text-ink opacity-55 transition-opacity duration-[var(--duration-fast)] hover:opacity-80 active:opacity-80"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-              <rect x="2" y="9" width="4" height="12" />
-              <circle cx="4" cy="4" r="2" />
-            </svg>
-          </a>
+          <div className="contact-details">
+            <a href={`mailto:${contactEmail}`} className="contact-link contact-link--email">
+              {contactEmail}
+            </a>
+            {socialLinks.length > 0 && (
+              <ul className="contact-social" aria-label="Elsewhere">
+                {socialLinks.map(({ platform, url }) => (
+                  <li key={url}>
+                    <a href={url} target="_blank" rel="noopener noreferrer" className="contact-link">
+                      {platform}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
     </main>

@@ -417,8 +417,8 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
   .home-hero__tagline { max-width: 20rem; }
 }
 
-/* ── About page — portrait + text, side by side ──────────────── */
-.about-layout {
+/* ── Contact page — portrait + bio, side by side ─────────────── */
+.contact-layout {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -428,23 +428,80 @@ dialog.lightbox[open] { animation: fade-in var(--duration-fast) var(--ease-out) 
   margin-inline: auto;
   padding-inline: var(--content-padding-x, clamp(1.5rem, 4vw, 3.75rem));
 }
-.about-portrait {
+.contact-portrait {
   position: relative;
   flex: 0 0 auto;
   width: clamp(240px, 26vw, 330px);
   aspect-ratio: 3 / 4;
   overflow: hidden;
 }
-.about-text {
+.contact-portrait__img {
+  object-fit: cover;
+  object-position: 45% center;
+}
+.contact-text {
   max-width: 40rem;
   text-align: center;
 }
+.contact-heading {
+  margin: 0 0 var(--space-8);
+  font-family: var(--font-serif);
+  font-weight: 300;
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+.contact-bio p {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+}
+.contact-bio p + p { margin-top: var(--space-6); }
+.contact-rule {
+  width: 100%;
+  margin: var(--space-10) 0;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+}
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+}
+.contact-social {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2) var(--space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.contact-link {
+  /* 44px-tall tap target without changing the layout. */
+  display: inline-block;
+  padding-block: 12px;
+  margin-block: -12px;
+  color: var(--color-ink);
+  text-decoration: none;
+  opacity: 0.75;
+  transition: opacity var(--duration-fast) var(--ease-default), color var(--duration-fast) var(--ease-default);
+}
+.contact-link:hover { opacity: 1; color: var(--color-accent); }
+/* An address reads as written, not in capitals. */
+.contact-link--email { text-transform: none; letter-spacing: var(--tracking-wide); }
 @media (max-width: 767px) {
-  .about-layout {
+  .contact-layout {
     flex-direction: column;
     gap: 2.5rem;
   }
-  .about-portrait {
+  .contact-portrait {
     width: min(78vw, 330px);
   }
 }

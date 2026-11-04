@@ -60,7 +60,7 @@ export function contentImageUrl(image: SanityImageRef | undefined): string | und
 }
 
 /**
- * Metadata for the site's own pages (Library, Earth, About…). A page-level
+ * Metadata for the site's own pages (Library, Earth, Contact…). A page-level
  * `openGraph` replaces the root one wholesale, so the shared fields (site
  * name, locale, type) and a matching Twitter title/description are set here
  * rather than lost. Images come from each route's opengraph-image file.

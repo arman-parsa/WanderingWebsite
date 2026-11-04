@@ -7,7 +7,7 @@ export const PERSON_JSON_LD = {
   name: 'Arman Parsa',
   alternateName: 'Amir Arman Ghanbari Parsa',
   url: SITE_URL,
-  jobTitle: 'Journalist, photographer and videographer',
+  jobTitle: 'Writer, photographer and filmmaker',
   sameAs: SOCIAL_PROFILES,
 };
 
