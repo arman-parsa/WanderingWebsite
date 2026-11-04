@@ -19,7 +19,7 @@ export const metadata: Metadata = pageMetadata({
 export default async function MapPage() {
   // Start fetching the land outlines with the page, not after the globe's
   // three.js chunk has loaded and run.
-  preload('/data/ne_110m_land.json', { as: 'fetch', crossOrigin: 'anonymous' });
+  preload('/data/land.json', { as: 'fetch', crossOrigin: 'anonymous' });
   let items = (await sanityFetch<GlobeItem[]>(MAP_CONTENT_QUERY)) ?? [];
   // Placeholder pins only while the CMS is empty — once real pieces exist,
   // the globe shows exactly the ones that have coordinates (even if none).
