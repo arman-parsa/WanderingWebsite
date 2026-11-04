@@ -46,7 +46,7 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
       {/* Header */}
       <div style={{ textAlign: 'center', paddingBottom: '2.5rem' }}>
         <p aria-hidden="true" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.25em', textTransform: 'uppercase', color: 'rgba(28,24,20,0.68)', marginBottom: '0.5rem' }}>
-          Library
+          Personal
         </p>
         <p aria-hidden="true" style={{ fontFamily: 'var(--font-sans)', fontSize: '0.6875rem', letterSpacing: '0.12em', color: 'rgba(28,24,20,0.66)', marginBottom: '2rem' }}>
           {items.length} {items.length === 1 ? 'Piece' : 'Pieces'}

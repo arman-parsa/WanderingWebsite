@@ -47,6 +47,23 @@ const SCROLL_THRESHOLD_PX = 24;
 const SYMBOL_SCALE_MAX = 2.0;
 const SYMBOL_SCALE_END = 220;
 
+// Below this width PERSONAL / COMMISSIONS / CONTACT fold behind the menu
+// button (globals.css uses the same value: .nav-links-right / .nav-menu-btn).
+// Narrower than 720px the row would touch the homepage's enlarged symbol.
+const COLLAPSE_QUERY = '(max-width: 719px)';
+// Phones — the gallery switches to its single-column layout (globals.css).
+const PHONE_QUERY = '(max-width: 639px)';
+
+const LEFT_LINKS = [
+  { href: '/earth', label: 'EARTH' },
+  { href: '/gallery', label: 'GALLERY' },
+] as const;
+const RIGHT_LINKS = [
+  { href: '/library', label: 'PERSONAL' },
+  { href: '/commissions', label: 'COMMISSIONS', matchPrefix: true },
+  { href: '/contact', label: 'CONTACT' },
+] as const;
+
 export function NavInner() {
   const pathname   = usePathname();
   const isHomepage = pathname === '/';
@@ -61,9 +78,9 @@ export function NavInner() {
   const [menuOpen, setMenuOpen]         = useState(false);
   const [pastHero, setPastHero]         = useState(false);
   const [scrolled, setScrolled]         = useState(false);
-  const [isMobile, setIsMobile]         = useState(false);
   const logoRef = useRef<HTMLAnchorElement>(null);
   const menuBtnRef = useRef<HTMLButtonElement>(null);
+  const shellRef = useRef<HTMLDivElement>(null);
 
   // Reset scroll-derived state and close the menu on route change — during
   // render (React's "adjust state when props change" pattern) so the bar can
@@ -141,7 +158,9 @@ export function NavInner() {
     };
   }, [isHomepage]);
 
-  // Escape closes the menu and returns focus to its button.
+  // While the phone menu is open: Escape closes it and returns focus to the
+  // button; a tap outside the nav, or widening past the breakpoint (where the
+  // links are inline again), closes it too.
   useEffect(() => {
     if (!menuOpen) return;
     const onKey = (e: KeyboardEvent) => {
@@ -149,20 +168,28 @@ export function NavInner() {
       setMenuOpen(false);
       menuBtnRef.current?.focus();
     };
+    const onPointerDown = (e: PointerEvent) => {
+      if (!shellRef.current?.contains(e.target as Node)) setMenuOpen(false);
+    };
+    const mq = window.matchMedia(COLLAPSE_QUERY);
+    const onWiden = () => { if (!mq.matches) setMenuOpen(false); };
     document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', onPointerDown);
+    mq.addEventListener('change', onWiden);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onPointerDown);
+      mq.removeEventListener('change', onWiden);
+    };
   }, [menuOpen]);
 
-  // Below 1100px the expanded row of links would run into the centred symbol
-  // (tablets, phones held sideways), so the full-width dropdown is used.
+  // Phones: the gallery's prints float right under the nav (see below).
   useEffect(() => {
-    const check = () => {
-      setIsMobile(window.innerWidth < 1100);
-      setIsPhone(window.innerWidth < 640);
-    };
+    const mq = window.matchMedia(PHONE_QUERY);
+    const check = () => setIsPhone(mq.matches);
     check();
-    window.addEventListener('resize', check, { passive: true });
-    return () => window.removeEventListener('resize', check);
+    mq.addEventListener('change', check);
+    return () => mq.removeEventListener('change', check);
   }, []);
 
   // Nav contents are light when the surface behind the transparent bar is dark:
@@ -186,11 +213,12 @@ export function NavInner() {
     }
   }
   const showBar = barBackground !== 'transparent';
-  // The menu button sits over the globe's cream panel when it's open.
-  const menuColour = isEarth && globePanelOpen && !isMobile ? INK : textColour;
+  // The right-hand links sit over the globe's cream side panel when it's
+  // open (desktop only — on phones the panel is a bottom sheet).
+  const rightColour = isEarth && globePanelOpen && !isPhone ? INK : textColour;
 
   return (
-    <div className="nav-shell" style={{ overflow: 'visible' }}>
+    <div ref={shellRef} className="nav-shell" style={{ overflow: 'visible' }}>
       <div
         aria-hidden="true"
         className={`nav-bg${showBar ? ' nav-bg--blur' : ''}`}
@@ -204,9 +232,11 @@ export function NavInner() {
         className="nav-inner nav-grid"
         style={{ '--nav-text': textColour } as React.CSSProperties}
       >
-        {/* Left — EARTH */}
+        {/* Left — EARTH, GALLERY */}
         <div className="nav-grid-left">
-          <NavLink href="/earth">EARTH</NavLink>
+          {LEFT_LINKS.map(({ href, label }) => (
+            <NavLink key={href} href={href}>{label}</NavLink>
+          ))}
         </div>
 
         {/* Center — alchemical symbol, scale driven via ref for smooth animation */}
@@ -237,61 +267,55 @@ export function NavInner() {
           </Link>
         </div>
 
-        {/* Right — hamburger / expanded links */}
-        <div className="nav-grid-right">
+        {/* Right — PERSONAL, COMMISSIONS, CONTACT inline; on phones they fold
+            behind the menu button (CSS decides which shows, so the first
+            paint is already right). */}
+        <div className="nav-grid-right" style={{ '--nav-text': rightColour } as React.CSSProperties}>
+          <div className="nav-links-right">
+            {RIGHT_LINKS.map((link) => (
+              <NavLink key={link.href} href={link.href} matchPrefix={'matchPrefix' in link}>
+                {link.label}
+              </NavLink>
+            ))}
+          </div>
           <button
             ref={menuBtnRef}
-            className="nav-hamburger-btn"
+            type="button"
+            className="nav-hamburger-btn nav-menu-btn"
             onClick={() => setMenuOpen(o => !o)}
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
-            aria-controls={menuOpen ? 'site-menu' : undefined}
+            aria-controls="site-menu"
           >
             {menuOpen ? (
-              <span className="nav-close-x" style={{ color: menuColour }}>✕</span>
+              <span className="nav-close-x" aria-hidden="true">✕</span>
             ) : (
               <span className="nav-hamburger-bars" aria-hidden="true">
-                <span style={{ background: menuColour }} />
-                <span style={{ background: menuColour }} />
+                <span />
+                <span />
               </span>
             )}
           </button>
-          {/* After the button in the DOM so Tab reaches the links next; it's
-              absolutely positioned to the button's left (globals.css) so it
-              never widens the grid column and shifts the centred symbol. */}
-          {menuOpen && !isMobile && (
-            <div
-              id="site-menu"
-              className="nav-menu-expanded"
-              style={{ '--nav-text': menuColour } as React.CSSProperties}
-            >
-              <NavLink href="/library">LIBRARY</NavLink>
-              <NavLink href="/gallery">GALLERY</NavLink>
-              <NavLink href="/store" prefetch={false}>STORE</NavLink>
-              <NavLink href="/about">ABOUT</NavLink>
-              <NavLink href="/contact">CONTACT</NavLink>
-            </div>
-          )}
         </div>
-      </nav>
 
-      {/* Mobile full-width dropdown (below nav bar) */}
-      {menuOpen && isMobile && (
+        {/* Phone dropdown (below the bar). Rendered after the button, so Tab
+            moves from the button straight into the links. */}
         <div
           id="site-menu"
           className="nav-menu-mobile"
+          hidden={!menuOpen}
           style={{
             background: darkSurface ? 'rgba(13, 13, 13, 0.97)' : 'rgba(248, 244, 239, 0.97)',
             ['--nav-text' as string]: darkSurface ? PAPER : INK,
           } as React.CSSProperties}
         >
-          <NavLink href="/library">LIBRARY</NavLink>
-          <NavLink href="/gallery">GALLERY</NavLink>
-          <NavLink href="/store" prefetch={false}>STORE</NavLink>
-          <NavLink href="/about">ABOUT</NavLink>
-          <NavLink href="/contact">CONTACT</NavLink>
+          {RIGHT_LINKS.map((link) => (
+            <NavLink key={link.href} href={link.href} matchPrefix={'matchPrefix' in link}>
+              {link.label}
+            </NavLink>
+          ))}
         </div>
-      )}
+      </nav>
     </div>
   );
 }

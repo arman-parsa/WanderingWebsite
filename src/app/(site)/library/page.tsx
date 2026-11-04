@@ -8,9 +8,9 @@ import { pageMetadata } from '@/lib/metadata';
 export const revalidate = 60;
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Library',
+  title: 'Personal',
   description:
-    'Browse all writing, photography, mixed media, and videography by Arman Parsa — a personal archive of stories from around the world.',
+    'Personal work by Arman Parsa — writing, photography, mixed media and videography from around the world.',
   path: '/library',
 });
 
@@ -31,7 +31,7 @@ export default async function ArticlesPage() {
 
   return (
     <main id="main-content">
-      <h1 className="sr-only">Library — all work by Arman Parsa</h1>
+      <h1 className="sr-only">Personal — writing, photography and film by Arman Parsa</h1>
       <ExploreClient items={items} />
     </main>
   );

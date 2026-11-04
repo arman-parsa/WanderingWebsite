@@ -4,7 +4,7 @@ import type { AdjacentPiece } from '@/lib/adjacentPieces';
 /**
  * Closes every piece: the neighbouring pieces in the archive (newer on the
  * left, older on the right), then a single minimal call to action styled
- * like the homepage's "All work" link (inverted for the dark background).
+ * like the homepage's "All personal work" link (inverted for the dark background).
  * When the piece has a Picfair link, a "Buy a Print" link sits above it.
  */
 export function ArticleEndNav({
@@ -31,7 +31,7 @@ export function ArticleEndNav({
           </a>
         )}
         <Link href="/library" className="home-read-more home-read-more--invert">
-          Explore More
+          More personal work
         </Link>
       </div>
     </nav>

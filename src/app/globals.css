@@ -720,6 +720,7 @@ body.gallery-open footer { display: none; }
 .nav-grid-left {
   display: flex;
   align-items: center;
+  gap: clamp(1.25rem, 2.6vw, 2rem);
 }
 
 .nav-grid-center {
@@ -763,6 +764,7 @@ body.gallery-open footer { display: none; }
   display: block;
   width: 22px;
   height: 1px;
+  background: var(--nav-text);
 }
 
 .nav-close-x {
@@ -770,29 +772,28 @@ body.gallery-open footer { display: none; }
   font-size: 0.75rem;
   letter-spacing: 0.05em;
   line-height: 1;
+  color: var(--nav-text);
 }
 
-/* ── Expanded menu links ─────────────────────────────────────── */
-/* Out of flow, to the left of the 44px menu button, so opening it never
-   widens the right grid column (which would nudge the centred symbol). */
-.nav-menu-expanded {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: calc(44px + clamp(1.5rem, 3vw, 2rem));
+/* ── Right-hand links / phone menu button ───────────────────────
+   PERSONAL, COMMISSIONS and CONTACT sit inline; below 640px they fold
+   behind the menu button below 720px (COLLAPSE_QUERY in NavInner.tsx). */
+.nav-links-right {
   display: flex;
   align-items: center;
-  gap: clamp(1.5rem, 3vw, 2rem);
-  white-space: nowrap;
-  animation: nav-expand 180ms ease-out;
+  gap: clamp(1.25rem, 2.6vw, 2rem);
 }
-
-@keyframes nav-expand {
-  from { opacity: 0; transform: translateX(10px); }
-  to   { opacity: 1; transform: translateX(0); }
+.nav-menu-btn { display: none; }
+@media (max-width: 719px) {
+  .nav-links-right { display: none; }
+  .nav-menu-btn { display: flex; margin-right: -11px; }
+}
+@media (min-width: 720px) {
+  .nav-menu-mobile { display: none !important; }
 }
 
 /* ── Mobile dropdown menu (below nav bar) ────────────────────── */
+.nav-menu-mobile[hidden] { display: none; }
 .nav-menu-mobile {
   position: absolute;
   top: 100%;
@@ -1122,10 +1123,10 @@ html.intro-seen .intro-loader { display: none !important; }
   color: var(--color-ink-muted);
 }
 
-/* Larger tap area for the small nav links (EARTH, the desktop menu row)
-   without changing their layout or underline. */
+/* Larger tap area for the small inline nav links, without changing their
+   layout or underline. */
 .nav-grid-left .nav-link::before,
-.nav-menu-expanded .nav-link::before {
+.nav-links-right .nav-link::before {
   content: '';
   position: absolute;
   inset: -13px -8px;

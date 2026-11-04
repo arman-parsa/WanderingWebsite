@@ -20,7 +20,7 @@ export default function RootNotFound() {
             Return home
           </Link>
           <Link href="/library" className="inline-block py-3 px-2 font-sans text-sm uppercase tracking-widest text-ink underline-offset-4 hover:underline">
-            Browse the library
+            Browse personal work
           </Link>
         </div>
       </main>
