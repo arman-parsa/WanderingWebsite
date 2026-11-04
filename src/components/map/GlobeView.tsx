@@ -62,9 +62,9 @@ function latLngToVec3(lat: number, lng: number, radius: number): THREE.Vector3 {
   );
 }
 
-// Recursively subdivide a flat earcut triangle (in lng/lat space) until every
-// edge spans ≤ MAX_TRI_SPAN degrees, then project each leaf triangle onto the
-// sphere. Without subdivision, large-country triangles form flat chords that
+// Recursively subdivide a flat triangle (in a 2D map plane whose units are
+// degrees — see `processRing`) until every edge spans ≤ MAX_TRI_SPAN, then
+// project each leaf triangle onto the sphere. Without subdivision, large-country triangles form flat chords that
 // dip below the ocean sphere surface — the ocean occludes them as holes.
 //
 // The split decision is made per EDGE (from that edge's own length), never per
@@ -75,8 +75,10 @@ function latLngToVec3(lat: number, lng: number, radius: number): THREE.Vector3 {
 // which the ocean showed.
 const MAX_TRI_SPAN = 4;
 const MAX_SUBDIV_DEPTH = 24; // safety net; real triangles stop far sooner
+const POLE_LAT = 89.99; // a ring with a point this close to a pole encloses it
 
-type LL = readonly [number, number]; // [lng, lat]
+type LL = readonly number[]; // [x, y] — a point in the 2D map plane
+type ToSphere = (p: LL) => THREE.Vector3;
 
 const isLongEdge = (a: LL, b: LL) =>
   Math.abs(a[0] - b[0]) > MAX_TRI_SPAN || Math.abs(a[1] - b[1]) > MAX_TRI_SPAN;
@@ -84,24 +86,28 @@ const isLongEdge = (a: LL, b: LL) =>
 // edge compute bit-identical midpoints regardless of winding.
 const mid = (a: LL, b: LL): LL => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
 
-function emitTri(a: LL, b: LL, c: LL, out: number[], depth: number): void {
+function emitTri(a: LL, b: LL, c: LL, out: number[], toSphere: ToSphere, depth: number): void {
   const ab = isLongEdge(a, b), bc = isLongEdge(b, c), ca = isLongEdge(c, a);
   const longCount = +ab + +bc + +ca;
 
   if (longCount === 0 || depth >= MAX_SUBDIV_DEPTH) {
-    for (const [lng, lat] of [a, b, c]) {
-      const v = latLngToVec3(lat, lng, LAND_RADIUS);
-      out.push(v.x, v.y, v.z);
-    }
+    const v0 = toSphere(a), v1 = toSphere(b), v2 = toSphere(c);
+    // Wind every triangle counter-clockwise as seen from outside the globe.
+    // Map planes can be mirrored (the pole-centred one is), and a back-facing
+    // triangle gets its normal flipped by DoubleSide and renders dark.
+    const e1 = v1.clone().sub(v0), e2 = v2.clone().sub(v0);
+    const outward = e1.cross(e2).dot(v0) >= 0;
+    const [p, q] = outward ? [v1, v2] : [v2, v1];
+    out.push(v0.x, v0.y, v0.z, p.x, p.y, p.z, q.x, q.y, q.z);
     return;
   }
   const d = depth + 1;
   if (longCount === 3) {
     const mab = mid(a, b), mbc = mid(b, c), mca = mid(c, a);
-    emitTri(a, mab, mca, out, d);
-    emitTri(mab, b, mbc, out, d);
-    emitTri(mca, mbc, c, out, d);
-    emitTri(mab, mbc, mca, out, d);
+    emitTri(a, mab, mca, out, toSphere, d);
+    emitTri(mab, b, mbc, out, toSphere, d);
+    emitTri(mca, mbc, c, out, toSphere, d);
+    emitTri(mab, mbc, mca, out, toSphere, d);
     return;
   }
   // Rotate (keeping winding) so the long edge(s) come first: x→y is long, and
@@ -110,25 +116,17 @@ function emitTri(a: LL, b: LL, c: LL, out: number[], depth: number): void {
   if (longCount === 1) {
     if (bc) { x = b; y = c; z = a; } else if (ca) { x = c; y = a; z = b; }
     const m = mid(x, y);
-    emitTri(x, m, z, out, d);
-    emitTri(m, y, z, out, d);
+    emitTri(x, m, z, out, toSphere, d);
+    emitTri(m, y, z, out, toSphere, d);
   } else {
     if (!ab) { x = b; y = c; z = a; } else if (!bc) { x = c; y = a; z = b; }
     const mxy = mid(x, y), myz = mid(y, z);
-    emitTri(mxy, y, myz, out, d);
-    emitTri(x, mxy, myz, out, d);
-    emitTri(x, myz, z, out, d);
+    emitTri(mxy, y, myz, out, toSphere, d);
+    emitTri(x, mxy, myz, out, toSphere, d);
+    emitTri(x, myz, z, out, toSphere, d);
   }
 }
 
-function subdivideAndEmit(
-  lng0: number, lat0: number,
-  lng1: number, lat1: number,
-  lng2: number, lat2: number,
-  out: number[]
-): void {
-  emitTri([lng0, lat0], [lng1, lat1], [lng2, lat2], out, 0);
-}
 
 // Earcut (inside triangulateShape) produces many needle-thin triangles that
 // stretch across whole continents. Wrapped onto the sphere, a needle's two
@@ -205,26 +203,53 @@ function buildLandGeometry(geojson: GeoCollection): THREE.BufferGeometry {
     const n = ring.length - 1; // closed ring: last === first
     if (n < 3) return;
 
-    // Skip polygons that cross the antimeridian — their 2D projection wraps
-    // around the flat map and produces triangles spanning huge areas of the globe.
-    for (let i = 0; i < n; i++) {
-      if (Math.abs(ring[(i + 1) % n][0] - ring[i][0]) > 180) return;
+    const ring2 = ring.slice(0, n);
+    const poleSign = ring2.some(([, lat]) => lat <= -POLE_LAT) ? -1
+      : ring2.some(([, lat]) => lat >= POLE_LAT) ? 1 : 0;
+
+    let pts: number[][];
+    let toSphere: ToSphere;
+    if (poleSign !== 0) {
+      // A ring that reaches a pole (Antarctica) is closed in the data by a
+      // run along the pole and a seam at ±180°. On the flat lng/lat map that
+      // region is hugely stretched, and triangles there fold when wrapped
+      // onto the sphere. So triangulate it on a pole-centred map instead
+      // (azimuthal equidistant: distance from the pole in degrees, at the
+      // point's longitude). There the pole is an ordinary point, the seam
+      // vanishes and the outline is a compact shape. Pole points and the
+      // duplicate seam vertex are dropped.
+      const DEG = Math.PI / 180;
+      pts = [];
+      for (const [lng, lat] of ring2) {
+        if (Math.abs(lat) >= POLE_LAT) continue;
+        const r = 90 - poleSign * lat;
+        const p = [r * Math.cos(lng * DEG), r * Math.sin(lng * DEG)];
+        const last = pts[pts.length - 1];
+        if (last && Math.hypot(p[0] - last[0], p[1] - last[1]) < 1e-9) continue;
+        pts.push(p);
+      }
+      while (pts.length > 1 && Math.hypot(pts[0][0] - pts[pts.length - 1][0], pts[0][1] - pts[pts.length - 1][1]) < 1e-9) pts.pop();
+      if (pts.length < 3) return;
+      toSphere = ([x, y]) => latLngToVec3(poleSign * (90 - Math.hypot(x, y)), Math.atan2(y, x) / DEG, LAND_RADIUS);
+    } else {
+      // Skip polygons that cross the antimeridian — their 2D projection wraps
+      // around the flat map and produces triangles spanning huge areas of the
+      // globe. (Natural Earth splits land at ±180°, so none do today.)
+      for (let i = 0; i < n; i++) {
+        if (Math.abs(ring2[(i + 1) % n][0] - ring2[i][0]) > 180) return;
+      }
+      pts = ring2;
+      toSphere = ([lng, lat]) => latLngToVec3(lat, lng, LAND_RADIUS);
     }
 
-    const pts = ring.slice(0, n);
     const faces = THREE.ShapeUtils.triangulateShape(
-      pts.map(([lng, lat]) => new THREE.Vector2(lng, lat)),
+      pts.map(([x, y]) => new THREE.Vector2(x, y)),
       []
     );
     delaunayRefine(pts, faces);
 
     for (const [a, b, c] of faces) {
-      subdivideAndEmit(
-        pts[a][0], pts[a][1],
-        pts[b][0], pts[b][1],
-        pts[c][0], pts[c][1],
-        verts
-      );
+      emitTri(pts[a], pts[b], pts[c], verts, toSphere, 0);
     }
   }
 
