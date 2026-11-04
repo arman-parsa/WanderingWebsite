@@ -181,3 +181,47 @@ export const SITE_SETTINGS_QUERY = defineQuery(`
     "socialLinks": socialLinks[defined(platform) && defined(url)] { platform, url }
   }
 `);
+
+// ─── Commissions (client work — never mixed with the editorial types) ────
+// The editorial queries above all list their types explicitly, so no query
+// there can return a commission; these are the only queries that do.
+
+export const COMMISSIONS_QUERY = defineQuery(`
+  *[_type == "commission" && defined(slug.current) && !(_id in path("drafts.**"))]
+    | order(coalesce(displayOrder, 999999) asc, coalesce(year, 0) desc, _createdAt desc) {
+    clientName,
+    projectTitle,
+    "slug": slug.current,
+    location,
+    year,
+    sector,
+    deliverables,
+    coverImage { ..., "alt": coalesce(alt, ""), hotspot, "lqip": asset->metadata.lqip }
+  }
+`);
+
+export const COMMISSION_QUERY = defineQuery(`
+  *[_type == "commission" && slug.current == $slug && !(_id in path("drafts.**"))][0] {
+    clientName,
+    projectTitle,
+    "slug": slug.current,
+    location,
+    year,
+    sector,
+    deliverables,
+    brief,
+    coverImage { ..., "alt": coalesce(alt, ""), hotspot, "lqip": asset->metadata.lqip },
+    "images": images[defined(asset)] {
+      _key, asset, hotspot, crop, "alt": coalesce(alt, ""), caption,
+      "lqip": asset->metadata.lqip,
+      "aspectRatio": asset->metadata.dimensions.aspectRatio
+    },
+    film,
+    testimonial,
+    _updatedAt
+  }
+`);
+
+export const COMMISSION_SLUGS_QUERY = defineQuery(`
+  *[_type == "commission" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current }
+`);

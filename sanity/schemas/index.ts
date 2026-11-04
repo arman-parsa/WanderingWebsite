@@ -3,6 +3,7 @@ import { mixedMedia } from './documents/editorial';
 import { photography } from './documents/photoSeries';
 import { videography } from './documents/videography';
 import { author } from './documents/author';
+import { commission } from './documents/commission';
 import { portableText } from './objects/portableText';
 import { imageBlock } from './objects/imageBlock';
 import { imagePair } from './objects/imagePair';
@@ -18,6 +19,7 @@ export const schemaTypes = [
   photography,
   videography,
   author,
+  commission,
   siteSettings,
   // Objects
   portableText,
