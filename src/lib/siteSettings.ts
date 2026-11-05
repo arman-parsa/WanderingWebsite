@@ -60,7 +60,6 @@ export const FALLBACK_BIO = [
   'Amir Arman Ghanbari Parsa is a London-born, 23-year-old, Oxford-educated Iranian writer, photographer and filmmaker.',
   'Working across commercial and editorial projects, Arman makes unhurried, grounded and intimate work: stories for campaigns and publications, told from close up and given time.',
   'Across writing, photography and film, he is drawn to culture, spirit and our place in the natural world. His work hopes to kindle wonder about the earth and its people, and the urge to go and see it for oneself.',
-  'For projects and collaborations, please get in touch below.',
 ];
 
 export const FALLBACK_CONTACT_EMAIL = 'armanparsa03@gmail.com';

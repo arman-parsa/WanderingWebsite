@@ -24,8 +24,8 @@ export default async function ContactPage() {
     <main id="main-content" className="flex flex-1 flex-col">
       <h1 className="sr-only">Contact Arman Parsa</h1>
 
-      {/* On open: portrait and bio, filling the first screen. */}
-      <section aria-label="About" className="flex min-h-[100svh] flex-col justify-center py-24">
+      {/* Portrait and bio, then straight on to the contact details. */}
+      <section aria-label="About" className="pt-[clamp(7rem,16vh,10rem)]">
         <div className="contact-layout">
           <div className="contact-portrait">
             <Image
@@ -54,7 +54,7 @@ export default async function ContactPage() {
       {/* Then: how to get in touch. */}
       <section
         aria-label="Get in touch"
-        className="mx-auto w-full max-w-[var(--content-max-width)] px-[var(--content-padding-x)] pb-32 pt-8 text-center"
+        className="mx-auto w-full max-w-[var(--content-max-width)] px-[var(--content-padding-x)] pb-32 pt-16 text-center"
       >
         <p className={BIO_CLASS}>
           For partnerships, editorial enquiries, or just to say hello — reach out by email.
