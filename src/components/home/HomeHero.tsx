@@ -7,7 +7,7 @@ import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
 import type { HeroSlide } from '@/lib/siteSettings';
 
 /** How long each hero image holds, fully shown, before crossfading to the next. */
-export const HERO_HOLD_MS = 3500;
+export const HERO_HOLD_MS = 2000;
 /** Crossfade length — keep in step with --duration-hero-fade in globals.css. */
 const HERO_FADE_MS = 1500;
 /** If the first image's load event is missed (e.g. cached before hydration), show it anyway. */
