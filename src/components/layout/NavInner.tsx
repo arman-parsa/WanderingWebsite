@@ -105,22 +105,39 @@ export function NavInner() {
     return () => observer.disconnect();
   }, []);
 
-  // "Past the hero" — observe the hero element directly. Pages without a hero
-  // (library, about, contact, earth) leave pastHero false, and the default
-  // (transparent) holds.
+  // "Past the hero" — measured from the hero's real position, never assumed.
+  // The default (false) keeps the nav light, which is right over every hero;
+  // it only turns dark once the hero's bottom edge is measured above the bar,
+  // i.e. the bar really sits over the cream page below it. (An
+  // IntersectionObserver used to decide this, but Safari can deliver its first
+  // report before layout settles — especially when restoring a scroll
+  // position — which painted the nav dark over the dark hero.) Re-measured on
+  // scroll, resize, back/forward restores and whenever the hero changes size.
   useEffect(() => {
     const hero = document.querySelector('[data-hero]');
     if (!hero) return;
-    const io = new IntersectionObserver(
-      // The scrollY guard makes the initial tick harmless: Safari can fire the
-      // first callback before layout settles and wrongly report the hero as
-      // off-screen, which would paint the bar's contents dark over the hero.
-      // At the top of the page the hero is by definition not "past".
-      ([entry]) => setPastHero(!entry.isIntersecting && window.scrollY > 0),
-      { rootMargin: `-${NAV_HEIGHT_PX}px 0px 0px 0px`, threshold: 0 }
-    );
-    io.observe(hero);
-    return () => io.disconnect();
+    let frame = 0;
+    const measure = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const { bottom, height } = hero.getBoundingClientRect();
+        // height 0 = not laid out yet: stay light.
+        setPastHero(height > 0 && bottom <= NAV_HEIGHT_PX);
+      });
+    };
+    measure();
+    window.addEventListener('scroll', measure, { passive: true });
+    window.addEventListener('resize', measure, { passive: true });
+    window.addEventListener('pageshow', measure);
+    const ro = new ResizeObserver(measure);
+    ro.observe(hero);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', measure);
+      window.removeEventListener('resize', measure);
+      window.removeEventListener('pageshow', measure);
+      ro.disconnect();
+    };
   }, [pathname]);
 
   // "On scroll" for the library bar — a plain top-or-not flag, mirrored from the
