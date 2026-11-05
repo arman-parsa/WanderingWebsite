@@ -69,6 +69,7 @@ export const FALLBACK_SOCIAL_LINKS: SocialLink[] = [
   { platform: 'Instagram', url: 'https://www.instagram.com/armanparsa_/' },
   { platform: 'TikTok', url: 'https://www.tiktok.com/@armanparsa_' },
   { platform: 'LinkedIn', url: 'https://www.linkedin.com/in/armanparsa-/' },
+  { platform: 'Substack', url: 'https://armanparsa.substack.com' },
 ];
 
 // ── Fetch ──────────────────────────────────────────────────────────────────

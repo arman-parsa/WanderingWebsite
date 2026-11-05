@@ -64,7 +64,7 @@ export const siteSettings = defineType({
       title: 'Social links',
       type: 'array',
       group: 'contact',
-      description: 'Shown on the Contact page by platform name (e.g. Instagram), in this order.',
+      description: 'Shown on the Contact page, in this order. Instagram, TikTok, LinkedIn and Substack appear as icons; any other platform appears by name.',
       of: [
         defineArrayMember({
           name: 'socialLink',
@@ -75,7 +75,7 @@ export const siteSettings = defineType({
               name: 'platform',
               title: 'Platform',
               type: 'string',
-              description: 'The name shown on the site, e.g. Instagram, TikTok, LinkedIn.',
+              description: 'e.g. Instagram, TikTok, LinkedIn, Substack — these four get their icon.',
               validation: (Rule) => Rule.required(),
             }),
             defineField({

@@ -7,6 +7,7 @@ export const SOCIAL_PROFILES = [
   'https://www.instagram.com/armanparsa_/',
   'https://www.tiktok.com/@armanparsa_',
   'https://www.linkedin.com/in/armanparsa-/',
+  'https://armanparsa.substack.com',
 ];
 /**
  * Picfair print store (custom domain). /store redirects here (see
