@@ -1283,20 +1283,29 @@ html.intro-seen .intro-loader { display: none !important; }
 }
 .quiet-link:hover { color: var(--color-accent); }
 
-/* ── Commissions index ───────────────────────────────────────── */
+/* ── Commissions index ───────────────────────────────────────
+   Covers and client names only: one column on phones, a grid from 720px. */
 .commissions-page {
   flex: 1;
   background: var(--color-paper);
   color: var(--color-ink);
-  padding: clamp(7rem, 16vh, 10rem) var(--content-padding-x) var(--space-16);
+  padding: clamp(6rem, 12vh, 8rem) var(--content-padding-x) var(--space-24);
 }
-.commissions-header,
-.commissions-list,
-.commissions-empty {
-  max-width: var(--content-wide-width);
+.commissions-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-12);
+  max-width: var(--content-full-width);
   margin-inline: auto;
 }
-.commissions-header { margin-bottom: clamp(var(--space-10), 6vw, var(--space-16)); }
+@media (min-width: 720px) {
+  .commissions-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-16) var(--space-8);
+  }
+}
+
+/* Error state (error.tsx) */
 .commissions-title {
   margin: 0;
   font-family: var(--font-serif);
@@ -1313,27 +1322,6 @@ html.intro-seen .intro-loader { display: none !important; }
   letter-spacing: var(--tracking-wide);
   color: var(--color-ink-muted);
 }
-.commissions-list {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(var(--space-12), 6vw, var(--space-20));
-}
-.commissions-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-12) var(--space-6);
-}
-@media (max-width: 719px) {
-  .commissions-grid { grid-template-columns: 1fr; gap: var(--space-10); }
-}
-.commissions-empty {
-  font-family: var(--font-serif);
-  color: var(--color-ink-muted);
-}
-.commissions-enquire {
-  margin: clamp(var(--space-16), 10vw, var(--space-32)) 0 var(--space-8);
-  text-align: center;
-}
 .commissions-error__actions {
   display: flex;
   flex-wrap: wrap;
@@ -1349,8 +1337,7 @@ html.intro-seen .intro-loader { display: none !important; }
 }
 .commissions-error button.home-read-more { background: none; border: 0; cursor: pointer; }
 
-/* Card — the Library card's frame and type, with a slow brightness shift
-   on hover instead of a scale. */
+/* Card — cover, then the client's name in widely spaced Suisse. */
 .commission-card__link {
   display: block;
   color: inherit;
@@ -1362,38 +1349,19 @@ html.intro-seen .intro-loader { display: none !important; }
   overflow: hidden;
   background: color-mix(in srgb, var(--color-ink) 8%, transparent);
 }
-.commission-card--feature .commission-card__frame { aspect-ratio: 16 / 9; }
-@media (max-width: 719px) {
-  .commission-card--feature .commission-card__frame { aspect-ratio: 3 / 2; }
-}
 .commission-card__img { object-fit: cover; }
 .commission-card__link:hover .commission-card__img,
 .commission-card__link:focus-visible .commission-card__img { filter: brightness(0.86); }
-.commission-card__text { padding-top: var(--space-4); }
 .commission-card__title {
-  margin: 0;
-  font-family: var(--font-serif);
+  margin: var(--space-6) 0 0;
+  font-family: var(--font-sans);
   font-weight: 300;
-  font-size: var(--text-xl);
+  font-size: var(--text-base);
   line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-widest);
   transition: color var(--duration-normal) var(--ease-out);
 }
-.commission-card--feature .commission-card__title { font-size: var(--text-2xl); }
 .commission-card__link:hover .commission-card__title { color: var(--color-accent); }
-.commission-card__project {
-  margin: var(--space-1) 0 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-base);
-  color: var(--color-ink-muted);
-}
-.commission-card__meta {
-  margin: var(--space-3) 0 0;
-  font-family: var(--font-sans);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-wider);
-  text-transform: uppercase;
-  color: var(--color-ink-muted);
-}
 
 /* Sector + deliverables: small Suisse labels, separated by a middle dot. */
 .commission-labels {
