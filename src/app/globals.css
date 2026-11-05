@@ -1305,6 +1305,23 @@ html.intro-seen .intro-loader { display: none !important; }
   }
 }
 
+/* Until the first commission is published: one small line, centred like
+   the email address on the Contact page. */
+.commissions-page:has(.commissions-empty) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.commissions-empty {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--color-ink);
+  opacity: 0.75;
+}
+
 /* Error state (error.tsx) */
 .commissions-title {
   margin: 0;

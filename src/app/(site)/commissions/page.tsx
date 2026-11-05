@@ -26,12 +26,15 @@ export default async function CommissionsPage() {
   return (
     <main id="main-content" className="commissions-page">
       <h1 className="sr-only">Commissions</h1>
-      {commissions.length > 0 && (
+      {commissions.length > 0 ? (
         <div className="commissions-grid">
           {commissions.map((c, i) => (
             <CommissionCard key={c.slug} commission={c} priority={i < 2} />
           ))}
         </div>
+      ) : (
+        // Until the first commission is published.
+        <p className="commissions-empty">Under construction</p>
       )}
     </main>
   );
