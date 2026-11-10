@@ -1,7 +1,17 @@
-import type { CommissionImage } from '@/lib/commissions';
+/** One photograph in a sequence: a Sanity image plus its alt, caption and ratio. */
+export type SequenceImage = {
+  _key: string;
+  asset?: { _ref?: string };
+  hotspot?: { x: number; y: number };
+  alt?: string | null;
+  caption?: string | null;
+  /** width / height, from the asset's metadata */
+  aspectRatio?: number | null;
+  lqip?: string;
+};
 
 /**
- * Plans a commission's images as an editorial sequence: varied in size and
+ * Plans a set of photographs (a commission, a photography series) as an editorial sequence: varied in size and
  * placement like the Gallery, but in reading order and never overlapping,
  * so a client can take in the whole set in a minute.
  *
@@ -18,17 +28,17 @@ import type { CommissionImage } from '@/lib/commissions';
  */
 
 export type SequenceRow =
-  | { kind: 'wide'; images: [CommissionImage] }
-  | { kind: 'offset'; side: 'left' | 'right'; images: [CommissionImage] }
-  | { kind: 'single'; side: 'left' | 'right'; images: [CommissionImage] }
-  | { kind: 'pair'; images: [CommissionImage, CommissionImage] };
+  | { kind: 'wide'; images: [SequenceImage] }
+  | { kind: 'offset'; side: 'left' | 'right'; images: [SequenceImage] }
+  | { kind: 'single'; side: 'left' | 'right'; images: [SequenceImage] }
+  | { kind: 'pair'; images: [SequenceImage, SequenceImage] };
 
 const DEFAULT_RATIO = 3 / 2;
-export const ratioOf = (img: CommissionImage) =>
+export const ratioOf = (img: SequenceImage) =>
   img.aspectRatio && img.aspectRatio > 0 ? img.aspectRatio : DEFAULT_RATIO;
-const isPortrait = (img: CommissionImage) => ratioOf(img) < 0.95;
+const isPortrait = (img: SequenceImage) => ratioOf(img) < 0.95;
 
-export function planSequence(images: CommissionImage[]): SequenceRow[] {
+export function planSequence(images: SequenceImage[]): SequenceRow[] {
   const rows: SequenceRow[] = [];
   let landscapeTurn = 0;
   let side: 'left' | 'right' = 'right';

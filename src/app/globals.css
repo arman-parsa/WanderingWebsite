@@ -686,23 +686,37 @@ body.gallery-open footer { display: none; }
 }
 .g-caption-link:hover { color: var(--color-accent); }
 
-/* Gallery on small screens: fewer, larger prints */
+/* Gallery on small screens: 28 prints, smaller, in a staggered scatter */
 @media (max-width: 639px) {
-  .g-item:nth-child(n + 15) { display: none; }
-  .g-item:nth-child(1)  { left: 6% !important;  top: 10% !important; width: 40vw !important; }
-  .g-item:nth-child(2)  { left: 58% !important; top: 6% !important;  width: 34vw !important; }
-  .g-item:nth-child(3)  { left: 14% !important; top: 30% !important; width: 55vw !important; }
-  .g-item:nth-child(4)  { left: 64% !important; top: 24% !important; width: 30vw !important; }
-  .g-item:nth-child(5)  { left: 8% !important;  top: 52% !important; width: 34vw !important; }
-  .g-item:nth-child(6)  { left: 54% !important; top: 46% !important; width: 38vw !important; }
-  .g-item:nth-child(7)  { left: 12% !important; top: 72% !important; width: 40vw !important; }
-  .g-item:nth-child(8)  { left: 60% !important; top: 68% !important; width: 32vw !important; }
-  .g-item:nth-child(9)  { left: 10% !important; top: 88% !important; width: 26vw !important; }
-  .g-item:nth-child(10) { left: 66% !important; top: 86% !important; width: 24vw !important; }
-  .g-item:nth-child(11) { left: 42% !important; top: 12% !important; width: 20vw !important; }
-  .g-item:nth-child(12) { left: 36% !important; top: 58% !important; width: 22vw !important; }
-  .g-item:nth-child(13) { left: 3% !important;  top: 37% !important; width: 24vw !important; }
-  .g-item:nth-child(14) { left: 71% !important; top: 35% !important; width: 22vw !important; }
+  .g-item:nth-child(n + 29) { display: none; }
+  .g-item:nth-child(1) { left: 3% !important; top: 8.0% !important; width: 27vw !important; }
+  .g-item:nth-child(2) { left: 30% !important; top: 7.0% !important; width: 20vw !important; }
+  .g-item:nth-child(3) { left: 50% !important; top: 7.0% !important; width: 25vw !important; }
+  .g-item:nth-child(4) { left: 76% !important; top: 9.0% !important; width: 19vw !important; }
+  .g-item:nth-child(5) { left: 13% !important; top: 15.8% !important; width: 21vw !important; }
+  .g-item:nth-child(6) { left: 33% !important; top: 21.8% !important; width: 27vw !important; }
+  .g-item:nth-child(7) { left: 60% !important; top: 17.8% !important; width: 18vw !important; }
+  .g-item:nth-child(8) { left: 75% !important; top: 22.8% !important; width: 24vw !important; }
+  .g-item:nth-child(9) { left: 1% !important; top: 30.6% !important; width: 25vw !important; }
+  .g-item:nth-child(10) { left: 27% !important; top: 32.6% !important; width: 18vw !important; }
+  .g-item:nth-child(11) { left: 49% !important; top: 31.6% !important; width: 27vw !important; }
+  .g-item:nth-child(12) { left: 75% !important; top: 30.6% !important; width: 21vw !important; }
+  .g-item:nth-child(13) { left: 10% !important; top: 41.4% !important; width: 19vw !important; }
+  .g-item:nth-child(14) { left: 32% !important; top: 46.4% !important; width: 26vw !important; }
+  .g-item:nth-child(15) { left: 59% !important; top: 39.4% !important; width: 22vw !important; }
+  .g-item:nth-child(16) { left: 76% !important; top: 45.4% !important; width: 23vw !important; }
+  .g-item:nth-child(17) { left: 4% !important; top: 55.2% !important; width: 27vw !important; }
+  .g-item:nth-child(18) { left: 31% !important; top: 54.2% !important; width: 20vw !important; }
+  .g-item:nth-child(19) { left: 51% !important; top: 54.2% !important; width: 25vw !important; }
+  .g-item:nth-child(20) { left: 77% !important; top: 56.2% !important; width: 19vw !important; }
+  .g-item:nth-child(21) { left: 14% !important; top: 63.0% !important; width: 21vw !important; }
+  .g-item:nth-child(22) { left: 34% !important; top: 69.0% !important; width: 27vw !important; }
+  .g-item:nth-child(23) { left: 61% !important; top: 65.0% !important; width: 18vw !important; }
+  .g-item:nth-child(24) { left: 75% !important; top: 70.0% !important; width: 24vw !important; }
+  .g-item:nth-child(25) { left: 1% !important; top: 77.8% !important; width: 25vw !important; }
+  .g-item:nth-child(26) { left: 28% !important; top: 79.8% !important; width: 18vw !important; }
+  .g-item:nth-child(27) { left: 50% !important; top: 78.8% !important; width: 27vw !important; }
+  .g-item:nth-child(28) { left: 76% !important; top: 77.8% !important; width: 21vw !important; }
   .g-close { top: 72px; }
 }
 
@@ -1449,7 +1463,7 @@ html.intro-seen .intro-loader { display: none !important; }
 }
 
 /* The sequence: one column of rows within the wide measure. */
-.commission-sequence {
+.photo-sequence {
   box-sizing: content-box;
   max-width: var(--content-wide-width);
   margin-inline: auto;
@@ -1458,23 +1472,23 @@ html.intro-seen .intro-loader { display: none !important; }
   flex-direction: column;
   gap: clamp(var(--space-10), 6vw, var(--space-20));
 }
-.commission-row { display: flex; gap: clamp(var(--space-4), 2vw, var(--space-6)); }
-.commission-row--offset { width: 66%; }
-.commission-row--single { width: 46%; }
-.commission-row--left { margin-right: auto; }
-.commission-row--right { margin-left: auto; }
-.commission-plate { margin: 0; flex: 1 1 0%; min-width: 0; }
+.photo-row { display: flex; gap: clamp(var(--space-4), 2vw, var(--space-6)); }
+.photo-row--offset { width: 66%; }
+.photo-row--single { width: 46%; }
+.photo-row--left { margin-right: auto; }
+.photo-row--right { margin-left: auto; }
+.photo-plate { margin: 0; flex: 1 1 0%; min-width: 0; }
 /* Pairs share the row by aspect ratio, so both sit at the same height. */
-.commission-row--pair .commission-plate { flex: var(--ratio) 1 0%; }
-.commission-plate__frame {
+.photo-row--pair .photo-plate { flex: var(--ratio) 1 0%; }
+.photo-plate__frame {
   position: relative;
   aspect-ratio: var(--ratio, 3 / 2);
   overflow: hidden;
   background: color-mix(in srgb, var(--color-paper) 4%, transparent);
 }
-.commission-plate--cover .commission-plate__frame { aspect-ratio: 16 / 9; }
-.commission-plate__img { object-fit: cover; }
-.commission-plate__caption {
+.photo-plate--cover .photo-plate__frame { aspect-ratio: 16 / 9; }
+.photo-plate__img { object-fit: cover; }
+.photo-plate__caption {
   margin-top: var(--space-3);
   font-family: var(--font-sans);
   font-size: var(--text-xs);
@@ -1483,9 +1497,9 @@ html.intro-seen .intro-loader { display: none !important; }
   color: var(--color-paper-muted);
 }
 @media (max-width: 719px) {
-  .commission-row--offset,
-  .commission-row--single { width: 100%; }
-  .commission-row--pair { flex-direction: column; }
+  .photo-row--offset,
+  .photo-row--single { width: 100%; }
+  .photo-row--pair { flex-direction: column; }
 }
 
 .commission-film,

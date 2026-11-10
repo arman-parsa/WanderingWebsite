@@ -1,14 +1,14 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { SanityImage } from '@/components/content/SanityImage';
 import { client } from '@/lib/sanity';
 import { sanityFetch, hasRealContent } from '@/lib/sanityFetch';
 import { PHOTOGRAPHY_QUERY, PHOTOGRAPHY_SLUGS_QUERY } from '@/lib/sanity';
-import { urlFor } from '@/lib/sanityImage';
 import { ArticleHero } from '@/components/content/ArticleHero';
 import { ArticleEndNav } from '@/components/content/ArticleEndNav';
 import { getAdjacentPieces } from '@/lib/adjacentPieces';
-import { ArticleMediaProvider, LightboxTrigger } from '@/components/content/MediaLightbox';
+import { ArticleMediaProvider } from '@/components/content/MediaLightbox';
+import { PhotoSequence } from '@/components/content/PhotoSequence';
+import type { SequenceImage } from '@/lib/photoSequence';
 import { collectArticleMedia } from '@/lib/articleMedia';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { PLACEHOLDER_ITEMS, PLACEHOLDER_PHOTO_SERIES } from '@/lib/placeholders';
@@ -56,10 +56,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 type SeriesImage = {
   _key: string;
   // imageBlock: the picture itself lives in the nested `asset` image field
-  asset?: { asset?: object; lqip?: string };
+  asset?: { asset?: { _ref?: string }; hotspot?: { x: number; y: number }; lqip?: string };
   alt?: string;
   caption?: string;
   description?: string;
+  aspectRatio?: number | null;
 };
 
 export default async function PhotographyPage({ params }: Props) {
@@ -85,6 +86,17 @@ export default async function PhotographyPage({ params }: Props) {
   });
 
   const lightboxEntries = collectArticleMedia(null, series.images ?? []);
+  // imageBlock → sequence image: the picture's own fields, with the block's
+  // key (the lightbox matches on it), alt text and caption.
+  const sequence: SequenceImage[] = ((series.images ?? []) as SeriesImage[])
+    .filter((image) => image.asset?.asset)
+    .map((image) => ({
+      ...image.asset,
+      _key: image._key,
+      alt: image.alt || image.caption || image.description || series.title,
+      caption: image.caption ?? image.description,
+      aspectRatio: image.aspectRatio,
+    }));
 
   return (
     <main id="main-content" className="min-h-screen" style={{ backgroundColor: '#0D0D0D', color: '#f8f4ef' }}>
@@ -100,42 +112,16 @@ export default async function PhotographyPage({ params }: Props) {
           coverImage={series.coverImage}
         />
 
-        {/* Photo grid */}
-        {series.images?.length > 0 && (
-          <section
-            className="mx-auto max-w-[var(--content-full-width)] px-[var(--content-padding-x)] py-20"
-            aria-label="Photo series"
-          >
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {series.images.map((image: SeriesImage, i: number) => {
-                if (!image.asset?.asset) return null;
-                const altText = image.alt || image.caption || image.description || series.title;
-                return (
-                  <figure key={image._key} className="group overflow-hidden">
-                    <LightboxTrigger imageKey={image._key} label={`Enlarge photograph: ${altText}`}>
-                      <div className="relative aspect-[4/3] overflow-hidden bg-surface">
-                        <SanityImage
-                          src={urlFor(image.asset).width(900).height(675).fit('crop').format('webp').quality(85).url()}
-                          alt={altText}
-                          fill
-                          priority={!series.coverImage?.asset && i < 3}
-                          placeholder={image.asset.lqip ? 'blur' : 'empty'}
-                          blurDataURL={image.asset.lqip}
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          className="object-cover transition-transform duration-[var(--duration-slow)] group-hover:scale-[1.03]"
-                        />
-                      </div>
-                    </LightboxTrigger>
-                    {(image.caption || image.description) && (
-                      <figcaption className="mt-2 font-sans text-xs leading-relaxed" style={{ color: '#a09890' }}>
-                        {image.caption ?? image.description}
-                      </figcaption>
-                    )}
-                  </figure>
-                );
-              })}
-            </div>
-          </section>
+        {/* The series as an editorial sequence (same layout as commissions):
+            nothing cropped, every photograph opens the lightbox. */}
+        {sequence.length > 0 && (
+          <div className="py-20">
+            <PhotoSequence
+              images={sequence}
+              label="Photo series"
+              firstRow={series.coverImage?.asset ? 'eager' : 'preload'}
+            />
+          </div>
         )}
       </ArticleMediaProvider>
       <ArticleEndNav printsUrl={series.printsUrl ?? undefined} newer={newer} older={older} />

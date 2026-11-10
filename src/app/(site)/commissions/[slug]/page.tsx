@@ -11,7 +11,7 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { ResolveImage } from '@/components/content/ResolveImage';
 import { VideoBlock } from '@/components/content/VideoBlock';
 import { PullQuote } from '@/components/content/PullQuote';
-import { CommissionSequence } from '@/components/commissions/CommissionSequence';
+import { PhotoSequence } from '@/components/content/PhotoSequence';
 import {
   commissionClientLine,
   commissionHref,
@@ -100,21 +100,21 @@ export default async function CommissionPage({ params }: Props) {
       </header>
 
       {images.length > 0 ? (
-        <CommissionSequence images={images} />
+        <PhotoSequence images={images} />
       ) : (
         cover && (
           // No images yet — the cover stands in for the sequence.
-          <section className="commission-sequence" aria-label="Photographs">
-            <div className="commission-row commission-row--wide">
-              <figure className="commission-plate commission-plate--cover">
-                <div className="commission-plate__frame">
+          <section className="photo-sequence" aria-label="Photographs">
+            <div className="photo-row photo-row--wide">
+              <figure className="photo-plate photo-plate--cover">
+                <div className="photo-plate__frame">
                   <ResolveImage
                     src={urlFor(cover).width(2200).height(1238).fit('crop').url()}
                     alt={cover.alt ?? ''}
                     fill
                     preload
                     sizes="(max-width: 1148px) 100vw, 1100px"
-                    className="commission-plate__img"
+                    className="photo-plate__img"
                   />
                 </div>
               </figure>

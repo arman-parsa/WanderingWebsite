@@ -67,7 +67,11 @@ export const PHOTOGRAPHY_QUERY = defineQuery(`
     description,
     coverImage { ..., "alt": coalesce(alt, ""), hotspot, "lqip": asset->metadata.lqip },
     location,
-    images[] { ..., "alt": coalesce(alt, ""), hotspot, description, asset { ..., "lqip": asset->metadata.lqip } },
+    images[] {
+      ..., "alt": coalesce(alt, ""), hotspot, description,
+      asset { ..., "lqip": asset->metadata.lqip },
+      "aspectRatio": asset.asset->metadata.dimensions.aspectRatio
+    },
     tags,
     displayMode,
     printsUrl,

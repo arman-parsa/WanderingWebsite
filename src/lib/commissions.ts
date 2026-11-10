@@ -4,6 +4,7 @@
  * Earth and homepage use).
  */
 import { COMMISSION_DELIVERABLES, COMMISSION_SECTORS } from '@cms/lib/commissionOptions';
+import type { SequenceImage } from '@/lib/photoSequence';
 
 export const COMMISSIONS_PATH = '/commissions';
 
@@ -25,12 +26,7 @@ export type CommissionSummary = {
   coverImage?: SanityImageValue | null;
 };
 
-export type CommissionImage = SanityImageValue & {
-  _key: string;
-  caption?: string | null;
-  /** width / height, from the asset's metadata */
-  aspectRatio?: number | null;
-};
+export type CommissionImage = SequenceImage;
 
 export type Commission = CommissionSummary & {
   brief?: string | null;
