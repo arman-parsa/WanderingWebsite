@@ -1,6 +1,6 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { useSitePathname } from '@/lib/useSitePathname';
 
 // Dark detail pages (the four piece types and individual commissions).
 const ARTICLE_PREFIXES = ['/writing/', '/photography/', '/mixed-media/', '/videography/', '/commissions/'];
@@ -8,7 +8,7 @@ const ARTICLE_PREFIXES = ['/writing/', '/photography/', '/mixed-media/', '/video
 export function SiteFooter() {
   // Client-side so the year is the visitor's current year, not the build's.
   const year = new Date().getFullYear();
-  const pathname = usePathname();
+  const pathname = useSitePathname();
   // Dark under the dark article pages, so the page doesn't end in a cream band.
   const dark = ARTICLE_PREFIXES.some((p) => pathname.startsWith(p));
   const muted = dark ? '#a09890' : '#736960';

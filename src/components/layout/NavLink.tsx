@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useSitePathname } from '@/lib/useSitePathname';
 
 export function NavLink({
   href,
@@ -15,7 +15,7 @@ export function NavLink({
   /** Also active on pages below this one (e.g. /commissions/<slug>). */
   matchPrefix?: boolean;
 }) {
-  const pathname = usePathname();
+  const pathname = useSitePathname();
   const isActive = pathname === href || (matchPrefix && pathname.startsWith(`${href}/`));
 
   return (

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { usePathname } from 'next/navigation';
+import { useSitePathname } from '@/lib/useSitePathname';
 import Link from 'next/link';
 import { NavLink } from '@/components/layout/NavLink';
 
@@ -66,7 +66,7 @@ const RIGHT_LINKS = [
 ] as const;
 
 export function NavInner() {
-  const pathname   = usePathname();
+  const pathname   = useSitePathname();
   const isHomepage = pathname === '/';
   const isEarth    = pathname === '/earth';
   const isGallery  = pathname === '/gallery';
