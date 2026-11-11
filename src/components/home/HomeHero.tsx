@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { sanityLoader } from '@/components/content/SanityImage';
 import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
 import type { HeroSlide } from '@/lib/siteSettings';
+import { shuffled } from '@/lib/shuffle';
 
 /** How long each hero image holds, fully shown, before crossfading to the next. */
 export const HERO_HOLD_MS = 2000;
@@ -17,8 +18,11 @@ export const HERO_TAGLINE =
   'Travel, documentary and lifestyle photography, film and writing. UK based, working worldwide.';
 
 /**
- * Homepage hero: the Site Settings images in Studio order, each holding for
- * HERO_HOLD_MS and then crossfading slowly into the next, forever.
+ * Homepage hero: the Site Settings images in random order, each holding for
+ * HERO_HOLD_MS and then crossfading slowly into the next, forever. The first
+ * photo is chosen on the server (the page's order is shuffled each time the
+ * homepage regenerates); every photo after it is drawn at random in the
+ * browser, a fresh order for each visitor.
  *
  * - The first image loads with priority and fades in once it has loaded.
  * - Each next image is mounted (and so downloaded) while the current one is
@@ -32,36 +36,57 @@ export function HomeHero({ slides }: { slides: HeroSlide[] }) {
   const rotates = slides.length > 1 && !reducedMotion;
 
   const [current, setCurrent] = useState(0);
+  // The photo that follows the current one: drawn at random once the
+  // current one is on screen (in the browser only, so the server-rendered
+  // first frame never changes).
+  const [upcoming, setUpcoming] = useState<number | null>(null);
   const [loaded, setLoaded] = useState<ReadonlySet<number>>(() => new Set());
   // Every slide that has been on screen stays mounted (already downloaded).
   const [shown, setShown] = useState<ReadonlySet<number>>(() => new Set([0]));
   const [tabVisible, setTabVisible] = useState(true);
   const [heroVisible, setHeroVisible] = useState(true);
   const heroRef = useRef<HTMLElement>(null);
+  // Shuffled photos still to show this round: each photo once per round, in
+  // a new random order every round, never the same photo twice in a row.
+  const bag = useRef<number[]>([]);
 
-  const next = (current + 1) % slides.length;
   const paused = !tabVisible || !heroVisible;
   const currentLoaded = loaded.has(current);
-  // While the current image holds, the next one is mounted so it downloads.
-  const isMounted = (i: number) => shown.has(i) || (rotates && currentLoaded && i === next);
+  // While the current image holds, the upcoming one is mounted so it downloads.
+  const isMounted = (i: number) => shown.has(i) || (rotates && i === upcoming);
+
+  const draw = (after: number): number => {
+    if (bag.current.length === 0) {
+      bag.current = shuffled(slides.map((_, i) => i).filter((i) => i !== after));
+    }
+    return bag.current.pop() as number;
+  };
 
   // Latest values for the timer / load callbacks below.
-  const live = useRef({ next, loaded, paused, due: false });
+  const live = useRef({ current, upcoming, loaded, paused, due: false });
   useEffect(() => {
-    live.current = { ...live.current, next, loaded, paused };
+    live.current = { ...live.current, current, upcoming, loaded, paused };
   });
 
   const advance = () => {
-    const to = live.current.next;
+    const to = live.current.upcoming;
+    if (to === null) return;
     live.current.due = false;
+    // Drop `to` from this round if it was drawn there, then pick what follows it.
+    bag.current = bag.current.filter((i) => i !== to);
     setCurrent(to);
     setShown((prev) => (prev.has(to) ? prev : new Set(prev).add(to)));
+    setUpcoming(draw(to));
   };
 
   const handleLoad = (i: number) => {
     setLoaded((prev) => (prev.has(i) ? prev : new Set(prev).add(i)));
-    // The hold already ran out while this (next) image was still loading.
-    if (live.current.due && i === live.current.next && !live.current.paused) advance();
+    // The current photo is up: choose (and start downloading) the next one.
+    if (rotates && i === live.current.current && live.current.upcoming === null) {
+      setUpcoming(draw(i));
+    }
+    // The hold already ran out while the upcoming image was still loading.
+    if (live.current.due && i === live.current.upcoming && !live.current.paused) advance();
   };
 
   useEffect(() => {
@@ -91,10 +116,12 @@ export function HomeHero({ slides }: { slides: HeroSlide[] }) {
   useEffect(() => {
     if (!rotates || !currentLoaded || paused) return;
     const id = setTimeout(() => {
-      if (live.current.loaded.has(live.current.next)) advance();
+      const { upcoming: next, loaded: ready } = live.current;
+      if (next !== null && ready.has(next)) advance();
       else live.current.due = true;
     }, HERO_FADE_MS + HERO_HOLD_MS);
     return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- advance reads the live ref
   }, [rotates, currentLoaded, paused, current]);
 
   const visibleSlides = rotates ? slides : slides.slice(0, 1);

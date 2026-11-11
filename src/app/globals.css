@@ -1514,3 +1514,66 @@ html.intro-seen .intro-loader { display: none !important; }
   justify-content: center;
   padding: clamp(var(--space-16), 10vw, var(--space-32)) var(--content-padding-x) var(--space-16);
 }
+
+/* ── Site footer (colophon): mark · social icons · copyright ──── */
+.site-footer {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-areas: 'mark social copy';
+  align-items: center;
+  gap: var(--space-6);
+  padding: 30px var(--content-padding-x);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-ink-muted);
+}
+.site-footer--dark {
+  background: var(--color-night);
+  border-top-color: color-mix(in srgb, var(--color-paper) 12%, transparent);
+  color: var(--color-paper-muted);
+}
+.site-footer__mark { grid-area: mark; line-height: 0; }
+.site-footer__copy {
+  grid-area: copy;
+  justify-self: end;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+}
+.site-footer__social {
+  grid-area: social;
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.site-footer__social-link {
+  /* 44px tap target around a small icon, without changing the layout. */
+  display: inline-flex;
+  align-items: center;
+  padding: 12px;
+  margin: -12px;
+  color: inherit;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-default);
+}
+.site-footer__social-link svg { width: 16px; height: 16px; }
+.site-footer__social-link:hover { color: var(--color-accent); }
+.site-footer--dark .site-footer__social-link:hover { color: var(--color-paper); }
+@media (max-width: 639px) {
+  /* Phones: the icons get their own row above the mark and copyright. */
+  .site-footer {
+    grid-template-columns: auto 1fr;
+    grid-template-areas: 'social social' 'mark copy';
+    row-gap: var(--space-8);
+  }
+  .site-footer__social { justify-self: center; }
+}

@@ -1,6 +1,7 @@
 import { SITE_SETTINGS_QUERY } from '@/lib/sanity';
 import { sanityFetch } from '@/lib/sanityFetch';
 import { urlFor } from '@/lib/sanityImage';
+import { SOCIAL_LINKS } from '@/lib/siteConfig';
 
 /**
  * Site-wide editable settings (Sanity "Site Settings"), with a fallback for
@@ -64,12 +65,7 @@ export const FALLBACK_BIO = [
 
 export const FALLBACK_CONTACT_EMAIL = 'armanparsa03@gmail.com';
 
-export const FALLBACK_SOCIAL_LINKS: SocialLink[] = [
-  { platform: 'Instagram', url: 'https://www.instagram.com/armanparsa_/' },
-  { platform: 'TikTok', url: 'https://www.tiktok.com/@armanparsa_' },
-  { platform: 'LinkedIn', url: 'https://www.linkedin.com/in/armanparsa-/' },
-  { platform: 'Substack', url: 'https://armanparsa.substack.com' },
-];
+export const FALLBACK_SOCIAL_LINKS: SocialLink[] = SOCIAL_LINKS;
 
 // ── Fetch ──────────────────────────────────────────────────────────────────
 

@@ -6,6 +6,7 @@ import { PLACEHOLDER_ITEMS } from '@/lib/placeholders';
 import { HomepageClient, type HomeItem } from '@/components/home/HomepageClient';
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from '@/lib/metadata';
 import { getSiteSettings } from '@/lib/siteSettings';
+import { shuffled } from '@/lib/shuffle';
 
 export const revalidate = 300;
 
@@ -52,5 +53,10 @@ export default async function HomePage() {
       : undefined,
   }));
 
-  return <HomepageClient items={homeItems} heroSlides={settings.heroSlides} />;
+  // Shuffled each time the page is generated (every few minutes, and on
+  // each publish), so the opening photo varies; the browser then draws the
+  // rest at random for each visitor (HomeHero).
+  const heroSlides = shuffled(settings.heroSlides);
+
+  return <HomepageClient items={homeItems} heroSlides={heroSlides} />;
 }
