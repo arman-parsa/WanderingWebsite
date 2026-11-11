@@ -59,6 +59,9 @@ const LEFT_LINKS = [
   { href: '/earth', label: 'EARTH' },
   { href: '/gallery', label: 'GALLERY' },
 ] as const;
+// The print store (/store redirects to Picfair): inline on the left from
+// 720px, inside the menu on phones.
+const STORE_LINK = { href: '/store', label: 'STORE' } as const;
 const RIGHT_LINKS = [
   { href: '/library', label: 'PERSONAL' },
   { href: '/commissions', label: 'COMMISSIONS', matchPrefix: true },
@@ -255,6 +258,9 @@ export function NavInner() {
           {LEFT_LINKS.map(({ href, label }) => (
             <NavLink key={href} href={href}>{label}</NavLink>
           ))}
+          <span className="nav-fold">
+            <NavLink href={STORE_LINK.href} prefetch={false}>{STORE_LINK.label}</NavLink>
+          </span>
         </div>
 
         {/* Center — alchemical symbol, scale driven via ref for smooth animation */}
@@ -327,10 +333,14 @@ export function NavInner() {
             ['--nav-text' as string]: darkSurface ? PAPER : INK,
           } as React.CSSProperties}
         >
-          {RIGHT_LINKS.map((link) => (
+          {RIGHT_LINKS.slice(0, 2).map((link) => (
             <NavLink key={link.href} href={link.href} matchPrefix={'matchPrefix' in link}>
               {link.label}
             </NavLink>
+          ))}
+          <NavLink href={STORE_LINK.href} prefetch={false}>{STORE_LINK.label}</NavLink>
+          {RIGHT_LINKS.slice(2).map((link) => (
+            <NavLink key={link.href} href={link.href}>{link.label}</NavLink>
           ))}
         </div>
       </nav>

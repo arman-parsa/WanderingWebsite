@@ -806,8 +806,10 @@ body.gallery-open footer { display: none; }
   gap: clamp(1.25rem, 2.6vw, 2rem);
 }
 .nav-menu-btn { display: none; }
+.nav-fold { display: contents; }
 @media (max-width: 719px) {
-  .nav-links-right { display: none; }
+  .nav-links-right,
+  .nav-fold { display: none; }
   .nav-menu-btn { display: flex; margin-right: -11px; }
 }
 @media (min-width: 720px) {
