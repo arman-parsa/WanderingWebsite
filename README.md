@@ -1,7 +1,21 @@
-# Arman Parsa — Portfolio
+# Arman Parsa
 
-Personal editorial archive — travel writing, photography, mixed media and videography by Arman Parsa.
-Live at **https://armanparsa.earth**. Prints: **https://store.armanparsa.earth** (Picfair; `/store` redirects there).
+Portfolio of Arman Parsa — travel, documentary and lifestyle photography, film and writing, for personal work and commissions (hotels, travel experiences, outdoor brands, conservation, editorial).
+Live at **https://www.armanparsa.earth** (the bare domain redirects there). Prints: **https://store.armanparsa.earth** (Picfair; the STORE nav link goes via `/store`).
+
+## Site map
+
+- `/` — hero (Site Settings images, shuffled) and the latest personal pieces
+- `/earth` — globe of personal pieces · `/gallery` — floating collage of their photographs
+- `/library` (nav: PERSONAL) — all personal pieces: `/writing`, `/mixed-media`, `/photography`, `/videography`
+- `/commissions` and `/commissions/<slug>` — client work (separate Sanity type, never mixed with personal pieces)
+- `/contact` — bio, email and social links (`/about` redirects here) · `/store` → Picfair
+
+## Editing in Sanity Studio (`/studio`)
+
+- **Site Settings** (top of the sidebar): hero images, bio, email, social links, and *Search & sharing* — homepage title, site description and the default share image. Every field falls back to a built-in default when empty.
+- **Personal work**: Writing, Mixed Media, Photography, Videography. **Commissions**: one document per client project.
+- Publishing refreshes the site through the `/api/revalidate` webhook.
 
 ## Stack
 
@@ -32,7 +46,7 @@ Open http://localhost:3000 — the studio lives at http://localhost:3000/studio.
 
 ## Project documentation
 
-- `SESSION_HANDOFF.md` — architecture, design system, component deep dives, conventions
+- `SESSION_HANDOFF.md` — architecture, design system, component deep dives, conventions, and the change log (§13 onwards)
 - `AGENTS.md` / `CLAUDE.md` — instructions for AI coding agents
 
 ## Commands

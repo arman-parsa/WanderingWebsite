@@ -1,9 +1,12 @@
-import { OG_SIZE, OG_CONTENT_TYPE, SITE_OG_ALT, siteOgImage } from '@/lib/ogCard';
+import { OG_SIZE, OG_CONTENT_TYPE } from '@/lib/ogCard';
+import { commissionsIndexOgImage } from '@/lib/commissionOg';
 
-export const alt = SITE_OG_ALT;
+export const alt = 'Commissions by Arman Parsa — photography, film and writing for hotels, travel and outdoor brands';
 export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
+// Picks up a new lead commission's cover.
+export const revalidate = 3600;
 
 export default function Image() {
-  return siteOgImage();
+  return commissionsIndexOgImage();
 }

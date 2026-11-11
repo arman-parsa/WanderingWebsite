@@ -7,7 +7,7 @@
 import { client } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
 import { PLACEHOLDER_ITEMS } from '@/lib/placeholders';
-import { renderOgCard, eyebrowFor, fetchPhoto, fallbackPhoto } from '@/lib/ogCard';
+import { renderOgCard, eyebrowFor, fetchPhoto, fallbackPhoto, asJpeg } from '@/lib/ogCard';
 
 const OG_PIECE_QUERY = `
   *[_type == $type && slug.current == $slug && !(_id in path("drafts.**"))][0]{
@@ -26,7 +26,7 @@ export async function articleOgImage(type: string, slug: string) {
   }
 
   const placeholder = PLACEHOLDER_ITEMS.find((i) => i.slug === slug);
-  const title = piece?.title ?? placeholder?.title ?? 'Arman Parsa';
+  const title = (piece?.title ?? placeholder?.title ?? 'Arman Parsa').trim();
   const location = piece?.location ?? placeholder?.location;
 
   // The SEO "social share image" wins when set; otherwise the cover.
@@ -43,5 +43,22 @@ export async function articleOgImage(type: string, slug: string) {
   }
   if (!photo) photo = await fallbackPhoto();
 
-  return renderOgCard({ photo, mode: 'article', eyebrow: eyebrowFor(type, location), title });
+  return asJpeg(await renderOgCard({ photo, mode: 'article', eyebrow: eyebrowFor(type, location), title }));
+}
+
+/**
+ * Alt text for a piece's card, for generateImageMetadata in the four
+ * opengraph-image routes: "Title — Category, Location".
+ */
+export async function articleOgAlt(type: string, slug: string): Promise<string> {
+  let piece: Piece | null = null;
+  try {
+    piece = await client.fetch(OG_PIECE_QUERY, { type, slug });
+  } catch {
+    // fall back below
+  }
+  const placeholder = PLACEHOLDER_ITEMS.find((i) => i.slug === slug);
+  const title = (piece?.title ?? placeholder?.title ?? 'Arman Parsa').trim();
+  const where = eyebrowFor(type, piece?.location ?? placeholder?.location).replace(' · ', ', ');
+  return where ? `${title} — ${where}` : title;
 }

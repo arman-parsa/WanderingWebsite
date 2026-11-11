@@ -4,25 +4,29 @@ import { ALL_CONTENT_QUERY } from '@/lib/sanity';
 import { urlFor } from '@/lib/sanityImage';
 import { PLACEHOLDER_ITEMS } from '@/lib/placeholders';
 import { HomepageClient, type HomeItem } from '@/components/home/HomepageClient';
-import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from '@/lib/metadata';
+import { SITE_URL, SITE_NAME } from '@/lib/metadata';
 import { getSiteSettings } from '@/lib/siteSettings';
 import { shuffled } from '@/lib/shuffle';
 
 export const revalidate = 300;
 
-export const metadata: Metadata = {
-  title: { absolute: SITE_NAME },
-  description: SITE_DESCRIPTION,
-  alternates: { canonical: SITE_URL },
-  openGraph: {
-    title: SITE_NAME,
-    description: SITE_DESCRIPTION,
-    url: SITE_URL,
-    siteName: SITE_NAME,
-    locale: 'en_GB',
-    type: 'website',
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { seoTitle, seoDescription } = await getSiteSettings();
+  return {
+    title: { absolute: seoTitle },
+    description: seoDescription,
+    alternates: { canonical: SITE_URL },
+    openGraph: {
+      title: seoTitle,
+      description: seoDescription,
+      url: SITE_URL,
+      siteName: SITE_NAME,
+      locale: 'en_GB',
+      type: 'website',
+    },
+    twitter: { card: 'summary_large_image', title: seoTitle, description: seoDescription },
+  };
+}
 
 type ContentItem = {
   _type: 'writing' | 'mixedMedia' | 'photography' | 'videography';

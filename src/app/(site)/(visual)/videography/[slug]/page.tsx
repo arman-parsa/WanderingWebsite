@@ -10,6 +10,7 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { VideoBlock } from '@/components/content/VideoBlock';
 import { buildContentMetadata, contentImageUrl } from '@/lib/metadata';
 import { buildContentJsonLd } from '@/lib/jsonld';
+import { parseVimeo } from '@/lib/articleMedia';
 
 export const revalidate = 3600;
 
@@ -59,16 +60,21 @@ export default async function VideographyPage({ params }: Props) {
 
   const { newer, older } = await getAdjacentPieces('videography', slug);
 
-  const firstVimeoId = piece.videos?.find((v: SanityVideo) => v.vimeoId)?.vimeoId;
+  const firstVimeo = parseVimeo(piece.videos?.find((v: SanityVideo) => parseVimeo(v.vimeoId))?.vimeoId);
   const jsonLd = buildContentJsonLd({
     type: 'VideoObject',
     title: piece.title,
-    description: piece.description,
+    // The SEO description when one is set — the same text as the meta tag.
+    description: piece.seo?.metaDescription ?? piece.description,
     path: `/videography/${slug}`,
     publishedAt: piece.publishedAt,
     tags: piece.tags,
     imageUrl: contentImageUrl(piece.coverImage),
-    ...(firstVimeoId && { embedUrl: `https://player.vimeo.com/video/${firstVimeoId}` }),
+    // The Studio accepts a full Vimeo link or a bare ID — parse it as the
+    // player does, so the embed URL is valid either way (unlisted hash kept).
+    ...(firstVimeo && {
+      embedUrl: `https://player.vimeo.com/video/${firstVimeo.id}${firstVimeo.hash ? `?h=${firstVimeo.hash}` : ''}`,
+    }),
   });
 
   return (

@@ -1,7 +1,7 @@
 import { SITE_SETTINGS_QUERY } from '@/lib/sanity';
 import { sanityFetch } from '@/lib/sanityFetch';
 import { urlFor } from '@/lib/sanityImage';
-import { SOCIAL_LINKS } from '@/lib/siteConfig';
+import { SITE_DESCRIPTION, SITE_TITLE, SOCIAL_LINKS } from '@/lib/siteConfig';
 
 /**
  * Site-wide editable settings (Sanity "Site Settings"), with a fallback for
@@ -27,6 +27,11 @@ export type SiteSettings = {
   bio: string[];
   contactEmail: string;
   socialLinks: SocialLink[];
+  /** Homepage title / site description (Search & sharing), with built-in defaults. */
+  seoTitle: string;
+  seoDescription: string;
+  /** Default share-card photo, when one is set in Studio. */
+  ogImage: { asset?: { _ref?: string }; hotspot?: { x: number; y: number } } | null;
 };
 
 // ── Fallbacks ──────────────────────────────────────────────────────────────
@@ -81,6 +86,9 @@ type RawSettings = {
   bio?: string | null;
   contactEmail?: string | null;
   socialLinks?: SocialLink[] | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  ogImage?: { asset?: { _ref?: string }; hotspot?: { x: number; y: number } } | null;
 } | null;
 
 function toHeroSlide(img: SanityHeroImage): HeroSlide | null {
@@ -128,5 +136,8 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     bio: bio.length > 0 ? bio : FALLBACK_BIO,
     contactEmail: raw?.contactEmail?.trim() || FALLBACK_CONTACT_EMAIL,
     socialLinks: socialLinks.length > 0 ? socialLinks : FALLBACK_SOCIAL_LINKS,
+    seoTitle: raw?.seoTitle?.trim() || SITE_TITLE,
+    seoDescription: raw?.seoDescription?.trim() || SITE_DESCRIPTION,
+    ogImage: raw?.ogImage?.asset?._ref ? raw.ogImage : null,
   };
 }

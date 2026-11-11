@@ -75,6 +75,13 @@ export default async function CommissionPage({ params }: Props) {
     path: commissionHref(slug),
     tags: labels,
     imageUrl: contentImageUrl(cover ?? undefined),
+    // Who it was for, where and when — so the work turns up for the client's name.
+    extra: {
+      funder: { '@type': 'Organization', name: c.clientName },
+      ...(c.location && { contentLocation: { '@type': 'Place', name: c.location } }),
+      ...(c.year && { dateCreated: String(c.year) }),
+      ...(sectorLabel(c.sector) && { genre: sectorLabel(c.sector) }),
+    },
   });
 
   return (

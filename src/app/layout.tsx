@@ -2,30 +2,42 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { WEBSITE_JSON_LD } from '@/lib/jsonld';
-import { SITE_NAME, SITE_DESCRIPTION } from '@/lib/siteConfig';
+import { SITE_NAME, SITE_TITLE, SITE_DESCRIPTION } from '@/lib/siteConfig';
+import { getSiteSettings } from '@/lib/siteSettings';
 
-export const metadata: Metadata = {
-  title: {
-    default: SITE_NAME,
-    template: `%s · ${SITE_NAME}`,
-  },
-  description: SITE_DESCRIPTION,
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://armanparsa.earth'),
-  openGraph: {
-    title: SITE_NAME,
-    description: SITE_DESCRIPTION,
-    siteName: SITE_NAME,
-    type: 'website',
-    locale: 'en_GB',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: SITE_NAME,
-    description: SITE_DESCRIPTION,
-  },
-  // No site-wide robots tag: indexing is the default, and a global
-  // "index, follow" contradicted the 404 page's own noindex.
-};
+/** Site-wide defaults; Site Settings → Search & sharing can override the title and description. */
+export async function generateMetadata(): Promise<Metadata> {
+  let title = SITE_TITLE;
+  let description = SITE_DESCRIPTION;
+  try {
+    ({ seoTitle: title, seoDescription: description } = await getSiteSettings());
+  } catch {
+    // Sanity unreachable — the built-in defaults stand.
+  }
+  return {
+    title: {
+      default: title,
+      // Every other page: "Contact · Arman Parsa".
+      template: `%s · ${SITE_NAME}`,
+    },
+    description,
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://armanparsa.earth'),
+    openGraph: {
+      title,
+      description,
+      siteName: SITE_NAME,
+      type: 'website',
+      locale: 'en_GB',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+    // No site-wide robots tag: indexing is the default, and a global
+    // "index, follow" contradicted the 404 page's own noindex.
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: '#f8f4ef',

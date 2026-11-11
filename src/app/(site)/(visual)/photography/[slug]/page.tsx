@@ -78,7 +78,8 @@ export default async function PhotographyPage({ params }: Props) {
   const jsonLd = buildContentJsonLd({
     type: 'ImageGallery',
     title: series.title,
-    description: series.description,
+    // The SEO description when one is set — the same text as the meta tag.
+    description: series.seo?.metaDescription ?? series.description,
     path: `/photography/${slug}`,
     publishedAt: series.publishedAt,
     tags: series.tags,

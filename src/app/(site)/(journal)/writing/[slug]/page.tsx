@@ -68,7 +68,8 @@ export default async function WritingPage({ params }: Props) {
   const jsonLd = buildContentJsonLd({
     type: 'Article',
     title: piece.title,
-    description: piece.description,
+    // The SEO description when one is set — the same text as the meta tag.
+    description: piece.seo?.metaDescription ?? piece.description,
     path: `/writing/${slug}`,
     publishedAt: piece.publishedAt,
     tags: piece.tags,

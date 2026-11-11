@@ -87,7 +87,7 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
       {/* Grid */}
       <div style={{ padding: '0 clamp(1.5rem, 4vw, 3rem) 6rem' }}>
         <div className="explore-grid">
-          {visible.map(item => {
+          {visible.map((item, i) => {
             const href = `${TYPE_HREF[item._type]}/${item.slug}`;
             const hotspot = item.coverImage?.hotspot;
             const objectPosition = hotspot ? `${hotspot.x * 100}% ${hotspot.y * 100}%` : 'center';
@@ -103,7 +103,9 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
                         src={urlFor(item.coverImage).width(900).height(600).fit('crop').format('webp').quality(80).url()}
                         alt={(item.coverImage as { alt?: string }).alt ?? item.title}
                         fill
-                        loading="lazy"
+                        // The first row is on screen at load (LCP): fetch it
+                        // straight away; the rest load as they scroll in.
+                        loading={i < 2 ? 'eager' : 'lazy'}
                         sizes="(max-width: 639px) 100vw, 50vw"
                         style={{ objectPosition }}
                       />

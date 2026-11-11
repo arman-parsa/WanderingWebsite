@@ -88,7 +88,8 @@ export default async function MixedMediaPage({ params }: Props) {
   const jsonLd = buildContentJsonLd({
     type: 'Article',
     title: piece.title,
-    description: piece.description,
+    // The SEO description when one is set — the same text as the meta tag.
+    description: piece.seo?.metaDescription ?? piece.description,
     path: `/mixed-media/${slug}`,
     publishedAt: piece.publishedAt,
     tags: piece.tags,

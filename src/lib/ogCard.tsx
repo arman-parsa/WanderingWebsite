@@ -15,9 +15,14 @@ import { ImageResponse } from 'next/og';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { TYPE_LABEL } from '@/lib/contentTypes';
+import { SITE_CARD_LINE } from '@/lib/siteConfig';
+import { getSiteSettings } from '@/lib/siteSettings';
+import { urlFor } from '@/lib/sanityImage';
 
 export const OG_SIZE = { width: 1200, height: 630 };
-export const OG_CONTENT_TYPE = 'image/png';
+// JPEG: a photographic card is ~1–2 MB as PNG, which WhatsApp and others
+// often refuse to preview; as JPEG it is a tenth of that (see asJpeg).
+export const OG_CONTENT_TYPE = 'image/jpeg';
 
 const PAPER = '#f8f4ef';
 const INK = '#0d0d0d';
@@ -162,18 +167,53 @@ export async function renderOgCard({ photo, mode = 'article', eyebrow, title }: 
   );
 }
 
+/**
+ * Re-encode a rendered card as JPEG (ImageResponse only produces PNG). sharp
+ * ships with Next; if it can't be loaded, the PNG is served unchanged.
+ */
+export async function asJpeg(res: Response): Promise<Response> {
+  try {
+    const { default: sharp } = await import('sharp');
+    const png = Buffer.from(await res.clone().arrayBuffer());
+    const jpg = await sharp(png).jpeg({ quality: 82, mozjpeg: true }).toBuffer();
+    return new Response(new Uint8Array(jpg), {
+      headers: { 'content-type': 'image/jpeg', 'cache-control': res.headers.get('cache-control') ?? 'public, max-age=0, must-revalidate' },
+    });
+  } catch {
+    return res;
+  }
+}
+
+/**
+ * The default photo for site cards: Site Settings' "Default share image"
+ * when set, otherwise public/og.jpg.
+ */
+async function sitePhoto(): Promise<string> {
+  try {
+    const { ogImage } = await getSiteSettings();
+    if (ogImage) {
+      const url = urlFor(ogImage).width(1200).height(630).fit('crop').format('jpg').quality(80).url();
+      const photo = await fetchPhoto(url);
+      if (photo) return photo;
+    }
+  } catch {
+    // fall through to the bundled photo
+  }
+  return fallbackPhoto();
+}
+
 /** The site-wide default card (homepage and every non-article page). */
 export async function siteOgImage() {
-  const photo = await fallbackPhoto();
-  return renderOgCard({
+  const photo = await sitePhoto();
+  return asJpeg(await renderOgCard({
     photo,
     mode: 'site',
     title: 'Arman Parsa',
-    eyebrow: 'A portfolio of writing, photography and videography',
-  });
+    eyebrow: SITE_CARD_LINE,
+  }));
 }
 
-export const SITE_OG_ALT = 'Arman Parsa — a portfolio of writing, photography and videography';
+export const SITE_OG_ALT = 'Arman Parsa — travel and documentary photographer, filmmaker and writer';
 
 /** category · location eyebrow from a piece. */
 export function eyebrowFor(type: string, location?: string) {

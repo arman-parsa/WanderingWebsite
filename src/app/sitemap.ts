@@ -5,7 +5,7 @@ import { SITE_URL } from '@/lib/siteConfig';
 // pieces reach the sitemap without a redeploy.
 export const revalidate = 3600;
 
-type SlugRow = { slug: string };
+type SlugRow = { slug: string; updatedAt?: string };
 
 const SECTIONS = [
   { prefix: '/writing',     queryKey: 'WRITING_SLUGS_QUERY' },
@@ -42,10 +42,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const contentRoutes: MetadataRoute.Sitemap = [];
   for (const { prefix, queryKey } of SECTIONS) {
     const rows = await fetchSlugs(queryKey);
-    for (const { slug } of rows) {
+    for (const { slug, updatedAt } of rows) {
       if (!slug || slug.startsWith('_placeholder')) continue;
       contentRoutes.push({
         url: `${SITE_URL}${prefix}/${slug}`,
+        // When the piece was last edited, so search engines re-crawl changes.
+        ...(updatedAt && { lastModified: updatedAt }),
         changeFrequency: 'monthly',
         priority: 0.8,
       });

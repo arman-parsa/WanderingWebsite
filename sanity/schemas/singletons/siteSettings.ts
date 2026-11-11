@@ -13,7 +13,7 @@ export const siteSettings = defineType({
   groups: [
     { name: 'home', title: 'Homepage', default: true },
     { name: 'contact', title: 'Bio & contact' },
-    { name: 'meta', title: 'Metadata' },
+    { name: 'meta', title: 'Search & sharing' },
   ],
   fields: [
     defineField({
@@ -90,10 +90,34 @@ export const siteSettings = defineType({
         }),
       ],
     }),
-    // Not used by the site yet; kept so existing values are preserved.
-    defineField({ name: 'title', title: 'Site Title', type: 'string', group: 'meta' }),
-    defineField({ name: 'description', title: 'Site Description', type: 'text', rows: 3, group: 'meta' }),
-    defineField({ name: 'ogImage', title: 'Default OG Image', type: 'image', group: 'meta' }),
+    defineField({
+      name: 'title',
+      title: 'Homepage title',
+      type: 'string',
+      group: 'meta',
+      description:
+        'The title Google and the browser tab show for the homepage. Leave empty for: “Arman Parsa — Travel & Documentary Photographer, Filmmaker and Writer”.',
+      validation: (Rule) => Rule.max(70).warning('Google shows about 60–70 characters.'),
+    }),
+    defineField({
+      name: 'description',
+      title: 'Site description',
+      type: 'text',
+      rows: 3,
+      group: 'meta',
+      description:
+        'The summary Google and link previews show for the homepage (and pages without their own). Leave empty to use the built-in one.',
+      validation: (Rule) => Rule.max(170).warning('Google shows about 155–160 characters.'),
+    }),
+    defineField({
+      name: 'ogImage',
+      title: 'Default share image',
+      type: 'image',
+      group: 'meta',
+      options: { hotspot: true },
+      description:
+        'The photo behind the card shown when the homepage, Personal, Gallery, Earth or Contact is shared (pieces and commissions use their own cover). Landscape works best.',
+    }),
   ],
   preview: {
     prepare: () => ({ title: 'Site Settings' }),

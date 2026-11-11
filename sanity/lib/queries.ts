@@ -22,7 +22,7 @@ export const WRITING_QUERY = defineQuery(`
 `);
 
 export const WRITING_SLUGS_QUERY = defineQuery(`
-  *[_type == "writing" && !(_id in path("drafts.**"))] { "slug": slug.current }
+  *[_type == "writing" && !(_id in path("drafts.**"))] { "slug": slug.current, "updatedAt": _updatedAt }
 `);
 
 // ─── Mixed Media (Writing + Photos/Videos) ────────────────────────────────
@@ -54,7 +54,7 @@ export const MIXED_MEDIA_QUERY = defineQuery(`
 `);
 
 export const MIXED_MEDIA_SLUGS_QUERY = defineQuery(`
-  *[_type == "mixedMedia" && !(_id in path("drafts.**"))] { "slug": slug.current }
+  *[_type == "mixedMedia" && !(_id in path("drafts.**"))] { "slug": slug.current, "updatedAt": _updatedAt }
 `);
 
 // ─── Photography (Photos, minimal text) ───────────────────────────────────
@@ -80,7 +80,7 @@ export const PHOTOGRAPHY_QUERY = defineQuery(`
 `);
 
 export const PHOTOGRAPHY_SLUGS_QUERY = defineQuery(`
-  *[_type == "photography" && !(_id in path("drafts.**"))] { "slug": slug.current }
+  *[_type == "photography" && !(_id in path("drafts.**"))] { "slug": slug.current, "updatedAt": _updatedAt }
 `);
 
 // ─── Videography (Videos, minimal text) ───────────────────────────────────
@@ -100,7 +100,7 @@ export const VIDEOGRAPHY_QUERY = defineQuery(`
 `);
 
 export const VIDEOGRAPHY_SLUGS_QUERY = defineQuery(`
-  *[_type == "videography" && !(_id in path("drafts.**"))] { "slug": slug.current }
+  *[_type == "videography" && !(_id in path("drafts.**"))] { "slug": slug.current, "updatedAt": _updatedAt }
 `);
 
 // ─── All content (for index + map pages) ──────────────────────────────────
@@ -182,7 +182,10 @@ export const SITE_SETTINGS_QUERY = defineQuery(`
     },
     bio,
     contactEmail,
-    "socialLinks": socialLinks[defined(platform) && defined(url)] { platform, url }
+    "socialLinks": socialLinks[defined(platform) && defined(url)] { platform, url },
+    "seoTitle": title,
+    "seoDescription": description,
+    "ogImage": ogImage { ..., hotspot }
   }
 `);
 
@@ -227,5 +230,5 @@ export const COMMISSION_QUERY = defineQuery(`
 `);
 
 export const COMMISSION_SLUGS_QUERY = defineQuery(`
-  *[_type == "commission" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current }
+  *[_type == "commission" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, "updatedAt": _updatedAt }
 `);

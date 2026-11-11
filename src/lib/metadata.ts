@@ -28,7 +28,8 @@ function ogImageUrl(image: SanityImageRef | undefined): string | undefined {
 
 /** Shared metadata builder for the four content detail pages. */
 export function buildContentMetadata(input: ContentMetaInput): Metadata {
-  const title = input.seo?.metaTitle ?? input.title;
+  // Trimmed: a stray space in a Sanity title shouldn't reach Google or link previews.
+  const title = (input.seo?.metaTitle ?? input.title).trim();
   const description = input.seo?.metaDescription ?? input.description;
 
   // og:image / twitter:image come from the per-article `opengraph-image` route
