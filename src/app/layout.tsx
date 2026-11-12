@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { SiteAnalytics } from '@/components/seo/SiteAnalytics';
 import { WEBSITE_JSON_LD } from '@/lib/jsonld';
 import { SITE_NAME, SITE_TITLE, SITE_DESCRIPTION } from '@/lib/siteConfig';
 import { getSiteSettings } from '@/lib/siteSettings';
@@ -63,6 +64,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <JsonLd data={WEBSITE_JSON_LD} />
         {children}
+        <SiteAnalytics />
       </body>
     </html>
   );
