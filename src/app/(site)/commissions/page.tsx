@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { breadcrumbJsonLd } from '@/lib/seoImages';
 import { sanityFetch } from '@/lib/sanityFetch';
 import { COMMISSIONS_QUERY } from '@/lib/sanity';
 import { pageMetadata } from '@/lib/metadata';
@@ -25,6 +27,7 @@ export default async function CommissionsPage() {
 
   return (
     <main id="main-content" className="commissions-page">
+      <JsonLd data={breadcrumbJsonLd([{ name: 'Commissions', path: '/commissions' }])} />
       <h1 className="sr-only">Commissions</h1>
       {commissions.length > 0 ? (
         <div className="commissions-grid">

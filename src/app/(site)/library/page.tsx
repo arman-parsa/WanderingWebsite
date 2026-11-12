@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { breadcrumbJsonLd } from '@/lib/seoImages';
 import { sanityFetch } from '@/lib/sanityFetch';
 import { ALL_CONTENT_QUERY } from '@/lib/sanity';
 import { PLACEHOLDER_ITEMS } from '@/lib/placeholders';
@@ -31,6 +33,7 @@ export default async function ArticlesPage() {
 
   return (
     <main id="main-content">
+      <JsonLd data={breadcrumbJsonLd([{ name: 'Personal', path: '/library' }])} />
       <h1 className="sr-only">Personal — writing, photography and film by Arman Parsa</h1>
       <ExploreClient items={items} />
     </main>

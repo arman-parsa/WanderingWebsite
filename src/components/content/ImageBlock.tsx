@@ -1,7 +1,7 @@
 'use client';
 
 import { SanityImage } from '@/components/content/SanityImage';
-import { urlFor } from '@/lib/sanityImage';
+import { photoUrl } from '@/lib/sanityImage';
 import { imageRatio, type ImageBlockValue, type MediaWidth } from '@/lib/articleMedia';
 import { useLightbox } from './MediaLightbox';
 
@@ -37,7 +37,7 @@ export function ImageBlock({ value }: { value: ImageBlockValue }) {
   const isPortrait = width === 'column' && ratio < 0.9;
   const constrain = isPortrait ? { maxWidth: '32rem', marginInline: 'auto' } : undefined;
 
-  const src = urlFor(image).width(FETCH_WIDTH[width]).format('webp').quality(85).url();
+  const src = photoUrl(image, value.alt || value.caption).width(FETCH_WIDTH[width]).format('webp').quality(85).url();
   const objectPosition = image.hotspot
     ? `${image.hotspot.x * 100}% ${image.hotspot.y * 100}%`
     : 'center';

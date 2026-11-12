@@ -1,6 +1,6 @@
 import { SITE_SETTINGS_QUERY } from '@/lib/sanity';
 import { sanityFetch } from '@/lib/sanityFetch';
-import { urlFor } from '@/lib/sanityImage';
+import { photoUrl } from '@/lib/sanityImage';
 import { SITE_DESCRIPTION, SITE_TITLE, SOCIAL_LINKS } from '@/lib/siteConfig';
 
 /**
@@ -97,7 +97,7 @@ function toHeroSlide(img: SanityHeroImage): HeroSlide | null {
     const { x, y } = img.hotspot ?? {};
     return {
       // Width only — the hero is full-bleed, so the loader sizes it per screen.
-      src: urlFor(img).width(2560).url(),
+      src: photoUrl(img, img.alt).width(2560).url(),
       alt: img.alt ?? '',
       objectPosition:
         typeof x === 'number' && typeof y === 'number' ? `${x * 100}% ${y * 100}%` : 'center',

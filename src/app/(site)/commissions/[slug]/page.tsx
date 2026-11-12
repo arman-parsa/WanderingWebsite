@@ -4,9 +4,10 @@ import Link from 'next/link';
 import { client } from '@/lib/sanity';
 import { sanityFetch } from '@/lib/sanityFetch';
 import { COMMISSION_QUERY, COMMISSION_SLUGS_QUERY } from '@/lib/sanity';
-import { urlFor } from '@/lib/sanityImage';
+import { photoUrl } from '@/lib/sanityImage';
 import { buildContentMetadata, contentImageUrl } from '@/lib/metadata';
 import { buildContentJsonLd } from '@/lib/jsonld';
+import { breadcrumbJsonLd, collectPhotos, photoObjectsJsonLd } from '@/lib/seoImages';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { ResolveImage } from '@/components/content/ResolveImage';
 import { VideoBlock } from '@/components/content/VideoBlock';
@@ -77,6 +78,7 @@ export default async function CommissionPage({ params }: Props) {
     imageUrl: contentImageUrl(cover ?? undefined),
     // Who it was for, where and when — so the work turns up for the client's name.
     extra: {
+      image: photoObjectsJsonLd(collectPhotos({ title, coverImage: c.coverImage, images: c.images })),
       funder: { '@type': 'Organization', name: c.clientName },
       ...(c.location && { contentLocation: { '@type': 'Place', name: c.location } }),
       ...(c.year && { dateCreated: String(c.year) }),
@@ -87,6 +89,7 @@ export default async function CommissionPage({ params }: Props) {
   return (
     <main id="main-content" className="commission-page">
       <JsonLd data={jsonLd} />
+      <JsonLd data={breadcrumbJsonLd([{ name: 'Commissions', path: '/commissions' }, { name: title, path: commissionHref(slug) }])} />
 
       <header className="commission-header">
         {clientLine && <p className="commission-header__client">{clientLine}</p>}
@@ -116,7 +119,7 @@ export default async function CommissionPage({ params }: Props) {
               <figure className="photo-plate photo-plate--cover">
                 <div className="photo-plate__frame">
                   <ResolveImage
-                    src={urlFor(cover).width(2200).height(1238).fit('crop').url()}
+                    src={photoUrl(cover, cover.alt || title).width(2200).height(1238).fit('crop').url()}
                     alt={cover.alt ?? ''}
                     fill
                     preload

@@ -489,3 +489,11 @@ Personal work and commissioned work are now two separate doors. One commit per s
 - **Library**: first two card images load eagerly (they're the LCP).
 - **STORE** is back: inline on the left (EARTH · GALLERY · STORE) from 720px, inside the phone menu (PERSONAL, COMMISSIONS, STORE, CONTACT). Links to `/store` (→ Picfair).
 - After deploying SEO changes: re-scrape in Facebook Sharing Debugger / LinkedIn Post Inspector; submit the sitemap in Google Search Console.
+
+## 22. SEARCH: IMAGE SITEMAP, PHOTO CREDITS, DESCRIPTIVE FILE NAMES, BREADCRUMBS — November 2026
+
+- **Descriptive image file names:** `photoUrl(image, alt)` in `src/lib/sanityImage.ts` = `urlFor()` + a Sanity vanity name from the alt text (`…/1cc4…-6192x4128.jpg/daikiretto-sunrise.jpg`). Used for every visible photo (cards, image blocks/pairs, sequence, lightbox, heroes, gallery, home hero). The Sanity loader keeps the path, so srcset URLs carry the name too.
+- **`src/lib/seoImages.ts`:** `collectPhotos(doc)` (cover + body/gallery imageBlocks, imagePairs, commission images, de-duplicated), `photoObjectsJsonLd()` (ImageObject: contentUrl, name, caption, creator, creditText, copyrightNotice, license → /contact, acquireLicensePage → the piece's Picfair `printsUrl` or /contact), `breadcrumbJsonLd()`.
+- Piece and commission JSON-LD `image` is now the ImageObject list (cover first). BreadcrumbList on every piece/commission (Home › Personal|Commissions › Title) and on Personal, Gallery, Earth, Commissions, Contact.
+- **Image sitemap:** `SITEMAP_PHOTOS_QUERY` → `images` on each piece/commission entry in sitemap.xml (same URLs as the JSON-LD); the homepage entry lists the hero photos.
+- Library: first four cards (two rows) load eagerly.

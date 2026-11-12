@@ -10,6 +10,7 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { VideoBlock } from '@/components/content/VideoBlock';
 import { buildContentMetadata, contentImageUrl } from '@/lib/metadata';
 import { buildContentJsonLd } from '@/lib/jsonld';
+import { breadcrumbJsonLd, collectPhotos, photoObjectsJsonLd } from '@/lib/seoImages';
 import { parseVimeo } from '@/lib/articleMedia';
 
 export const revalidate = 3600;
@@ -70,6 +71,8 @@ export default async function VideographyPage({ params }: Props) {
     publishedAt: piece.publishedAt,
     tags: piece.tags,
     imageUrl: contentImageUrl(piece.coverImage),
+    // Every photograph on the page, credited to Arman and licensable.
+    extra: { image: photoObjectsJsonLd(collectPhotos(piece)) },
     // The Studio accepts a full Vimeo link or a bare ID — parse it as the
     // player does, so the embed URL is valid either way (unlisted hash kept).
     ...(firstVimeo && {
@@ -80,6 +83,7 @@ export default async function VideographyPage({ params }: Props) {
   return (
     <main id="main-content" className="min-h-screen" style={{ backgroundColor: '#0D0D0D', color: '#f8f4ef' }}>
       <JsonLd data={jsonLd} />
+      <JsonLd data={breadcrumbJsonLd([{ name: 'Personal', path: '/library' }, { name: piece.title, path: `/videography/${slug}` }])} />
       <ArticleHero
         title={piece.title}
         description={piece.description}

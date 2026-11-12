@@ -1,6 +1,6 @@
 import { ResolveImage } from '@/components/content/ResolveImage';
 import { LightboxTrigger } from '@/components/content/MediaLightbox';
-import { urlFor } from '@/lib/sanityImage';
+import { photoUrl } from '@/lib/sanityImage';
 import { planSequence, ratioOf, type SequenceImage, type SequenceRow } from '@/lib/photoSequence';
 
 type Load = 'preload' | 'eager' | 'lazy';
@@ -70,7 +70,7 @@ function Plate({ image, sizes, load }: { image: SequenceImage; sizes: string; lo
       <LightboxTrigger imageKey={image._key} label={alt ? `Enlarge photograph: ${alt}` : undefined}>
         <div className="photo-plate__frame">
           <ResolveImage
-            src={urlFor(image).width(2000).url()}
+            src={photoUrl(image, image.alt).width(2000).url()}
             alt={alt}
             fill
             sizes={sizes}

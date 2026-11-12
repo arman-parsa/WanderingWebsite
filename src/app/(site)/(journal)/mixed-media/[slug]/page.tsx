@@ -17,6 +17,7 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { PLACEHOLDER_ITEMS, PLACEHOLDER_WRITING } from '@/lib/placeholders';
 import { buildContentMetadata, contentImageUrl } from '@/lib/metadata';
 import { buildContentJsonLd } from '@/lib/jsonld';
+import { breadcrumbJsonLd, collectPhotos, photoObjectsJsonLd } from '@/lib/seoImages';
 
 export const revalidate = 3600;
 
@@ -94,11 +95,14 @@ export default async function MixedMediaPage({ params }: Props) {
     publishedAt: piece.publishedAt,
     tags: piece.tags,
     imageUrl: contentImageUrl(piece.coverImage),
+    // Every photograph on the page, credited to Arman and licensable.
+    extra: { image: photoObjectsJsonLd(collectPhotos(piece)) },
   });
 
   return (
     <main id="main-content" className="min-h-screen" style={{ backgroundColor: '#0D0D0D', color: '#f8f4ef' }}>
       <JsonLd data={jsonLd} />
+      <JsonLd data={breadcrumbJsonLd([{ name: 'Personal', path: '/library' }, { name: piece.title, path: `/mixed-media/${slug}` }])} />
       <ReadingProgress />
       <ArticleMediaProvider
         entries={lightboxEntries}

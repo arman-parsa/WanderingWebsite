@@ -11,7 +11,7 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from 'react';
-import { urlFor } from '@/lib/sanityImage';
+import { photoUrl } from '@/lib/sanityImage';
 import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion';
 import type { LightboxEntry } from '@/lib/articleMedia';
 import { AmbientVimeo } from './AmbientVimeo';
@@ -216,7 +216,7 @@ function Lightbox({
             {entry.kind === 'image' && Math.abs(i - active) <= 1 && (
               <div className="relative h-full w-full">
                 <SanityImage
-                  src={urlFor(entry.image).width(2048).format('webp').quality(85).url()}
+                  src={photoUrl(entry.image, entry.alt).width(2048).format('webp').quality(85).url()}
                   alt={entry.alt}
                   fill
                   sizes="100vw"

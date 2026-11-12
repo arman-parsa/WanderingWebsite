@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { breadcrumbJsonLd } from '@/lib/seoImages';
 import Image from 'next/image';
 import { pageMetadata } from '@/lib/metadata';
 import { getSiteSettings } from '@/lib/siteSettings';
@@ -22,6 +24,7 @@ export default async function ContactPage() {
 
   return (
     <main id="main-content" className="flex flex-1 flex-col">
+      <JsonLd data={breadcrumbJsonLd([{ name: 'Contact', path: '/contact' }])} />
       <h1 className="sr-only">Contact Arman Parsa</h1>
 
       {/* Portrait and bio, then straight on to the contact details. */}

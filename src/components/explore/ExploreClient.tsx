@@ -3,7 +3,7 @@
 import { SanityImage } from '@/components/content/SanityImage';
 import Link from 'next/link';
 import { useState } from 'react';
-import { urlFor } from '@/lib/sanityImage';
+import { photoUrl } from '@/lib/sanityImage';
 import { TYPE_HREF, TYPE_LABEL } from '@/lib/contentTypes';
 
 type ContentItem = {
@@ -100,12 +100,12 @@ export function ExploreClient({ items }: { items: ContentItem[] }) {
                     {item.coverImage?.asset && (
                       <SanityImage
                         className="explore-card-img"
-                        src={urlFor(item.coverImage).width(900).height(600).fit('crop').format('webp').quality(80).url()}
+                        src={photoUrl(item.coverImage, item.coverImage.alt || item.title).width(900).height(600).fit('crop').format('webp').quality(80).url()}
                         alt={(item.coverImage as { alt?: string }).alt ?? item.title}
                         fill
-                        // The first row is on screen at load (LCP): fetch it
+                        // The first two rows are on screen at load (LCP): fetch them
                         // straight away; the rest load as they scroll in.
-                        loading={i < 2 ? 'eager' : 'lazy'}
+                        loading={i < 4 ? 'eager' : 'lazy'}
                         sizes="(max-width: 639px) 100vw, 50vw"
                         style={{ objectPosition }}
                       />

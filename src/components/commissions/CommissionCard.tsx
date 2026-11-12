@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ResolveImage } from '@/components/content/ResolveImage';
-import { urlFor } from '@/lib/sanityImage';
+import { photoUrl } from '@/lib/sanityImage';
 import { commissionHref, type CommissionSummary } from '@/lib/commissions';
 
 type Props = {
@@ -24,7 +24,7 @@ export function CommissionCard({ commission: c, priority = false }: Props) {
         <div className="commission-card__frame">
           {cover && (
             <ResolveImage
-              src={urlFor(cover).width(1500).height(1000).fit('crop').url()}
+              src={photoUrl(cover, cover.alt).width(1500).height(1000).fit('crop').url()}
               alt={cover.alt ?? ''}
               fill
               {...(priority ? { preload: true } : {})}

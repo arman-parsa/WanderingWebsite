@@ -2,7 +2,7 @@
 
 import { SanityImage } from '@/components/content/SanityImage';
 import type { CSSProperties } from 'react';
-import { urlFor } from '@/lib/sanityImage';
+import { photoUrl } from '@/lib/sanityImage';
 import { imageRatio, type ImagePairValue } from '@/lib/articleMedia';
 import { useLightbox } from './MediaLightbox';
 
@@ -38,7 +38,7 @@ export function ImagePair({ value }: { value: ImagePairValue }) {
           const frame = (
             <div className="relative w-full overflow-hidden" style={{ aspectRatio: `${ratios[i]}` }}>
               <SanityImage
-                src={urlFor(img).width(1400).format('webp').quality(85).url()}
+                src={photoUrl(img, img.alt).width(1400).format('webp').quality(85).url()}
                 alt={img.alt || img.caption || ''}
                 fill
                 placeholder={img.lqip ? 'blur' : 'empty'}

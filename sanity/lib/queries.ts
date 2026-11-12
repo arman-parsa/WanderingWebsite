@@ -232,3 +232,19 @@ export const COMMISSION_QUERY = defineQuery(`
 export const COMMISSION_SLUGS_QUERY = defineQuery(`
   *[_type == "commission" && defined(slug.current) && !(_id in path("drafts.**"))] { "slug": slug.current, "updatedAt": _updatedAt }
 `);
+
+// ─── Sitemap photographs (image sitemap) ──────────────────────────────────
+// The photographs on every published piece and commission — just enough of
+// each image block for src/lib/seoImages.ts collectPhotos().
+
+export const SITEMAP_PHOTOS_QUERY = defineQuery(`
+  *[_type in ["writing", "mixedMedia", "photography", "videography", "commission"]
+    && defined(slug.current) && !(_id in path("drafts.**"))] {
+    _type,
+    "slug": slug.current,
+    "title": coalesce(title, projectTitle, clientName),
+    coverImage { asset, alt },
+    "body": body[_type in ["imageBlock", "imagePair"]] { _type, asset { asset }, alt, caption, images[] { asset, alt, caption } },
+    "images": images[] { _type, asset, alt, caption, images[] { asset, alt, caption } }
+  }
+`);

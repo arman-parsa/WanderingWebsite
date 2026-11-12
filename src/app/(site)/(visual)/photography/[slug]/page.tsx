@@ -14,6 +14,7 @@ import { JsonLd } from '@/components/seo/JsonLd';
 import { PLACEHOLDER_ITEMS, PLACEHOLDER_PHOTO_SERIES } from '@/lib/placeholders';
 import { buildContentMetadata, contentImageUrl } from '@/lib/metadata';
 import { buildContentJsonLd } from '@/lib/jsonld';
+import { breadcrumbJsonLd, collectPhotos, photoObjectsJsonLd } from '@/lib/seoImages';
 
 export const revalidate = 3600;
 
@@ -84,6 +85,8 @@ export default async function PhotographyPage({ params }: Props) {
     publishedAt: series.publishedAt,
     tags: series.tags,
     imageUrl: contentImageUrl(series.coverImage),
+    // Every photograph on the page, credited to Arman and licensable.
+    extra: { image: photoObjectsJsonLd(collectPhotos(series), { licenseUrl: series.printsUrl ?? undefined }) },
   });
 
   const lightboxEntries = collectArticleMedia(null, series.images ?? []);
@@ -102,6 +105,7 @@ export default async function PhotographyPage({ params }: Props) {
   return (
     <main id="main-content" className="min-h-screen" style={{ backgroundColor: '#0D0D0D', color: '#f8f4ef' }}>
       <JsonLd data={jsonLd} />
+      <JsonLd data={breadcrumbJsonLd([{ name: 'Personal', path: '/library' }, { name: series.title, path: `/photography/${slug}` }])} />
       <ArticleMediaProvider entries={lightboxEntries} label={`Photographs — ${series.title}`}>
         <ArticleHero
           title={series.title}

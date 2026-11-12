@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { breadcrumbJsonLd } from '@/lib/seoImages';
 import { preload } from 'react-dom';
 import { sanityFetch, hasRealContent } from '@/lib/sanityFetch';
 import { MAP_CONTENT_QUERY } from '@/lib/sanity';
@@ -37,6 +39,7 @@ export default async function MapPage() {
       }}
       aria-label="Interactive geographic archive globe"
     >
+      <JsonLd data={breadcrumbJsonLd([{ name: 'Earth', path: '/earth' }])} />
       <h1 className="sr-only">Earth — geographic archive</h1>
       <GlobeLoader items={items} />
     </main>

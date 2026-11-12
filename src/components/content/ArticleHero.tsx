@@ -1,5 +1,5 @@
 import { SanityImage } from '@/components/content/SanityImage';
-import { urlFor } from '@/lib/sanityImage';
+import { photoUrl } from '@/lib/sanityImage';
 import { formatDate } from '@/lib/utils';
 import { OpenGalleryButton } from './MediaLightbox';
 
@@ -60,7 +60,7 @@ function MetaRow({
  */
 export function ArticleHero({ title, description, publishedAt, readingTime, location, tags, category, coverImage }: Props) {
   const hasImage = !!coverImage?.asset;
-  const src = hasImage ? urlFor(coverImage!).width(2560).format('webp').quality(85).url() : null;
+  const src = hasImage ? photoUrl(coverImage!, coverImage?.alt || title).width(2560).format('webp').quality(85).url() : null;
   const blurSrc = hasImage ? coverImage!.lqip : undefined;
   const objectPosition = coverImage?.hotspot
     ? `${coverImage.hotspot.x * 100}% ${coverImage.hotspot.y * 100}%`

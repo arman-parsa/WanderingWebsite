@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { breadcrumbJsonLd } from '@/lib/seoImages';
 import { GALLERY_CONTENT_QUERY } from '@/lib/sanity';
 import { sanityFetch } from '@/lib/sanityFetch';
-import { urlFor } from '@/lib/sanityImage';
+import { photoUrl } from '@/lib/sanityImage';
 import { GalleryClient, type GalleryItem } from '@/components/gallery/GalleryClient';
 import { pageMetadata } from '@/lib/metadata';
 import { TYPE_HREF } from '@/lib/contentTypes';
@@ -61,7 +63,7 @@ const FULL = { width: 2000, quality: 85 };
 
 function imageUrl(img: SanityImage, { width, quality } = THUMB): string | null {
   try {
-    return urlFor(img).width(width).fit('max').auto('format').quality(quality).url();
+    return photoUrl(img, img.alt).width(width).fit('max').auto('format').quality(quality).url();
   } catch {
     return null;
   }
@@ -148,6 +150,7 @@ export default async function GalleryPage() {
 
   return (
     <main id="main-content" className="gallery-stage">
+      <JsonLd data={breadcrumbJsonLd([{ name: 'Gallery', path: '/gallery' }])} />
       <h1 className="sr-only">Gallery — photographs from the pieces on this site</h1>
       {items.length > 0 ? (
         <GalleryClient items={items} />
