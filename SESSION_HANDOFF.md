@@ -497,3 +497,5 @@ Personal work and commissioned work are now two separate doors. One commit per s
 - Piece and commission JSON-LD `image` is now the ImageObject list (cover first). BreadcrumbList on every piece/commission (Home › Personal|Commissions › Title) and on Personal, Gallery, Earth, Commissions, Contact.
 - **Image sitemap:** `SITEMAP_PHOTOS_QUERY` → `images` on each piece/commission entry in sitemap.xml (same URLs as the JSON-LD); the homepage entry lists the hero photos.
 - Library: first four cards (two rows) load eagerly.
+
+- **Removed `loading.tsx` from /commissions and /commissions/[slug] (Nov 2026).** They made the prerendered HTML ship a "Loading…" `<main>` with the real page inside a hidden `<div hidden id="S:0">` swapped in by JS — crawlers saw two `<main>`s and hidden content (Search Console: "Crawled – currently not indexed"). These routes are ISR-prerendered, so the loading UI never helped. Don't add `loading.tsx` to prerendered routes.
